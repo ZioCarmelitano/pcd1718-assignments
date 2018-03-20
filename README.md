@@ -1,0 +1,1 @@
+This repository contains all the assignments for the course "Concurrent and Distribute Programming" for the A.Y 2017/2018.
