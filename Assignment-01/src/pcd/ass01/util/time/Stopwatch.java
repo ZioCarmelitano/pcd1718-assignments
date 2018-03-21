@@ -7,19 +7,19 @@ import static pcd.ass01.util.time.impl.StopwatchFactoryImpl.defaultInstance;
 
 public interface Stopwatch {
 
-    public static Stopwatch stopwatch(final TimeUnit timeUnit) {
+    static Stopwatch stopwatch(final TimeUnit timeUnit) {
         return requireNonNull(defaultInstance(), "defaultInstance() is null").unstartedStopwatch(timeUnit);
     }
 
-    public static Stopwatch stopwatch(final TimeUnit timeUnit, final boolean started) {
+    static Stopwatch stopwatch(final TimeUnit timeUnit, final boolean started) {
         return requireNonNull(defaultInstance(), "defaultInstance() is null").stopwatch(timeUnit, started);
     }
 
-    public static Stopwatch startedStopwatch(final TimeUnit timeUnit) {
+    static Stopwatch startedStopwatch(final TimeUnit timeUnit) {
         return requireNonNull(defaultInstance(), "defaultInstance() is null").startedStopwatch(timeUnit);
     }
 
-    public static Stopwatch unstartedStopwatch(final TimeUnit timeUnit) {
+    static Stopwatch unstartedStopwatch(final TimeUnit timeUnit) {
         return requireNonNull(defaultInstance(), "defaultInstance() is null").unstartedStopwatch(timeUnit);
     }
 

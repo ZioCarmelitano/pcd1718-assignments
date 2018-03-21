@@ -7,27 +7,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70e71abb-c312-4be3-b557-903d75c847bf" name="Default" comment="idiot who reads">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/slf4j_api_1_7_25.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/slf4j_simple_1_7_25.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdaterFactory.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/BoardUpdaterFactoryImpl.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/StopwatchFactory.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/SystemClock.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/impl/AbstractStopwatch.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/impl/StopwatchFactoryImpl.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/impl/StopwatchImpl.java" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/Assignment-01.iml" afterPath="$PROJECT_DIR$/Assignment-01.iml" />
-      <change beforePath="$PROJECT_DIR$/res/logging.properties" afterPath="$PROJECT_DIR$/res/logging.properties" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/Launcher.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/Launcher.java" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/domain/impl/BoardFactoryImpl.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/domain/impl/BoardFactoryImpl.java" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/domain/impl/SimpleBoard.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/domain/impl/SimpleBoard.java" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdater.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdater.java" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/ConcurrentBoardUpdater.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/ConcurrentBoardUpdater.java" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/SequentialBoardUpdater.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/SequentialBoardUpdater.java" />
+      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java" />
+      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java" />
       <change beforePath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java" />
-      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/util/Preconditions.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/Preconditions.java" />
+      <change beforePath="$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java" afterPath="$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java" />
       <change beforePath="$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java" afterPath="$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -47,31 +30,63 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="SystemClock.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/SystemClock.java">
+      <file leaf-file-name="CellUtils.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="557">
-              <caret line="100" column="0" lean-forward="true" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
+            <state relative-caret-position="825">
+              <caret line="57" column="5" lean-forward="true" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="5" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Preconditions.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/Preconditions.java">
+      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="20" column="26" lean-forward="false" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
+            <state relative-caret-position="180">
+              <caret line="20" column="41" lean-forward="false" selection-start-line="20" selection-start-column="41" selection-end-line="20" selection-end-column="41" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ArrayUtils.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ArrayUtils.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/ArrayUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+            <state relative-caret-position="135">
+              <caret line="9" column="27" lean-forward="false" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Stopwatch.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="21" column="4" lean-forward="false" selection-start-line="21" selection-start-column="4" selection-end-line="21" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BoardUpdaterTest.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="117">
+              <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Boards.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="220">
+              <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -160,30 +175,30 @@
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/Worker.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/ConcurrentBoardUpdate.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/test/Test.java" />
-        <option value="$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdaterTest.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/domain/impl/SimpleBoard.java" />
         <option value="$PROJECT_DIR$/res/logger.properties" />
-        <option value="$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java" />
         <option value="$PROJECT_DIR$/res/logging.properties" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/time/impl/StopwatchImpl.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/time/impl/AbstractStopwatch.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Reflection.java" />
-        <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/SLF4jUtils.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdaterFactory.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/domain/impl/BoardFactoryImpl.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdater.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/time/impl/StopwatchFactoryImpl.java" />
-        <option value="$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/Preconditions.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/ConcurrentBoardUpdater.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/SequentialBoardUpdater.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/Launcher.java" />
-        <option value="$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/BoardUpdaterFactoryImpl.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/time/SystemClock.java" />
         <option value="$PROJECT_DIR$/src/pcd/ass01/util/ArrayUtils.java" />
+        <option value="$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java" />
+        <option value="$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java" />
+        <option value="$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java" />
+        <option value="$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java" />
+        <option value="$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java" />
       </list>
     </option>
   </component>
@@ -230,11 +245,6 @@
             <path>
               <item name="Assignment-01" type="b2602c69:ProjectViewProjectNode" />
               <item name="Assignment-01" type="462c0819:PsiDirectoryNode" />
-              <item name="res" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Assignment-01" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Assignment-01" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -255,23 +265,7 @@
               <item name="Assignment-01" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="ass01" type="462c0819:PsiDirectoryNode" />
-              <item name="domain" type="462c0819:PsiDirectoryNode" />
-              <item name="impl" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Assignment-01" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Assignment-01" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="ass01" type="462c0819:PsiDirectoryNode" />
               <item name="interactors" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Assignment-01" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Assignment-01" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="ass01" type="462c0819:PsiDirectoryNode" />
-              <item name="interactors" type="462c0819:PsiDirectoryNode" />
-              <item name="impl" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Assignment-01" type="b2602c69:ProjectViewProjectNode" />
@@ -287,6 +281,15 @@
               <item name="ass01" type="462c0819:PsiDirectoryNode" />
               <item name="util" type="462c0819:PsiDirectoryNode" />
               <item name="time" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Assignment-01" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Assignment-01" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="ass01" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
+              <item name="time" type="462c0819:PsiDirectoryNode" />
+              <item name="impl" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -305,6 +308,7 @@
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="SearchEverywhereHistoryKey" value="project settings&#9;ACTION&#9;ProjectViewPopupMenuSettingsGroup" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
   </component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.RecentsKey">
@@ -338,7 +342,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Launcher">
+  <component name="RunManager" selected="JUnit.BoardUpdaterTest">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
@@ -515,8 +519,8 @@
     </list>
     <recent_temporary>
       <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Application.Launcher" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.BoardUpdaterTest" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.BoardUpdaterTest" />
+        <item index="1" class="java.lang.String" itemvalue="Application.Launcher" />
         <item index="2" class="java.lang.String" itemvalue="JUnit.BoardUpdaterTest.survivesWith3" />
         <item index="3" class="java.lang.String" itemvalue="Application.Test" />
       </list>
@@ -548,14 +552,11 @@
       <workItem from="1521639630716" duration="1629000" />
       <workItem from="1521645688914" duration="877000" />
       <workItem from="1521647645826" duration="4471000" />
-      <workItem from="1521658388805" duration="906000" />
+      <workItem from="1521658388805" duration="1333000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="BoardUpdaterTest - 2018.03.21 at 15h 09m 02s.xml">
-      <configuration name="BoardUpdaterTest" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="BoardUpdaterTest - 2018.03.21 at 17h 06m 06s.xml">
       <configuration name="BoardUpdaterTest" configurationId="JUnit" />
     </history-entry>
@@ -583,38 +584,42 @@
     <history-entry file="BoardUpdaterTest - 2018.03.21 at 17h 11m 58s.xml">
       <configuration name="BoardUpdaterTest" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="BoardUpdaterTest - 2018.03.21 at 20h 38m 29s.xml">
+      <configuration name="BoardUpdaterTest" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27744000" />
+    <option name="totallyTimeSpent" value="28171000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="777" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="FindBugs-IDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32907802" sideWeight="0.503125" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991204" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.398827" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844576" sideWeight="0.496875" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32907802" sideWeight="0.503125" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844576" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32844576" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="CheckStyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991204" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27786753" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32991204" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.398827" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -683,9 +688,9 @@
         <state relative-caret-position="60">
           <caret line="4" column="17" lean-forward="false" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#213#214#0" expanded="true" />
-            <element signature="e#274#275#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#213#214#0" expanded="false" />
+            <element signature="e#274#275#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -709,11 +714,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
           <caret line="21" column="0" lean-forward="true" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1280#1281#0" expanded="true" />
-            <element signature="e#1313#1314#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -763,9 +764,9 @@
         <state relative-caret-position="75">
           <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#213#214#0" expanded="true" />
-            <element signature="e#274#275#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#213#214#0" expanded="false" />
+            <element signature="e#274#275#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -774,9 +775,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
           <caret line="40" column="0" lean-forward="true" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -784,11 +783,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="615">
           <caret line="47" column="0" lean-forward="true" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1280#1281#0" expanded="true" />
-            <element signature="e#1313#1314#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -850,14 +845,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/test/Test.java" />
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="17" column="24" lean-forward="true" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/impl/SimpleBoard.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="602">
@@ -884,18 +871,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1155">
-          <caret line="77" column="0" lean-forward="false" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1913#1914#0" expanded="false" />
-            <element signature="e#1971#1972#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.idea/artifacts/Assignment_01_jar.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -908,6 +883,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
           <caret line="3" column="0" lean-forward="true" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -937,24 +913,6 @@
             <element signature="imports" expanded="false" />
             <element signature="e#548#549#0" expanded="false" />
             <element signature="e#604#605#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/impl/AbstractStopwatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="93" column="10" lean-forward="false" selection-start-line="93" selection-start-column="10" selection-end-line="93" selection-end-column="10" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1985#1986#0" expanded="false" />
-            <element signature="e#2053#2054#0" expanded="false" />
-            <element signature="e#2091#2092#0" expanded="false" />
-            <element signature="e#2164#2165#0" expanded="false" />
-            <element signature="e#2199#2200#0" expanded="false" />
-            <element signature="e#2267#2268#0" expanded="false" />
-            <element signature="e#2305#2306#0" expanded="false" />
-            <element signature="e#2378#2379#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -989,76 +947,15 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/SLF4jUtils.java" />
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdaterFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="10" column="34" lean-forward="true" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/impl/StopwatchFactoryImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="10" column="31" lean-forward="false" selection-start-line="9" selection-start-column="10" selection-end-line="11" selection-end-column="5" />
-          <folding>
-            <element signature="e#280#281#0" expanded="true" />
-            <element signature="e#318#319#0" expanded="true" />
-            <element signature="e#385#386#0" expanded="true" />
-            <element signature="e#436#437#0" expanded="true" />
-            <element signature="e#684#685#0" expanded="true" />
-            <element signature="e#734#735#0" expanded="true" />
-            <element signature="e#810#811#0" expanded="true" />
-            <element signature="e#860#861#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/impl/BoardFactoryImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="85" column="0" lean-forward="true" selection-start-line="81" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/impl/BoardUpdaterFactoryImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#424#425#0" expanded="true" />
-            <element signature="e#475#476#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdater.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="9" column="52" lean-forward="false" selection-start-line="9" selection-start-column="52" selection-end-line="9" selection-end-column="52" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#213#214#0" expanded="true" />
-            <element signature="e#274#275#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#213#214#0" expanded="false" />
+            <element signature="e#274#275#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="0" lean-forward="true" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1067,19 +964,7 @@
         <state relative-caret-position="450">
           <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="14" column="77" lean-forward="false" selection-start-line="14" selection-start-column="77" selection-end-line="14" selection-end-column="77" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1280#1281#0" expanded="true" />
-            <element signature="e#1313#1314#0" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1094,18 +979,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/impl/ConcurrentBoardUpdater.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
+        <state relative-caret-position="195">
           <caret line="20" column="4" lean-forward="false" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/SystemClock.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="557">
-          <caret line="100" column="0" lean-forward="true" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
+          <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1118,11 +1001,93 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/impl/AbstractStopwatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="91" column="0" lean-forward="true" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/impl/StopwatchFactoryImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="10" column="31" lean-forward="false" selection-start-line="9" selection-start-column="10" selection-end-line="11" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/impl/BoardUpdaterFactoryImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/impl/BoardFactoryImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="534">
+          <caret line="85" column="0" lean-forward="true" selection-start-line="81" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/CellUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="825">
+          <caret line="57" column="5" lean-forward="true" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/domain/Boards.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/impl/Worker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="20" column="41" lean-forward="false" selection-start-line="20" selection-start-column="41" selection-end-line="20" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/ArrayUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+        <state relative-caret-position="135">
+          <caret line="9" column="27" lean-forward="false" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/util/time/Stopwatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="21" column="4" lean-forward="false" selection-start-line="21" selection-start-column="4" selection-end-line="21" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pcd/ass01/interactors/BoardUpdaterFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="17" lean-forward="false" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/pcd/ass01/interactors/BoardUpdaterTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="117">
+          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

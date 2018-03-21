@@ -16,13 +16,6 @@ public class BoardUpdaterTest {
     private Board board;
     private BoardUpdater updater;
 
-    @BeforeClass
-    public static void setUpAll() {
-        final String path = ClassLoader.getSystemResource("logging.properties")
-                .getFile();
-        System.setProperty("java.util.logging.config.file", path);
-    }
-
     @Before
     public void setUp() throws Exception {
         board = Board.board(WIDTH, HEIGHT);

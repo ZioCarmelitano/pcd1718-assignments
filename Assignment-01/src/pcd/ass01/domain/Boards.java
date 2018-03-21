@@ -23,11 +23,11 @@ public class Boards {
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new Cell[width];
         }
+
         cells[5][1] = ALIVE;
         cells[6][1] = ALIVE;
         cells[5][2] = ALIVE;
         cells[6][2] = ALIVE;
-
 
         cells[5][11] = ALIVE;
         cells[6][11] = ALIVE;
@@ -81,5 +81,7 @@ public class Boards {
         return Math.random() >= 0.5 ? ALIVE : DEAD;
     }
 
+    private Boards() {
+    }
 
 }
