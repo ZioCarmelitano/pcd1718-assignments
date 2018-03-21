@@ -10,43 +10,8 @@ import static pcd.ass01.util.Preconditions.*;
 
 public final class BoardFactoryImpl implements BoardFactory {
 
-    private static final class Holder {
-        static final BoardFactory INSTANCE = new BoardFactoryImpl();
-    }
-
-    public static BoardFactory defaultInstance() {
+    public static BoardFactoryImpl defaultInstance() {
         return Holder.INSTANCE;
-    }
-
-    @Override
-    public Board createBoard(final Cell[][] cells) {
-        checkCells(cells);
-
-        return new SimpleBoard(cells[0].length, cells.length, ArrayUtils.flatten(cells));
-    }
-
-    @Override
-    public Board createBoard(final int width, final int height) {
-        checkPositive(width, "width");
-        checkPositive(height, "height");
-
-        return new SimpleBoard(width, height, emptyCells(width, height));
-    }
-
-    @Override
-    public Board createImmutableBoard(final Cell[][] cells) {
-        checkCells(cells);
-
-        return new SimpleImmutableBoard(cells[0].length, cells.length, ArrayUtils.flatten(cells));
-    }
-
-    @Override
-    public Board createImmutableBoard(final Board board) {
-        checkNotNull(board, "board");
-
-        return board instanceof SimpleImmutableBoard
-                ? board
-                : new SimpleImmutableBoard(board.getWidth(), board.getHeight(), cells(board));
     }
 
     private static Cell[] cells(final Board board) {
@@ -82,6 +47,41 @@ public final class BoardFactoryImpl implements BoardFactory {
             checkLength(row, width, label);
             checkNotNulls(row, label);
         }
+    }
+
+    @Override
+    public Board createBoard(final Cell[][] cells) {
+        checkCells(cells);
+
+        return new SimpleBoard(cells[0].length, cells.length, ArrayUtils.flatten(cells));
+    }
+
+    @Override
+    public Board createBoard(final int width, final int height) {
+        checkPositive(width, "width");
+        checkPositive(height, "height");
+
+        return new SimpleBoard(width, height, emptyCells(width, height));
+    }
+
+    @Override
+    public Board createImmutableBoard(final Cell[][] cells) {
+        checkCells(cells);
+
+        return new SimpleImmutableBoard(cells[0].length, cells.length, ArrayUtils.flatten(cells));
+    }
+
+    @Override
+    public Board createImmutableBoard(final Board board) {
+        checkNotNull(board, "board");
+
+        return board instanceof SimpleImmutableBoard
+                ? board
+                : new SimpleImmutableBoard(board.getWidth(), board.getHeight(), cells(board));
+    }
+
+    private static final class Holder {
+        static final BoardFactoryImpl INSTANCE = new BoardFactoryImpl();
     }
 
 }

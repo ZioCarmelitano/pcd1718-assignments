@@ -3,28 +3,31 @@ package pcd.ass01.interactors;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pcd.ass01.Launcher;
 import pcd.ass01.domain.Board;
-import pcd.ass01.interactors.impl.SequentialBoardUpdater;
-
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static pcd.ass01.domain.Cell.ALIVE;
 
 public class BoardUpdaterTest {
-    
+
     private static final int WIDTH = 3;
     private static final int HEIGHT = 3;
 
     private Board board;
     private BoardUpdater updater;
 
+    @BeforeClass
+    public static void setUpAll() {
+        final String path = ClassLoader.getSystemResource("logging.properties")
+                .getFile();
+        System.setProperty("java.util.logging.config.file", path);
+    }
+
     @Before
     public void setUp() throws Exception {
         board = Board.board(WIDTH, HEIGHT);
-        // updater = new ConcurrentBoardUpdater(1);
-        updater = new SequentialBoardUpdater();
+        // updater = BoardUpdater.create(1);
+        updater = BoardUpdater.create();
     }
 
     @Test
@@ -96,14 +99,6 @@ public class BoardUpdaterTest {
         result.setCell(1, 0, ALIVE);
 
         assertEquals(result, updater.update(board));
-    }
-
-    @BeforeClass
-    public static void setUpAll() {
-        final String path = Objects.requireNonNull(BoardUpdaterTest.class.getClassLoader()
-                .getResource("res/logging.properties"), "properties not found")
-                .getFile();
-        System.setProperty("java.util.logging.config.file", path);
     }
 
 }

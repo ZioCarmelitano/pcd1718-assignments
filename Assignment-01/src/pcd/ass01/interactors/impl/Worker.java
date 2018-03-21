@@ -1,30 +1,29 @@
 package pcd.ass01.interactors.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.CellUtils;
 
-import java.lang.invoke.MethodHandles;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 final class Worker {
 
-    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().getClass().getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger(Worker.class);
 
-    private final CyclicBarrier updateStarted;
+    private final Semaphore updateStarted;
     private final CyclicBarrier finishedUpdate;
     private final Thread backingThread;
-
+    private final AtomicBoolean stopped;
     private int fromRow;
     private int toRow;
     private Board oldBoard;
     private Board newBoard;
 
-    private final AtomicBoolean stopped;
-
-    Worker(final CyclicBarrier updateStarted, final CyclicBarrier finishedUpdate) {
+    Worker(final Semaphore updateStarted, final CyclicBarrier finishedUpdate) {
         this.updateStarted = updateStarted;
         this.finishedUpdate = finishedUpdate;
         stopped = new AtomicBoolean();
@@ -44,23 +43,24 @@ final class Worker {
     }
 
     private void updateBoard() {
-        while (!stopped.get())  {
+        while (!stopped.get()) {
             // Wait for the start of the update
+            logger.debug("Worker on thread " + backingThread.getName() + " waiting for start");
             try {
-                updateStarted.await();
-            } catch (final InterruptedException | BrokenBarrierException e) {
+                updateStarted.acquire();
+            } catch (final InterruptedException e) {
                 backingThread.interrupt();
             }
 
             // Update the given portion of the board
-            logger.config("Worker from " + fromRow + " to " + toRow + " started on thread " + backingThread.getName());
+            logger.debug("Worker from " + fromRow + " to " + toRow + " started on thread " + backingThread.getName());
             for (int x = fromRow; x < toRow; x++) {
                 for (int y = 0; y < oldBoard.getWidth(); y++) {
                     newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
                 }
             }
 
-            logger.config("Worker from " + fromRow + " to " + toRow + " finished on thread " + backingThread.getName());
+            logger.debug("Worker from " + fromRow + " to " + toRow + " finished on thread " + backingThread.getName());
 
             try {
                 finishedUpdate.await();

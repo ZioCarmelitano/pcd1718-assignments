@@ -2,7 +2,6 @@ package pcd.ass01.domain.impl;
 
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.Cell;
-import pcd.ass01.domain.CellUtils;
 
 import java.util.Objects;
 
@@ -18,6 +17,10 @@ class SimpleBoard implements Board {
         this.width = width;
         this.height = height;
         this.cells = cells;
+    }
+
+    static int index(final int x, final int y, final int width) {
+        return x * width + y;
     }
 
     @Override
@@ -68,10 +71,6 @@ class SimpleBoard implements Board {
             sb.append(']');
         }
         return sb.append(']').toString();
-    }
-
-    static  int index(final int x, final int y, final int width) {
-        return x * width + y;
     }
 
     private int index(final int x, final int y) {

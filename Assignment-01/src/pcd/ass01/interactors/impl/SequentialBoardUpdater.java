@@ -6,7 +6,7 @@ import pcd.ass01.interactors.BoardUpdater;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
 
-public class SequentialBoardUpdater implements BoardUpdater {
+final class SequentialBoardUpdater implements BoardUpdater {
 
     @Override
     public Board update(final Board board) {
