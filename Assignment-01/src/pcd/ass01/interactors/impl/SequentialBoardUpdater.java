@@ -1,7 +1,8 @@
-package pcd.ass01.interactors;
+package pcd.ass01.interactors.impl;
 
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.CellUtils;
+import pcd.ass01.interactors.BoardUpdater;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
 

@@ -1,11 +1,16 @@
-package pcd.ass01.interactors;
+package pcd.ass01.interactors.impl;
 
 import pcd.ass01.domain.Board;
+import pcd.ass01.interactors.BoardUpdater;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.logging.Logger;
 
 public class ConcurrentBoardUpdater implements BoardUpdater {
+
+    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().getClass().getSimpleName());
 
     private final CyclicBarrier updateStarted;
     private final CyclicBarrier finishedUpdate;
@@ -43,14 +48,14 @@ public class ConcurrentBoardUpdater implements BoardUpdater {
         } catch (final InterruptedException | BrokenBarrierException e) {
             ct.interrupt();
         }
-        System.out.println("Update started");
+        logger.config("Update started");
 
         try {
             finishedUpdate.await();
         } catch (final InterruptedException | BrokenBarrierException e) {
             ct.interrupt();
         }
-        System.out.println("Finished update");
+        logger.config("Finished update");
 
         return newBoard;
     }

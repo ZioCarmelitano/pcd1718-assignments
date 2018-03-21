@@ -1,13 +1,17 @@
-package pcd.ass01.interactors;
+package pcd.ass01.interactors.impl;
 
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.CellUtils;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 final class Worker {
+
+    private static final Logger logger = Logger.getLogger(MethodHandles.lookup().getClass().getSimpleName());
 
     private final CyclicBarrier updateStarted;
     private final CyclicBarrier finishedUpdate;
@@ -49,14 +53,14 @@ final class Worker {
             }
 
             // Update the given portion of the board
-            System.out.println("Worker from " + fromRow + " to " + toRow + " started on thread " + backingThread.getName());
+            logger.config("Worker from " + fromRow + " to " + toRow + " started on thread " + backingThread.getName());
             for (int x = fromRow; x < toRow; x++) {
                 for (int y = 0; y < oldBoard.getWidth(); y++) {
                     newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
                 }
             }
 
-            System.out.println("Worker from " + fromRow + " to " + toRow + " finished on thread " + backingThread.getName());
+            logger.config("Worker from " + fromRow + " to " + toRow + " finished on thread " + backingThread.getName());
 
             try {
                 finishedUpdate.await();

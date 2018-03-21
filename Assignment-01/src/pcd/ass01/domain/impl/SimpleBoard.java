@@ -53,8 +53,7 @@ class SimpleBoard implements Board {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder('[');
-        sb.append("[[");
+        final StringBuilder sb = new StringBuilder("[[");
         sb.append(getCell(0, 0));
         for (int y = 1; y < width; y++) {
             sb.append(", ").append(getCell(0, y));
