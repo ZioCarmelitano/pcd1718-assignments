@@ -17,25 +17,27 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final List<Semaphore> startUpdateList;
-    private final List<Semaphore> finishedUpdateList;
+    private final List<Semaphore> startList;
+    private final List<Semaphore> finishedList;
 
     private final List<Worker> workers;
 
     ConcurrentBoardUpdater(final int numberOfWorkers) {
-        startUpdateList = new ArrayList<>(numberOfWorkers);
-        finishedUpdateList = new ArrayList<>(numberOfWorkers);
+        startList = new ArrayList<>(numberOfWorkers);
+        finishedList = new ArrayList<>(numberOfWorkers);
+
         workers = new ArrayList<>(numberOfWorkers);
         for (int i = 0; i < numberOfWorkers; i++) {
-            startUpdateList.add(new Semaphore(0, true));
-            finishedUpdateList.add(new Semaphore(0, true));
-            workers.add(new Worker(startUpdateList.get(i), finishedUpdateList.get(i)));
+            startList.add(new Semaphore(0, true));
+            finishedList.add(new Semaphore(0, true));
+            workers.add(new Worker(startList.get(i), finishedList.get(i)));
         }
     }
 
     @Override
     public void start() {
         super.start();
+
         workers.parallelStream()
                 .map(Thread::new)
                 .forEach(Thread::start);
@@ -45,14 +47,11 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
     public void stop() {
         super.stop();
 
-        for (int i = 0; i < workers.size(); i++) {
-            workers.get(i).stop();
-            final Semaphore startUpdate = startUpdateList.get(i);
-            if (startUpdate.hasQueuedThreads()) {
-                logger.debug("Releasing semaphore");
-                startUpdate.release();
-            }
-        }
+        IntStream.range(0, workers.size())
+                .peek(i -> workers.get(i).stop())
+                .mapToObj(startList::get)
+                .filter(Semaphore::hasQueuedThreads)
+                .forEach(Semaphore::release);
     }
 
     @Override
@@ -63,16 +62,14 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
         checkNotStopped();
 
         // Create the new board
-        final int height = oldBoard.getHeight();
-        final int width = oldBoard.getWidth();
-        final Board newBoard = Board.board(height, width);
+        final Board newBoard = Board.board(oldBoard.getHeight(), oldBoard.getWidth());
 
         // Prepare workers
         prepareWorkers(oldBoard, newBoard);
         logger.debug("Update started");
 
         if (!isStopped())
-            finishedUpdateList.forEach(Semaphore::acquireUninterruptibly);
+            finishedList.forEach(Semaphore::acquireUninterruptibly);
         logger.debug("Finished update");
 
         return newBoard;
@@ -84,12 +81,12 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
         int fromRow = 0, toRow = offset;
         for (int i = 1; i < workers.size(); i++) {
             workers.get(i).setBoards(fromRow, toRow, oldBoard, newBoard);
-            startUpdateList.get(i).release();
+            startList.get(i).release();
             fromRow += offset;
             toRow += offset;
         }
         workers.get(0).setBoards(fromRow, fromRow + (height - fromRow), oldBoard, newBoard);
-        startUpdateList.get(0).release();
+        startList.get(0).release();
     }
 
 }

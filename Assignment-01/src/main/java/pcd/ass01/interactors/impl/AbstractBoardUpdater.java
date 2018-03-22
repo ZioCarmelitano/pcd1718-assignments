@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static pcd.ass01.util.Preconditions.checkState;
 
-public abstract class AbstractBoardUpdater implements BoardUpdater{
+public abstract class AbstractBoardUpdater implements BoardUpdater {
 
     private final AtomicBoolean started;
     private final AtomicBoolean stopped;
@@ -22,6 +22,7 @@ public abstract class AbstractBoardUpdater implements BoardUpdater{
         checkNotStopped();
         started.set(true);
     }
+
     @Override
     public void stop() {
         checkStarted();

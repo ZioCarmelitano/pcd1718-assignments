@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.CellUtils;
-import pcd.ass01.util.time.SystemClock;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Semaphore;
@@ -60,8 +59,6 @@ final class Worker implements Runnable {
 
                 logger.trace("Worker from row {} to row {} finished", fromRow, toRow);
                 finishedUpdate.release();
-
-                logger.debug("Worker finished update");
             }
         }
         logger.info("Worker terminated");

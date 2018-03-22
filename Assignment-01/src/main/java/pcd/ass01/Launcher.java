@@ -22,15 +22,15 @@ public final class Launcher {
     private static final long MAX_SIZE = 10_000;
     private static final int STEP = 1_000;
 
-    public static void main(String[] args) {
+    public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
         final BoardUpdater sequentialUpdater = BoardUpdater.create();
 
         sequentialUpdater.start();
-        for (int numberOfWorkers = 5; numberOfWorkers <= AVAILABLE_PROCESSORS; numberOfWorkers++) {
+        for (int numberOfWorkers = AVAILABLE_PROCESSORS; numberOfWorkers <= AVAILABLE_PROCESSORS; numberOfWorkers++) {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
-            for (int size = STEP; size <= MAX_SIZE / 2; size += STEP) {
+            for (int size = STEP; size <= MAX_SIZE; size += STEP) {
                 final Board board = Boards.randomBoard(size, size);
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
