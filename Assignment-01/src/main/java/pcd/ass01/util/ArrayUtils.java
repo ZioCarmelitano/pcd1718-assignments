@@ -1,13 +1,15 @@
 package pcd.ass01.util;
 
-public class ArrayUtils {
+import java.lang.reflect.Array;
+
+public final class ArrayUtils {
 
     public static <T> T[] flatten(final T[][] arrays) {
         int length = 0;
         for (final T[] a : arrays)
             length += a.length;
 
-        final T[] result = (T[]) new Object[length];
+        final T[] result = (T[]) Array.newInstance(arrays[0].getClass().getComponentType(), length);
 
         int offset = 0;
         for (final T[] a : arrays) {

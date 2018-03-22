@@ -1,5 +1,7 @@
 package pcd.ass01.domain;
 
+import java.util.Arrays;
+
 import static pcd.ass01.domain.Cell.ALIVE;
 import static pcd.ass01.domain.Cell.DEAD;
 
@@ -22,6 +24,7 @@ public final class Boards {
         final Cell[][] cells = new Cell[height][];
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new Cell[width];
+            Arrays.fill(cells[i], DEAD);
         }
 
         cells[5][1] = ALIVE;
