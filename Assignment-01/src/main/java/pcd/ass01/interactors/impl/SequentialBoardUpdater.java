@@ -6,19 +6,22 @@ import pcd.ass01.interactors.BoardUpdater;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
 
-final class SequentialBoardUpdater implements BoardUpdater {
+final class SequentialBoardUpdater extends AbstractBoardUpdater implements BoardUpdater {
 
     @Override
-    public Board update(final Board board) {
-        checkNotNull(board, "board");
+    public Board update(final Board oldBoard) {
+        checkNotNull(oldBoard, "board");
 
-        final int width = board.getWidth();
-        final int height = board.getHeight();
+        checkStarted();
+        checkNotStopped();
+
+        final int width = oldBoard.getWidth();
+        final int height = oldBoard.getHeight();
 
         final Board newBoard = Board.board(width, height);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
-                newBoard.setCell(x, y, CellUtils.update(board, x, y));
+                newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
             }
         }
         return newBoard;

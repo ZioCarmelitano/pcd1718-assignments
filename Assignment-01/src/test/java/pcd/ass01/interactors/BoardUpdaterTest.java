@@ -1,5 +1,6 @@
 package pcd.ass01.interactors;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import pcd.ass01.domain.Board;
@@ -20,6 +21,12 @@ public class BoardUpdaterTest {
         board = Board.board(WIDTH, HEIGHT);
         // updater = BoardUpdater.create(1);
         updater = BoardUpdater.create(WIDTH);
+        updater.start();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        updater.stop();
     }
 
     @Test

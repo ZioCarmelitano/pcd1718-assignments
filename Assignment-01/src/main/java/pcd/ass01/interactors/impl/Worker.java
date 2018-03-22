@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.CellUtils;
+import pcd.ass01.util.time.SystemClock;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Semaphore;
@@ -42,28 +43,33 @@ final class Worker implements Runnable {
 
     @Override
     public void run() {
-        final Thread ct = Thread.currentThread();
-        while (!stopped.get()) {
+        logger.info("Worker started");
+        while (isRunning()) {
             // Wait for the start of the update
             logger.debug("Worker waiting to start");
-            try {
-                startUpdate.acquire();
-            } catch (final InterruptedException e) {
-                ct.interrupt();
-            }
+            startUpdate.acquireUninterruptibly();
 
-            // Update the given portion of the board
-            logger.debug("Worker from row {} to row {} started", fromRow, toRow);
-            for (int x = fromRow; x < toRow; x++) {
-                for (int y = 0; y < oldBoard.getWidth(); y++) {
-                    newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
+            if (isRunning()) {
+                // Update the given portion of the board
+                logger.trace("Worker from row {} to row {} started", fromRow, toRow);
+                for (int x = fromRow; x < toRow; x++) {
+                    for (int y = 0; y < oldBoard.getWidth(); y++) {
+                        newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
+                    }
                 }
+
+                logger.trace("Worker from row {} to row {} finished", fromRow, toRow);
+                finishedUpdate.release();
+
+                logger.debug("Worker finished update");
+                SystemClock.sleepSeconds(1);
             }
-
-            logger.debug("Worker from row {} to row {} finished", fromRow, toRow);
-
-            finishedUpdate.release();
         }
+        logger.info("Worker terminated");
+    }
+
+    private boolean isRunning() {
+        return !stopped.get();
     }
 
 }

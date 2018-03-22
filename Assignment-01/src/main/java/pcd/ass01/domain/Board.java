@@ -1,23 +1,23 @@
 package pcd.ass01.domain;
 
-import static pcd.ass01.domain.impl.BoardFactoryImpl.defaultInstance;
+import pcd.ass01.domain.impl.BoardFactoryImpl;
 
 public interface Board {
 
     static Board board(final int width, final int height) {
-        return defaultInstance().createBoard(width, height);
+        return BoardFactoryImpl.defaultInstance().createBoard(width, height);
     }
 
     static Board board(final Cell[][] cells) {
-        return defaultInstance().createBoard(cells);
+        return BoardFactoryImpl.defaultInstance().createBoard(cells);
     }
 
     static Board immutableBoard(final Board board) {
-        return defaultInstance().createImmutableBoard(board);
+        return BoardFactoryImpl.defaultInstance().createImmutableBoard(board);
     }
 
     static Board immutableBoard(final Cell[][] cells) {
-        return defaultInstance().createImmutableBoard(cells);
+        return BoardFactoryImpl.defaultInstance().createImmutableBoard(cells);
     }
 
     int getHeight();

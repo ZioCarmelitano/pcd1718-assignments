@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-final class ConcurrentBoardUpdater implements BoardUpdater {
+import static pcd.ass01.util.Preconditions.checkNotNull;
+
+final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements BoardUpdater {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final List<Semaphore> startUpdateList;
     private final List<Semaphore> finishedUpdateList;
-    // private final CyclicBarrier finishedUpdateList;
 
     private final Worker[] workers;
 
@@ -28,12 +29,38 @@ final class ConcurrentBoardUpdater implements BoardUpdater {
             startUpdateList.add(new Semaphore(0, true));
             finishedUpdateList.add(new Semaphore(0, true));
             workers[i] = new Worker(startUpdateList.get(i), finishedUpdateList.get(i));
-            new Thread(workers[i]).start();
+        }
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        for (final Worker worker : workers) {
+            new Thread(worker).start();
+        }
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        for (int i = 0; i < workers.length; i++) {
+            workers[i].stop();
+            final Semaphore startUpdate = startUpdateList.get(i);
+            // SystemClock.sleepSeconds(1);
+            if (startUpdate.hasQueuedThreads()) {
+                logger.debug("Releasing semaphore");
+                startUpdate.release();
+            }
         }
     }
 
     @Override
     public Board update(final Board oldBoard) {
+        checkNotNull(oldBoard, "board");
+
+        checkStarted();
+        checkNotStopped();
+
         // Create the new board
         final int width = oldBoard.getWidth();
         final int height = oldBoard.getHeight();
@@ -43,19 +70,11 @@ final class ConcurrentBoardUpdater implements BoardUpdater {
         prepareWorkers(oldBoard, newBoard);
         logger.debug("Update started");
 
-        finishedUpdateList.forEach(ConcurrentBoardUpdater::acquire);
+        if (!isStopped())
+            finishedUpdateList.forEach(Semaphore::acquireUninterruptibly);
         logger.debug("Finished update");
 
         return newBoard;
-    }
-
-    private static void acquire(final Semaphore s) {
-        final Thread ct = Thread.currentThread();
-        try {
-            s.acquire();
-        } catch (InterruptedException e) {
-            ct.interrupt();
-        }
     }
 
     private void prepareWorkers(final Board oldBoard, final Board newBoard) {

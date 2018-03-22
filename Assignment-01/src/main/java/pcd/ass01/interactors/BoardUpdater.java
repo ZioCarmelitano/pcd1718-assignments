@@ -14,6 +14,10 @@ public interface BoardUpdater {
         return defaultInstance().createBoardUpdater(numberOfWorkers);
     }
 
+    void start();
+
+    void stop();
+
     Board update(Board board);
 
 }
