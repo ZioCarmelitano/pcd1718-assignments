@@ -13,7 +13,7 @@ class SimpleBoard implements Board {
     private final int width;
     private final int height;
 
-    SimpleBoard(final int width, final int height, final Cell[] cells) {
+    SimpleBoard(final int height, final int width, final Cell[] cells) {
         this.width = width;
         this.height = height;
         this.cells = cells;

@@ -9,6 +9,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.stream.IntStream;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
 
@@ -19,34 +20,34 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
     private final List<Semaphore> startUpdateList;
     private final List<Semaphore> finishedUpdateList;
 
-    private final Worker[] workers;
+    private final List<Worker> workers;
 
     ConcurrentBoardUpdater(final int numberOfWorkers) {
         startUpdateList = new ArrayList<>(numberOfWorkers);
         finishedUpdateList = new ArrayList<>(numberOfWorkers);
-        workers = new Worker[numberOfWorkers];
-        for (int i = 0; i < workers.length; i++) {
+        workers = new ArrayList<>(numberOfWorkers);
+        for (int i = 0; i < numberOfWorkers; i++) {
             startUpdateList.add(new Semaphore(0, true));
             finishedUpdateList.add(new Semaphore(0, true));
-            workers[i] = new Worker(startUpdateList.get(i), finishedUpdateList.get(i));
+            workers.add(new Worker(startUpdateList.get(i), finishedUpdateList.get(i)));
         }
     }
 
     @Override
     public void start() {
         super.start();
-        for (final Worker worker : workers) {
-            new Thread(worker).start();
-        }
+        workers.parallelStream()
+                .map(Thread::new)
+                .forEach(Thread::start);
     }
 
     @Override
     public void stop() {
         super.stop();
-        for (int i = 0; i < workers.length; i++) {
-            workers[i].stop();
+
+        for (int i = 0; i < workers.size(); i++) {
+            workers.get(i).stop();
             final Semaphore startUpdate = startUpdateList.get(i);
-            // SystemClock.sleepSeconds(1);
             if (startUpdate.hasQueuedThreads()) {
                 logger.debug("Releasing semaphore");
                 startUpdate.release();
@@ -62,9 +63,9 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
         checkNotStopped();
 
         // Create the new board
-        final int width = oldBoard.getWidth();
         final int height = oldBoard.getHeight();
-        final Board newBoard = Board.board(width, height);
+        final int width = oldBoard.getWidth();
+        final Board newBoard = Board.board(height, width);
 
         // Prepare workers
         prepareWorkers(oldBoard, newBoard);
@@ -79,15 +80,15 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
 
     private void prepareWorkers(final Board oldBoard, final Board newBoard) {
         final int height = oldBoard.getHeight();
-        final int offset = height / workers.length;
+        final int offset = height / workers.size();
         int fromRow = 0, toRow = offset;
-        for (int i = 1; i < workers.length; i++) {
-            workers[i].setBoards(fromRow, toRow, oldBoard, newBoard);
+        for (int i = 1; i < workers.size(); i++) {
+            workers.get(i).setBoards(fromRow, toRow, oldBoard, newBoard);
             startUpdateList.get(i).release();
             fromRow += offset;
             toRow += offset;
         }
-        workers[0].setBoards(fromRow, fromRow + (height - fromRow), oldBoard, newBoard);
+        workers.get(0).setBoards(fromRow, fromRow + (height - fromRow), oldBoard, newBoard);
         startUpdateList.get(0).release();
     }
 

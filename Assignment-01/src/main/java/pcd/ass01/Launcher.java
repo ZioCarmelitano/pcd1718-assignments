@@ -10,17 +10,16 @@ import pcd.ass01.util.LoggingUtils;
 import pcd.ass01.util.time.Stopwatch;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static pcd.ass01.util.Preconditions.checkState;
+import static pcd.ass01.util.Preconditions.checkArgument;
 
 public final class Launcher {
 
     private static final Logger logger;
 
     private static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
-    private static final long CYCLES = 10_000;
+    private static final long MAX_SIZE = 10_000;
     private static final int STEP = 1_000;
 
     public static void main(String[] args) {
@@ -31,12 +30,10 @@ public final class Launcher {
         for (int numberOfWorkers = 5; numberOfWorkers <= AVAILABLE_PROCESSORS; numberOfWorkers++) {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
-            for (int size = STEP; size <= CYCLES; size += STEP) {
+            for (int size = STEP; size <= MAX_SIZE / 2; size += STEP) {
                 final Board board = Boards.randomBoard(size, size);
 
-                stopwatch.start();
-                updater.update(board);
-                final long updateTime = stopwatch.stopAndReset();
+                final long updateTime = timeIt(stopwatch, () -> updater.update(board));
 
                 logger.info("Board {}x{} updated with {} worker{} in {} ms", size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 // checkState(Objects.equals(newBoard, sequentialUpdater.update(board)), "Updates are not equal");

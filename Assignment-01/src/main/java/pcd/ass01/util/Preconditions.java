@@ -25,10 +25,18 @@ public class Preconditions {
         checkArgument(x > 0, "%s(%d) <= 0", label, x);
     }
 
+    public static void checkArgument(boolean expression) {
+        checkArgument(expression, "");
+    }
+
     public static void checkArgument(boolean expression, String message, Object... args) {
         if (!expression) {
             throw new IllegalArgumentException(String.format(message, args));
         }
+    }
+
+    public static void checkState(boolean expression) {
+        checkArgument(expression, "");
     }
 
     public static void checkState(boolean expression, String message, Object... args) {

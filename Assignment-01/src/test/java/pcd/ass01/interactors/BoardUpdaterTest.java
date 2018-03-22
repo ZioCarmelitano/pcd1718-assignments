@@ -10,7 +10,7 @@ import static pcd.ass01.domain.Cell.ALIVE;
 
 public class BoardUpdaterTest {
 
-    private static final int WIDTH = 3;
+    private static final int WIDTH = 4;
     private static final int HEIGHT = 3;
 
     private Board board;
@@ -18,9 +18,8 @@ public class BoardUpdaterTest {
 
     @Before
     public void setUp() throws Exception {
-        board = Board.board(WIDTH, HEIGHT);
-        // updater = BoardUpdater.create(1);
-        updater = BoardUpdater.create(WIDTH);
+        board = Board.board(HEIGHT, WIDTH);
+        updater = BoardUpdater.create();
         updater.start();
     }
 
@@ -35,7 +34,7 @@ public class BoardUpdaterTest {
         board.setCell(1, 0, ALIVE);
         board.setCell(1, 1, ALIVE);
 
-        final Board expected = Board.board(WIDTH, HEIGHT);
+        final Board expected = Board.board(HEIGHT, WIDTH);
         expected.setCell(0, 0, ALIVE);
         expected.setCell(0, 1, ALIVE);
         expected.setCell(1, 0, ALIVE);
@@ -50,7 +49,7 @@ public class BoardUpdaterTest {
         board.setCell(0, 1, ALIVE);
         board.setCell(1, 0, ALIVE);
 
-        final Board expected = Board.board(WIDTH, HEIGHT);
+        final Board expected = Board.board(HEIGHT, WIDTH);
         expected.setCell(0, 0, ALIVE);
         expected.setCell(0, 1, ALIVE);
         expected.setCell(1, 0, ALIVE);
@@ -66,7 +65,7 @@ public class BoardUpdaterTest {
         board.setCell(1, 0, ALIVE);
         board.setCell(1, 1, ALIVE);
 
-        final Board expected = Board.board(WIDTH, HEIGHT);
+        final Board expected = Board.board(HEIGHT, WIDTH);
         expected.setCell(0, 0, ALIVE);
         expected.setCell(0, 1, ALIVE);
         expected.setCell(1, 0, ALIVE);
@@ -80,7 +79,7 @@ public class BoardUpdaterTest {
         board.setCell(0, 0, ALIVE);
         board.setCell(0, 1, ALIVE);
 
-        final Board expected = Board.board(WIDTH, HEIGHT);
+        final Board expected = Board.board(HEIGHT, WIDTH);
 
         assertEquals(expected, updater.update(board));
     }
@@ -92,7 +91,7 @@ public class BoardUpdaterTest {
         board.setCell(0, 2, ALIVE);
         board.setCell(1, 0, ALIVE);
 
-        final Board result = Board.board(WIDTH, HEIGHT);
+        final Board result = Board.board(HEIGHT, WIDTH);
         result.setCell(0, 0, ALIVE);
         result.setCell(0, 1, ALIVE);
         result.setCell(1, 0, ALIVE);

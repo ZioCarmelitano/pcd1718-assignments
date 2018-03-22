@@ -4,7 +4,7 @@ public interface BoardFactory {
 
     Board createBoard(Cell[][] cells);
 
-    Board createBoard(int width, int height);
+    Board createBoard(int height, int width);
 
     Board createImmutableBoard(Cell[][] cells);
 

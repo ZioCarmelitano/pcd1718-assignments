@@ -62,7 +62,6 @@ final class Worker implements Runnable {
                 finishedUpdate.release();
 
                 logger.debug("Worker finished update");
-                SystemClock.sleepSeconds(1);
             }
         }
         logger.info("Worker terminated");

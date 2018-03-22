@@ -4,8 +4,8 @@ import pcd.ass01.domain.impl.BoardFactoryImpl;
 
 public interface Board {
 
-    static Board board(final int width, final int height) {
-        return BoardFactoryImpl.defaultInstance().createBoard(width, height);
+    static Board board(final int height, final int width) {
+        return BoardFactoryImpl.defaultInstance().createBoard(height, width);
     }
 
     static Board board(final Cell[][] cells) {

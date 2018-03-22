@@ -15,10 +15,10 @@ final class SequentialBoardUpdater extends AbstractBoardUpdater implements Board
         checkStarted();
         checkNotStopped();
 
-        final int width = oldBoard.getWidth();
         final int height = oldBoard.getHeight();
+        final int width = oldBoard.getWidth();
 
-        final Board newBoard = Board.board(width, height);
+        final Board newBoard = Board.board(height, width);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
                 newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));

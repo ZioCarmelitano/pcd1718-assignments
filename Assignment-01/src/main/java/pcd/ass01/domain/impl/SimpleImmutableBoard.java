@@ -4,8 +4,8 @@ import pcd.ass01.domain.Cell;
 
 class SimpleImmutableBoard extends SimpleBoard {
 
-    SimpleImmutableBoard(final int width, final int height, final Cell[] cells) {
-        super(width, height, cells);
+    SimpleImmutableBoard(final int height, final int width, final Cell[] cells) {
+        super(height, width, cells);
     }
 
     @Override
