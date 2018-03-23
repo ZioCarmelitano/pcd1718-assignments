@@ -6,7 +6,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import pcd.ass01.domain.Board;
+import pcd.ass01.domain.Boards;
 import pcd.ass01.interactors.BoardUpdater;
+import pcd.ass01.interactors.impl.GUIUpdater;
+import pcd.ass01.view.settings.SettingsPresenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,6 +18,7 @@ import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
 import static pcd.ass01.view.factories.FxWindowFactory.*;
 import static pcd.ass01.view.settings.SettingsPresenter.getHeight;
 import static pcd.ass01.view.settings.SettingsPresenter.getWidth;
+import static pcd.ass01.view.settings.SettingsPresenter.getWorkersNumber;
 
 public class GamePresenter implements Initializable{
 
@@ -32,35 +36,47 @@ public class GamePresenter implements Initializable{
     @FXML
     private Button btnStop;
 
-    private BoardUpdater updater;
+    private GUIUpdater guiUpdater;
 
     private Board board;
 
-    private Canvas gameBoard;
+    private BoardUpdater updater;
 
     @FXML
-    void play(ActionEvent event) throws InterruptedException {
-        System.out.println(board);
-        this.board = updater.update(board);
-        if(gameBoard == null) {
-            gameBoard = (Canvas) getStage(buttonStart).getScene().lookup("#canvas");
+    void play(ActionEvent event) {
+        createGUIUpdater(event);
+        guiUpdater.start();
+    }
+
+    private void createGUIUpdater(ActionEvent event) {
+        if(guiUpdater == null) {
+            Canvas boardView = (Canvas) getStage(event)
+                    .getScene().lookup("#canvas");
+            guiUpdater = new GUIUpdater(board, updater, boardView);
         }
-        System.out.println(board);
-        drawBoard(gameBoard, board);
+    }
+
+    @FXML
+    void stop(ActionEvent event){
+        guiUpdater.stopGame();
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         buildBoardUpdater();
+        buildGameBoard();
         defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart, BTN_START_HEIGHT, BTN_START_WIDTH);
         defaultInstance().buildGameButton(STOP_ICON_PATH, btnStop, BTN_STOP_HEIGHT, BTN_STOP_WIDTH);
     }
 
-    private void buildBoardUpdater() {
-        board = Board.board(getHeight(), getWidth(), ROW_MAJOR);
-        updater = BoardUpdater.create(5);
-        updater.start();
+    private void buildGameBoard() {
+        board = Boards.randomBoard(getHeight(), getWidth(), ROW_MAJOR);
     }
 
+    private void buildBoardUpdater() {
+        int numWorkers = getWorkersNumber();
+        updater = BoardUpdater.create(numWorkers);
+        updater.start();
+    }
 
 }
