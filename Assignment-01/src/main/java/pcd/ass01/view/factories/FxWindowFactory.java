@@ -1,9 +1,5 @@
 package pcd.ass01.view.factories;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -25,6 +21,11 @@ import pcd.ass01.domain.Board;
 import pcd.ass01.domain.Boards;
 import pcd.ass01.domain.Cell;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.Optional;
+
+import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
 import static pcd.ass01.util.Preconditions.checkState;
 
 /**
@@ -159,11 +160,10 @@ public final class FxWindowFactory implements WindowFactory{
         BorderPane gamePane = openWindow(GAME_FXML_PATH, GAME_CSS_PATH, true);
         ScrollPane scrollPane = new ScrollPane();
         Canvas gameBoard = createCanvas(width, height);
-        drawBoard(gameBoard, Boards.randomBoard(height, width));
+        drawBoard(gameBoard, Boards.randomBoard(width, height, ROW_MAJOR));
         scrollPane.setContent(gameBoard);
         gamePane.setCenter(scrollPane);
     }
-
 
     private Canvas createCanvas(int width, int height) {
        return new Canvas(width, height);

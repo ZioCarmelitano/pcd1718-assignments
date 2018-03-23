@@ -1,23 +1,20 @@
 package pcd.ass01.domain;
 
-import pcd.ass01.domain.impl.BoardFactoryImpl;
+import pcd.ass01.domain.impl.SimpleBoardFactory;
 
 public interface Board {
 
-    static Board board(final int height, final int width) {
-        return BoardFactoryImpl.defaultInstance().createBoard(height, width);
+    enum Order {
+        ROW_MAJOR,
+        COLUMN_MAJOR
     }
 
-    static Board board(final Cell[][] cells) {
-        return BoardFactoryImpl.defaultInstance().createBoard(cells);
+    static Board board(final int width, final int height, final Order order) {
+        return SimpleBoardFactory.defaultInstance().board(width, height, order);
     }
 
-    static Board immutableBoard(final Board board) {
-        return BoardFactoryImpl.defaultInstance().createImmutableBoard(board);
-    }
-
-    static Board immutableBoard(final Cell[][] cells) {
-        return BoardFactoryImpl.defaultInstance().createImmutableBoard(cells);
+    static Board board(final Cell[][] cells, final Order order) {
+        return SimpleBoardFactory.defaultInstance().board(cells, order);
     }
 
     int getHeight();
@@ -27,5 +24,7 @@ public interface Board {
     Cell getCell(int x, int y);
 
     void setCell(int x, int y, Cell cell);
+
+    Order getOrder();
 
 }

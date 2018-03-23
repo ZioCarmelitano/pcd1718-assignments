@@ -62,7 +62,7 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
         checkNotStopped();
 
         // Create the new board
-        final Board newBoard = Board.board(oldBoard.getHeight(), oldBoard.getWidth());
+        final Board newBoard = Board.board(oldBoard.getHeight(), oldBoard.getWidth(), oldBoard.getOrder());
 
         // Prepare workers
         prepareWorkers(oldBoard, newBoard);

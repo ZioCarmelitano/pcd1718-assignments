@@ -1,26 +1,17 @@
 package pcd.ass01.domain.impl;
 
 import pcd.ass01.domain.Board;
-import pcd.ass01.domain.Cell;
 
 import java.util.Objects;
 
-import static pcd.ass01.util.Preconditions.checkNotNull;
+public abstract class AbstractBoard<C> implements Board {
 
-class SimpleBoard implements Board {
-
-    private final Cell[] cells;
     private final int width;
     private final int height;
 
-    SimpleBoard(final int height, final int width, final Cell[] cells) {
+    protected AbstractBoard(final int width, final int height) {
         this.width = width;
         this.height = height;
-        this.cells = cells;
-    }
-
-    static int index(final int x, final int y, final int width) {
-        return x * width + y;
     }
 
     @Override
@@ -33,29 +24,20 @@ class SimpleBoard implements Board {
         return height;
     }
 
-    @Override
-    public Cell getCell(final int x, final int y) {
-        return cells[index(x, y)];
-    }
+    abstract C getCells();
 
     @Override
-    public void setCell(final int x, final int y, final Cell cell) {
-        checkNotNull(cell, "cell");
-        cells[index(x, y)] = cell;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(final Object obj) {
         return this == obj || (obj instanceof Board && equals((Board) obj));
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(height, width, cells);
+    public final int hashCode() {
+        return Objects.hash(getWidth(), getHeight(), getCells());
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         final StringBuilder sb = new StringBuilder("[[");
         sb.append(getCell(0, 0));
         for (int y = 1; y < width; y++) {
@@ -73,9 +55,7 @@ class SimpleBoard implements Board {
         return sb.append(']').toString();
     }
 
-    private int index(final int x, final int y) {
-        return index(x, y, width);
-    }
+    protected abstract int index(final int x, final int y);
 
     private boolean equals(final Board other) {
         if (getWidth() != other.getWidth() || getHeight() != other.getHeight())

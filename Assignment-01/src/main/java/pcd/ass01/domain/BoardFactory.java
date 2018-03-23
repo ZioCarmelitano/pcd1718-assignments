@@ -1,14 +1,11 @@
 package pcd.ass01.domain;
 
+import static pcd.ass01.domain.Board.Order;
+
 public interface BoardFactory {
 
-    Board createBoard(Cell[][] cells);
+    Board board(Cell[][] cells, Order order);
 
-    Board createBoard(int height, int width);
-
-    Board createImmutableBoard(Cell[][] cells);
-
-    Board createImmutableBoard(Board board);
+    Board board(int width, int height, Order order);
 
 }
-
