@@ -2,16 +2,23 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<<<<<<< HEAD
 <?import javafx.scene.layout.*?>
 <BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pcd.ass01.view.game.GamePresenter">
+=======
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pcd.ass01.view.game.GamePresenter">
+>>>>>>> 95db57bcb082e3076ba3beea07364224b5d3017e
    <bottom>
       <HBox prefHeight="20.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <Button contentDisplay="CENTER" mnemonicParsing="false" text="START">
+            <Button fx:id="buttonStart" contentDisplay="CENTER" maxHeight="10.0" maxWidth="10.0" mnemonicParsing="false" onAction="#play">
                <HBox.margin>
                   <Insets left="5.0" />
                </HBox.margin></Button>
-            <Button mnemonicParsing="false" text="STOP" textAlignment="JUSTIFY">
+            <Button fx:id="btnStop" mnemonicParsing="false" textAlignment="JUSTIFY">
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin></Button>

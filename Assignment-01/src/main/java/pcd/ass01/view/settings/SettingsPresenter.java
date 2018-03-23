@@ -25,6 +25,22 @@ public class SettingsPresenter implements Initializable{
     @FXML
     private TextField txtNWorkers;
 
+    public static int getWidth() {
+        return width;
+    }
+
+    public static int getHeight() {
+        return height;
+    }
+
+    public static int getWorkersNumber() {
+        return workersNumber;
+    }
+
+    private static int width;
+    private static int height;
+    private static int workersNumber;
+
     private void addChangeListener(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
@@ -43,9 +59,9 @@ public class SettingsPresenter implements Initializable{
                     Alert.AlertType.ERROR);
             return;
         }
-        int width = Integer.parseInt(txtWidth.getText());
-        int height = Integer.parseInt(txtHeight.getText());
-        int workersNumber = Integer.parseInt(txtNWorkers.getText());
+        width = Integer.parseInt(widthInserted);
+        height = Integer.parseInt(heightInserted);
+        workersNumber = Integer.parseInt(workersNumberInserted);
         closeSettingWindow(event);
         WindowFactory windowFactory = FxWindowFactory.defaultInstance();
         windowFactory.openGameWindow(width, height);

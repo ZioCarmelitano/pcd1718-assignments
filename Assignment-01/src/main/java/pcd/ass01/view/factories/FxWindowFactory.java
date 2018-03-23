@@ -7,9 +7,11 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -35,8 +37,8 @@ public final class FxWindowFactory implements WindowFactory{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String APP_TITLE = "Game Of Life";
-    public static final String APP_ICON_PATH = "/game_of_life_icon.png";
+    private static final String APP_TITLE = "Game Of Life";
+    private static final String APP_ICON_PATH = "/game_of_life_icon.png";
     private static final String GAME_FXML_PATH = "/game_of_life.fxml";
     private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
     private static final String GAME_CSS_PATH = "/game_of_life_style.css";
@@ -150,6 +152,14 @@ public final class FxWindowFactory implements WindowFactory{
         return result.orElse("");
     }
 
+    public void buildGameButton(String iconPath, Button button, int height, int width) {
+        Image imageDecline = new Image(getClass().getResourceAsStream(iconPath));
+        ImageView btnImage = new ImageView(imageDecline);
+        btnImage.setFitHeight(height);
+        btnImage.setFitWidth(width);
+        button.setGraphic(btnImage);
+    }
+
     @Override
     public void openStartWindow() throws IOException {
         openWindow(SETTINGS_FXML_PATH, SETTINGS_CSS_PATH, false);
@@ -160,6 +170,7 @@ public final class FxWindowFactory implements WindowFactory{
         BorderPane gamePane = openWindow(GAME_FXML_PATH, GAME_CSS_PATH, true);
         ScrollPane scrollPane = new ScrollPane();
         Canvas gameBoard = createCanvas(width, height);
+        gameBoard.setId("canvas");
         drawBoard(gameBoard, Boards.randomBoard(width, height, ROW_MAJOR));
         scrollPane.setContent(gameBoard);
         gamePane.setCenter(scrollPane);
@@ -185,7 +196,7 @@ public final class FxWindowFactory implements WindowFactory{
         return getStage((Node) source);
     }
 
-    private static void drawBoard(final Canvas canvas, final Board board) {
+    public static void drawBoard(final Canvas canvas, final Board board) {
         final PixelWriter pw = canvas.getGraphicsContext2D().getPixelWriter();
         for (int y = 0; y < board.getWidth(); y++)
             for (int x = 0; x < board.getHeight(); x++)
