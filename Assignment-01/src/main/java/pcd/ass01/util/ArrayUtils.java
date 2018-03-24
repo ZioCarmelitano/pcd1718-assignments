@@ -9,7 +9,7 @@ final class ArrayUtils {
         for (final T[] a : arrays)
             length += a.length;
 
-        final T[] result = (T[]) Array.newInstance(arrays[0].getClass().getComponentType(), length);
+        final T[] result = newArray((Class<T>) arrays[0].getClass().getComponentType(), length);
 
         int offset = 0;
         for (final T[] a : arrays) {
@@ -17,6 +17,10 @@ final class ArrayUtils {
             offset += a.length;
         }
         return result;
+    }
+
+    private static <T> T[] newArray(Class<? extends T> clazz, int length) {
+        return (T[]) Array.newInstance(clazz, length);
     }
 
     private ArrayUtils() {

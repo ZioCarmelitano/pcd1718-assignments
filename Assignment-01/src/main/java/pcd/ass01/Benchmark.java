@@ -12,7 +12,7 @@ import pcd.ass01.util.time.Stopwatch;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
-public final class Benchmark {
+final class Benchmark {
 
     private static final Logger logger;
 
@@ -30,7 +30,7 @@ public final class Benchmark {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
             for (int size = STEP; size <= MAX_SIZE; size += STEP) {
-                final Board board = Boards.randomBoard(size, size);
+                final Board board = Boards.gosperGliderGun(size, size);
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
 

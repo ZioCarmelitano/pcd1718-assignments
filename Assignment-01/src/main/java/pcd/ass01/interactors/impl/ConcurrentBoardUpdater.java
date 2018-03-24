@@ -3,7 +3,6 @@ package pcd.ass01.interactors.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
-import pcd.ass01.interactors.BoardUpdater;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
