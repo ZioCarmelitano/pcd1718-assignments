@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.Cell;
+import pcd.ass01.domain.CellUtils;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -208,7 +209,7 @@ public final class FxWindowFactory implements WindowFactory{
             case ALIVE:
                 return Color.BLACK;
             default:
-                throw new IllegalStateException("Unknown cell state: " + cell);
+                throw CellUtils.throwUnknownCellState(cell);
         }
     }
 

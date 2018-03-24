@@ -4,16 +4,11 @@ import pcd.ass01.domain.impl.SimpleBoardFactory;
 
 public interface Board {
 
-    enum Order {
-        ROW_MAJOR,
-        COLUMN_MAJOR
-    }
-
     static Board board(final int width, final int height) {
         return SimpleBoardFactory.defaultInstance().board(width, height);
     }
 
-    static Board board(final Cell[][] cells, final Order order) {
+    static Board board(final Cell[][] cells) {
         return SimpleBoardFactory.defaultInstance().board(cells);
     }
 

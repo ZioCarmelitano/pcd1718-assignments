@@ -4,11 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import pcd.ass01.domain.Board;
-import pcd.ass01.domain.Boards;
 
 import static org.junit.Assert.assertEquals;
-import static pcd.ass01.domain.Board.Order.COLUMN_MAJOR;
-import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
 import static pcd.ass01.domain.Cell.ALIVE;
 
 public class BoardUpdaterTest {

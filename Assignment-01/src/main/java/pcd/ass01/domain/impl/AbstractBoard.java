@@ -1,12 +1,8 @@
 package pcd.ass01.domain.impl;
 
 import pcd.ass01.domain.Board;
-import pcd.ass01.domain.Cell;
 
 import java.util.Objects;
-
-import static pcd.ass01.domain.Cell.ALIVE;
-import static pcd.ass01.domain.Cell.DEAD;
 
 public abstract class AbstractBoard<C> implements Board {
 
