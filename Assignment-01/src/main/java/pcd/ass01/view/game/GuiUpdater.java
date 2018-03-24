@@ -1,6 +1,7 @@
-package pcd.ass01.interactors.impl;
+package pcd.ass01.view.game;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
 import pcd.ass01.domain.Board;
 import pcd.ass01.interactors.BoardUpdater;
@@ -11,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static pcd.ass01.view.factories.FxWindowFactory.drawBoard;
 import static pcd.ass01.view.factories.FxWindowFactory.getStage;
 
-public class GUIUpdater extends Thread{
+public class GuiUpdater extends Task<Void> {
 
     private Board board;
 
@@ -22,25 +23,13 @@ public class GUIUpdater extends Thread{
     private final AtomicBoolean isRunning;
     private final AtomicBoolean isNotPaused;
 
-    public GUIUpdater(Board board, BoardUpdater boardUpdater, Canvas boardView) {
+    public GuiUpdater(Board board, BoardUpdater boardUpdater, Canvas boardView) {
         this.board = board;
         this.boardUpdater = boardUpdater;
         this.boardView = boardView;
         this.isRunning = new AtomicBoolean(true);
         this.isNotPaused = new AtomicBoolean(true);
         getStage(boardView).setOnCloseRequest(event -> stopGame());
-    }
-
-    @Override
-    public void run() {
-        // Game loop
-        while(isRunning.get()){
-            if (isNotPaused.get()) {
-                board = boardUpdater.update(board);
-                Platform.runLater(() -> drawBoard(boardView, board));
-            }
-            SystemClock.sleep(200);
-        }
     }
 
     public boolean stopGame() {
@@ -66,5 +55,18 @@ public class GUIUpdater extends Thread{
 
     public void resumeGame(){
         isNotPaused.set(true);
+    }
+
+    @Override
+    protected Void call() {
+        // Game loop
+        while(isRunning.get()){
+            if (isNotPaused.get()) {
+                board = boardUpdater.update(board);
+                Platform.runLater(() -> drawBoard(boardView, board));
+            }
+            SystemClock.sleep(200);
+        }
+        return null;
     }
 }

@@ -26,6 +26,7 @@ public abstract class AbstractBoardUpdater implements BoardUpdater {
     @Override
     public void stop() {
         checkStarted();
+        // comment if launch Benchmark
         checkNotStopped();
         stopped.set(true);
     }

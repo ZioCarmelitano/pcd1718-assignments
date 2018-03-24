@@ -19,7 +19,7 @@ class Benchmark {
     private static final Logger logger;
 
     private static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
-    private static final long MAX_SIZE = 10_000;
+    private static final long MAX_SIZE = 9_000;
     private static final int STEP = 1_000;
 
 
@@ -28,7 +28,7 @@ class Benchmark {
         final BoardUpdater sequentialUpdater = BoardUpdater.create();
 
         sequentialUpdater.start();
-        for (int numberOfWorkers = AVAILABLE_PROCESSORS; numberOfWorkers <= AVAILABLE_PROCESSORS; numberOfWorkers++) {
+        for (int numberOfWorkers = 1; numberOfWorkers <= AVAILABLE_PROCESSORS; numberOfWorkers++) {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
             for (int size = STEP; size <= MAX_SIZE; size += STEP) {

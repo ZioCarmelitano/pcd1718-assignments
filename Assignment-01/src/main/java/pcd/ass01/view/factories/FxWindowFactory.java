@@ -167,13 +167,13 @@ public final class FxWindowFactory implements WindowFactory{
     }
 
     @Override
-    public void openGameWindow(int width, int height) throws IOException {
+    public void openGameWindow(int width, int height, Board board) throws IOException {
         BorderPane gamePane = openWindow(GAME_FXML_PATH, GAME_CSS_PATH, true);
         ScrollPane scrollPane = new ScrollPane();
-        Canvas gameBoard = createCanvas(width, height);
-        gameBoard.setId("canvas");
-        drawBoard(gameBoard, randomBoard(width, height, ROW_MAJOR));
-        scrollPane.setContent(gameBoard);
+        Canvas gameBoardPanel = createCanvas(width, height);
+        gameBoardPanel.setId("canvas");
+        drawBoard(gameBoardPanel, board);
+        scrollPane.setContent(gameBoardPanel);
         gamePane.setCenter(scrollPane);
     }
 
