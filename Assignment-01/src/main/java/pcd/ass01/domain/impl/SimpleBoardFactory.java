@@ -4,7 +4,6 @@ import pcd.ass01.domain.Board;
 import pcd.ass01.domain.BoardFactory;
 import pcd.ass01.domain.Cell;
 
-import static pcd.ass01.domain.Board.Order;
 import static pcd.ass01.domain.Cell.DEAD;
 import static pcd.ass01.util.Preconditions.*;
 
@@ -15,29 +14,22 @@ public final class SimpleBoardFactory implements BoardFactory {
     }
 
     @Override
-    public Board board(final Cell[][] cells, final Order order) {
+    public Board board(final Cell[][] cells) {
         checkCells(cells);
 
-        return createBoard(cells[0].length, cells.length, cells, order);
+        return createBoard(cells[0].length, cells.length, cells);
     }
 
     @Override
-    public Board board(final int width, final int height, final Order order) {
+    public Board board(final int width, final int height) {
         checkPositive(width, "width");
         checkPositive(height, "height");
 
-        return createBoard(width, height, emptyCells(width, height), order);
+        return createBoard(width, height, emptyCells(width, height));
     }
 
-    private static Board createBoard(final int width, final int height, final Cell[][] cells, final Order order) {
-        switch (order) {
-            case ROW_MAJOR:
-                return new RowMajorBoard(width, height, cells);
-            case COLUMN_MAJOR:
-                return new ColumnMajorBoard(width, height, cells);
-            default:
-                throw new IllegalStateException("Unknown order mode: " + order);
-        }
+    private static Board createBoard(final int width, final int height, final Cell[][] cells) {
+        return new SimpleBoard(width, height, cells);
     }
 
     private static Cell[][] cells(final Board board) {

@@ -58,8 +58,8 @@ final class Worker implements Runnable {
                 }
 
                 logger.trace("Worker from row {} to row {} finished", fromRow, toRow);
-                finishedUpdate.release();
             }
+            finishedUpdate.release();
         }
         logger.info("Worker terminated");
     }

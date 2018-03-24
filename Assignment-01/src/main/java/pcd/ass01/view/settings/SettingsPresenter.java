@@ -68,7 +68,7 @@ public class SettingsPresenter implements Initializable{
         width = Integer.parseInt(widthInserted);
         height = Integer.parseInt(heightInserted);
         workersNumber = Integer.parseInt(workersNumberInserted);
-        boardConfiguration = randomBoard(width, height, Board.Order.ROW_MAJOR);
+        boardConfiguration = randomBoard(width, height);
         closeSettingWindow(event);
         WindowFactory windowFactory = FxWindowFactory.defaultInstance();
         windowFactory.openGameWindow(width, height, boardConfiguration);

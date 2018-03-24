@@ -9,8 +9,8 @@ import static pcd.ass01.domain.Cell.DEAD;
 
 public final class Boards {
 
-    public static Board randomBoard(final int width, final int height, final Order order) {
-        final Board board = Board.board(width, height, order);
+    public static Board randomBoard(final int width, final int height) {
+        final Board board = Board.board(width, height);
 
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {

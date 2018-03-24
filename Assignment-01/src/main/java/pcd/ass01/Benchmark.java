@@ -12,8 +12,6 @@ import pcd.ass01.util.time.Stopwatch;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
-import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
-
 public final class Benchmark {
 
     private static final Logger logger;
@@ -33,7 +31,7 @@ public final class Benchmark {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
             for (int size = STEP; size <= MAX_SIZE; size += STEP) {
-                final Board board = Boards.randomBoard(size, size, ROW_MAJOR);
+                final Board board = Boards.randomBoard(size, size);
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
 

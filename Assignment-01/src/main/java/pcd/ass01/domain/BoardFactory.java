@@ -4,8 +4,8 @@ import static pcd.ass01.domain.Board.Order;
 
 public interface BoardFactory {
 
-    Board board(Cell[][] cells, Order order);
+    Board board(Cell[][] cells);
 
-    Board board(int width, int height, Order order);
+    Board board(int width, int height);
 
 }

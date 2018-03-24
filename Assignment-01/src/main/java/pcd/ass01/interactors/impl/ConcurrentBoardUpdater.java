@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
 
-final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements BoardUpdater {
+final class ConcurrentBoardUpdater extends AbstractBoardUpdater {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -62,12 +62,13 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
         checkNotStopped();
 
         // Create the new board
-        final Board newBoard = Board.board(oldBoard.getHeight(), oldBoard.getWidth(), oldBoard.getOrder());
+        final Board newBoard = Board.board(oldBoard.getHeight(), oldBoard.getWidth());
 
         // Prepare workers
         prepareWorkers(oldBoard, newBoard);
         logger.debug("Update started");
 
+        // Wait for each worker to finish the update
         if (isNotStopped())
             finishedList.forEach(Semaphore::acquireUninterruptibly);
         logger.debug("Finished update");

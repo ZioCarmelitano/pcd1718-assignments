@@ -9,12 +9,12 @@ public interface Board {
         COLUMN_MAJOR
     }
 
-    static Board board(final int width, final int height, final Order order) {
-        return SimpleBoardFactory.defaultInstance().board(width, height, order);
+    static Board board(final int width, final int height) {
+        return SimpleBoardFactory.defaultInstance().board(width, height);
     }
 
     static Board board(final Cell[][] cells, final Order order) {
-        return SimpleBoardFactory.defaultInstance().board(cells, order);
+        return SimpleBoardFactory.defaultInstance().board(cells);
     }
 
     int getHeight();
@@ -24,7 +24,5 @@ public interface Board {
     Cell getCell(int x, int y);
 
     void setCell(int x, int y, Cell cell);
-
-    Order getOrder();
 
 }
