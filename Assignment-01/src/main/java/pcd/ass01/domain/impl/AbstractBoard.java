@@ -1,8 +1,12 @@
 package pcd.ass01.domain.impl;
 
 import pcd.ass01.domain.Board;
+import pcd.ass01.domain.Cell;
 
 import java.util.Objects;
+
+import static pcd.ass01.domain.Cell.ALIVE;
+import static pcd.ass01.domain.Cell.DEAD;
 
 public abstract class AbstractBoard<C> implements Board {
 
@@ -15,16 +19,16 @@ public abstract class AbstractBoard<C> implements Board {
     }
 
     @Override
-    public int getWidth() {
+    public final int getWidth() {
         return width;
     }
 
     @Override
-    public int getHeight() {
+    public final int getHeight() {
         return height;
     }
 
-    abstract C getCells();
+    protected abstract C getCells();
 
     @Override
     public final boolean equals(final Object obj) {
@@ -55,7 +59,9 @@ public abstract class AbstractBoard<C> implements Board {
         return sb.append(']').toString();
     }
 
-    protected abstract int index(final int x, final int y);
+    protected final int index(final int x, final int y) {
+        return x * getWidth() + y;
+    }
 
     private boolean equals(final Board other) {
         if (getWidth() != other.getWidth() || getHeight() != other.getHeight())

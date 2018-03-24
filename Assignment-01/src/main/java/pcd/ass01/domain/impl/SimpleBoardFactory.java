@@ -17,7 +17,7 @@ public final class SimpleBoardFactory implements BoardFactory {
     public Board board(final Cell[][] cells) {
         checkCells(cells);
 
-        return createBoard(cells[0].length, cells.length, cells);
+        return board(cells[0].length, cells.length, cells);
     }
 
     @Override
@@ -25,23 +25,11 @@ public final class SimpleBoardFactory implements BoardFactory {
         checkPositive(width, "width");
         checkPositive(height, "height");
 
-        return createBoard(width, height, emptyCells(width, height));
+        return board(width, height, emptyCells(width, height));
     }
 
-    private static Board createBoard(final int width, final int height, final Cell[][] cells) {
-        return new SimpleBoard(width, height, cells);
-    }
-
-    private static Cell[][] cells(final Board board) {
-        final int height = board.getHeight();
-        final int width = board.getWidth();
-        final Cell[][] cells = new Cell[height][];
-        for (int x = 0; x < height; x++) {
-            cells[x] = new Cell[width];
-            for (int y = 0; y < width; y++)
-                cells[x][y] = board.getCell(x, y);
-        }
-        return cells;
+    private static Board board(final int width, final int height, final Cell[][] cells) {
+        return new BooleanArrayBoard(width, height, cells);
     }
 
     private static Cell[][] emptyCells(final int width, final int height) {

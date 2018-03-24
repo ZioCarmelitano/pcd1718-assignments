@@ -1,6 +1,7 @@
 package pcd.ass01;
 
 import ch.qos.logback.classic.Level;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
@@ -18,24 +19,22 @@ public final class Benchmark {
 
     private static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
-    private static final int MAX_SIZE = 10_000;
-
     private static final int STEP = 1_000;
+    private static final int MAX_SIZE = 10_000;
 
     public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
         final BoardUpdater sequentialUpdater = BoardUpdater.create();
 
         sequentialUpdater.start();
-        for (int numberOfWorkers = 1; numberOfWorkers <= AVAILABLE_PROCESSORS; numberOfWorkers++) {
+        for (int numberOfWorkers = 1; numberOfWorkers <= AVAILABLE_PROCESSORS + 1; numberOfWorkers++) {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
             for (int size = STEP; size <= MAX_SIZE; size += STEP) {
-                final Board board = Boards.randomBoard(size, size);
+                final Board board = Board.board(size, size);
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
-
-                logger.info("Board {}x{} updated with {} worker{} in {} ms", size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
+                System.out.printf("%s %dx%d updated with %d worker%s in %d ms\n", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 // checkState(Objects.equals(newBoard, sequentialUpdater.update(board)), "Updates are not equal");
             }
             updater.stop();
@@ -50,7 +49,7 @@ public final class Benchmark {
     }
 
     static {
-        LoggingUtils.setLevel(Level.INFO);
+        LoggingUtils.setLevel(Level.WARN);
         logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     }
 

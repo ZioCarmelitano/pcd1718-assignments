@@ -4,11 +4,11 @@ import pcd.ass01.domain.Cell;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
 
-public abstract class AbstractArrayBoard extends AbstractBoard<Cell[]> {
+final class ArrayBoard extends AbstractBoard<Cell[]> {
 
     private final Cell[] cells;
 
-    AbstractArrayBoard(final int width, final int height, final Cell[][] cells) {
+    ArrayBoard(final int width, final int height, final Cell[][] cells) {
         super(width, height);
         this.cells = new Cell[width * height];
         for (int x = 0; x < height; x++) {
@@ -30,7 +30,7 @@ public abstract class AbstractArrayBoard extends AbstractBoard<Cell[]> {
     }
 
     @Override
-    Cell[] getCells() {
+    protected Cell[] getCells() {
         return cells;
     }
 
