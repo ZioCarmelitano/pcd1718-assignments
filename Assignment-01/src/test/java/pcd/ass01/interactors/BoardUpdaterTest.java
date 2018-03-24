@@ -20,14 +20,14 @@ public class BoardUpdaterTest {
     private BoardUpdater updater;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         board = Board.board(WIDTH, HEIGHT, ROW_MAJOR);
         updater = BoardUpdater.create();
         updater.start();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         updater.stop();
     }
 

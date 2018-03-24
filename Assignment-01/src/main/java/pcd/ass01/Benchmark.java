@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
 
-public class Benchmark {
+class Benchmark {
 
     private static final Logger logger;
 

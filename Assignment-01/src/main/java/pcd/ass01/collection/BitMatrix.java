@@ -14,10 +14,10 @@ import java.util.BitSet;
  * @version 1.1 September 1999
  */
 
-public class BitMatrix {
+class BitMatrix {
 
-    private int rowsNumber;
-    private int columnsNumber;
+    private final int rowsNumber;
+    private final int columnsNumber;
 
     /**
      * initialize a newly created matrix of bit values
@@ -33,7 +33,7 @@ public class BitMatrix {
             rows[i] = new  BitSet(numColumns);
     }
 
-    protected BitSet [ ] rows;
+    private final BitSet [ ] rows;
 
 
     /**

@@ -8,7 +8,7 @@ public abstract class AbstractArrayBoard extends AbstractBoard<Cell[]> {
 
     private final Cell[] cells;
 
-    protected AbstractArrayBoard(final int width, final int height, final Cell[][] cells) {
+    AbstractArrayBoard(final int width, final int height, final Cell[][] cells) {
         super(width, height);
         this.cells = new Cell[width * height];
         for (int x = 0; x < height; x++) {

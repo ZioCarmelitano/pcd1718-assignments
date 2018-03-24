@@ -68,7 +68,7 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater implements Board
         prepareWorkers(oldBoard, newBoard);
         logger.debug("Update started");
 
-        if (!isStopped())
+        if (isNotStopped())
             finishedList.forEach(Semaphore::acquireUninterruptibly);
         logger.debug("Finished update");
 

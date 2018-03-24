@@ -2,7 +2,7 @@ package pcd.ass01.util;
 
 import java.lang.reflect.Array;
 
-public final class ArrayUtils {
+final class ArrayUtils {
 
     public static <T> T[] flatten(final T[][] arrays) {
         int length = 0;

@@ -11,7 +11,7 @@ public abstract class AbstractBoardUpdater implements BoardUpdater {
     private final AtomicBoolean started;
     private final AtomicBoolean stopped;
 
-    protected AbstractBoardUpdater() {
+    AbstractBoardUpdater() {
         started = new AtomicBoolean();
         stopped = new AtomicBoolean();
     }
@@ -30,24 +30,24 @@ public abstract class AbstractBoardUpdater implements BoardUpdater {
         stopped.set(true);
     }
 
-    protected final void checkStarted() {
+    final void checkStarted() {
         checkState(isStarted(), "Board updater wasn't started");
     }
 
-    protected final void checkNotStarted() {
+    private void checkNotStarted() {
         checkState(!isStarted(), "Board updater is already started");
     }
 
-    protected final void checkNotStopped() {
-        checkState(!isStopped(), "Board updater is already stopped");
+    final void checkNotStopped() {
+        checkState(isNotStopped(), "Board updater is already stopped");
     }
 
-    protected final boolean isStarted() {
+    private boolean isStarted() {
         return started.get();
     }
 
-    protected final boolean isStopped() {
-        return stopped.get();
+    final boolean isNotStopped() {
+        return !stopped.get();
     }
 
 }

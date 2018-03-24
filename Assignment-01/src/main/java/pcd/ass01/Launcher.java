@@ -2,10 +2,10 @@ package pcd.ass01;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import pcd.ass01.view.factories.FxWindowFactory;
 import pcd.ass01.view.factories.WindowFactory;
-
 import java.io.IOException;
+
+import static pcd.ass01.view.factories.FxWindowFactory.*;
 
 public final class Launcher extends Application{
 
@@ -15,8 +15,7 @@ public final class Launcher extends Application{
 
     @Override
     public void start(Stage stage) throws IOException {
-        WindowFactory windowFactory = FxWindowFactory.defaultInstance();
+        WindowFactory windowFactory = defaultInstance();
         windowFactory.openStartWindow();
     }
-
 }

@@ -15,7 +15,7 @@ public abstract class AbstractStopwatch implements Stopwatch {
     private boolean started;
     private boolean stopped;
 
-    protected AbstractStopwatch() {
+    AbstractStopwatch() {
     }
 
     @Override

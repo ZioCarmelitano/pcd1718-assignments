@@ -29,7 +29,7 @@ public class Preconditions {
         checkArgument(expression, "");
     }
 
-    public static void checkArgument(boolean expression, String message, Object... args) {
+    private static void checkArgument(boolean expression, String message, Object... args) {
         if (!expression) {
             throw new IllegalArgumentException(String.format(message, args));
         }
