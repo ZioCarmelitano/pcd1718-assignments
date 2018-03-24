@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+﻿\documentclass[a4paper]{article}
 
 %\usepackage[cm]{fullpage}
 
@@ -186,13 +186,10 @@ Assigment \#1 - ``The Game of Life''
 \maketitle
 \section{Analisi del problema}\label{analisi-del-problema}
 
-L'obiettivo della consegna è l'implementazione, in Java, di una versione concorrente del gioco ``The Game of Life'' usando la programmazione concorrente multi-threaded.
-
+L'obiettivo della consegna è l'implementazione, in Java, di una versione concorrente del gioco ``The Game of Life'' usando la programmazione concorrente multi-threaded.\\
 Il gioco consiste nel calcolare e visualizzare l'evoluzione della
-matrice di celle che caratterizza il gioco, come sequenza di fotogrammi (ognuno dei quali rappresenta lo stato del mondo).
-
-Nella matrice, ogni cella può essere in uno dei due stati possibili, \emph{live} o \emph{dead}.
-
+matrice di celle che caratterizza il gioco, come sequenza di fotogrammi (ognuno dei quali rappresenta lo stato del mondo).\\
+Nella matrice, ogni cella può essere in uno dei due stati possibili, \emph{live} o \emph{dead}.\\
 Dato lo stato \(s\left(t\right)\) della matrice, lo stato \(s\left(t + 1\right)\) si computa con le seguenti regole:
 
 \begin{itemize}
@@ -205,7 +202,6 @@ Dato lo stato \(s\left(t\right)\) della matrice, lo stato \(s\left(t + 1\right)\
 \item
   una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \emph{dead} e ha tre celle vicine \emph{live}, nello stato \(s\left(t + 1\right)\) diventa \emph{live}
 \end{itemize}
-
 Il gioco deve presentare un'interfaccia grafica con pulsanti \texttt{start} e \texttt{stop} con cui si fa partire e fermare il gioco.
 Ogni stato del gioco deve essere visualizzato, insieme al numero di celle nello stato \emph{live}.
 
@@ -243,44 +239,34 @@ L'architettura del sistema è stata scomposta in tre \emph{live}lli utilizzando 
 \subsubsection{Dominio applicativo}\label{dominio-applicativo}
 
 Abbiamo implementato il dominio applicativo attraverso due classi:
-\texttt{Cell} e \texttt{Board}.
-
+\texttt{Cell} e \texttt{Board}.\\
 L'enum \texttt{Cell} rappresenta lo stato di una cella della scacchiera che può essere \emph{live} o \emph{dead}.
-
 La classe \texttt{Board} rappresenta la scacchiera di gioco. Questa è
 caratterizzata da un'\emph{altezza} e una \emph{larghezza} variabili e da la possibilità di recuperare/impostare lo stato di una cella date le coordinate $x$ e $y$.
 
 \subsubsection{Interattori}\label{interattori}
 
-Abbiamo implementato un interattore \texttt{BoardUpdater} che si occupa dell'aggiornamento della scacchiera di gioco. Di questo interattore ne esistono due versioni, una sequenziale e una concorrente.
-
-La versione sequenziale \texttt{SequentialBoardUpdater} viene eseguita sul thread corrente senza la creazione di nuovi thread.
-
+Abbiamo implementato un interattore \texttt{BoardUpdater} che si occupa dell'aggiornamento della scacchiera di gioco. Di questo interattore ne esistono due versioni, una sequenziale e una concorrente.\\\\
+La versione sequenziale \texttt{SequentialBoardUpdater} viene eseguita sul thread corrente senza la creazione di nuovi thread.\\\\
 Nella versione concorrente \texttt{ConcurrentBoardUpdater} è possibile configurare il numero di \texttt{Worker} (ognuno dei quali verrà
-eseguito su un thread indipendente).
-
+eseguito su un thread indipendente).\\
 Il metodo \texttt{start} si occupa della creazione di un nuovo thread
-per ogni \texttt{Worker} e di eseguirlo.
-
+per ogni \texttt{Worker} e di eseguirlo.\\
 Il metodo \texttt{stop} si occupa di terminare l'esecuzione dei
-\texttt{Worker}.
-
+\texttt{Worker}.\\
 Il metodo \texttt{update} gestisce l'aggiornamento della scacchiera di gioco (board). Per prima cosa si occupa di creare una nuova scacchiera che rappresenterà lo stato della scacchiera corrente dopo
 l'aggiornamento. Successivamente divide il lavoro fra i \texttt{Worker} cercando di bilanciarlo il più possibile. Dopodiché sospende la propria esecuzione in attesa che tutti i \texttt{Worker} abbiano terminato
-l'aggiornamento della porzione di scacchiera assegnatagli.
-
+l'aggiornamento della porzione di scacchiera assegnatagli.\\
 Ogni \texttt{Worker}, appena messo in esecuzione, aspetta che gli venga assegnata la porzione di scacchiera da aggiornare. Una volta terminata l'attesa, se ancora in esecuzione, effettua l'aggiornamento delle celle seguendo le regole del gioco (indicate nell'analisi del problema). Una volta terminato il lavoro, il \texttt{Worker} lo segnala al
 \texttt{CuncurrentBoardUpdater} e si mette in attesa di essere eseguito
-nuovamente.
-
+nuovamente.\\\\
 Per ogni \texttt{Worker} la sincronizzazione con
 \texttt{CuncurrentBoardUpdater} è effettuata tramite due semafori
 binari: il primo (\texttt{startUpdate}) viene utilizzato per segnalare al \texttt{Worker} che può iniziare l'aggiornamento della propria
 porzione di scacchiera; il secondo (\texttt{finishedUpdate}) viene
 utilizzato per segnalare al \texttt{CuncurrentBoardUpdater} che il
 \texttt{Worker} ha terminato l'aggiornamento della sua porzione di
-scacchiera.
-
+scacchiera.\\
 In questo modo \texttt{ConcurrentBoardUpdateer} segnala ad ogni
 \texttt{Worker} che la relativa porzione di scacchiera è pronta per
 essere aggiornata. Così attende che ogni \texttt{Worker} finisca il
@@ -288,10 +274,10 @@ proprio lavoro per poi restituire la nuova scacchiera.
 
 \subsubsection{Interfaccia utente}\label{interfaccia-utente}
 
-L'interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all'utente di settare le
-dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono
-presenti due pulsanti \emph{start} e \emph{stop}. Lo start permette
-l'avvio e la pausa del gioco, mentre lo \emph{stop} la terminazione.
+L’interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \emph{start} e \emph{stop}. Lo \emph{start} permette l’avvio e la pausa del gioco, mentre lo \emph{stop} la terminazione.\\
+Utilizzando il pattern Factory sono stati incapsulati in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni Presenter che incapsulano la logica di controllo dei componenti (form, pulsanti, …) di cui sono costituite.\\
+La computazione per l’update della scacchiera è effettuata su un thread separato “GuiUpdater” (task di Java FX) e questo permette di mantenere l’interfaccia grafica (gestita dal Java FX Application Thread) reattiva e in grado di intercettare l’input dell’utente.\\
+La scacchiera di gioco è stata realizzata utilizzando un Canvas sul quale vengono disegnati i pixel attraverso la classe PixelWriter di Java FX: una classe ottimizzata per il disegno dei singoli pixel.
 
 \section{Dinamica del sistema}\label{dinamica-del-sistema}
 
@@ -299,3 +285,4 @@ l'avvio e la pausa del gioco, mentre lo \emph{stop} la terminazione.
 
 % Your document ends here!
 \end{document}
+
