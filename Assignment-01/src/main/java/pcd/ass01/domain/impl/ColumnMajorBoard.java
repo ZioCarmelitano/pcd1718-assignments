@@ -6,7 +6,7 @@ import static pcd.ass01.domain.Board.Order.COLUMN_MAJOR;
 
 final class ColumnMajorBoard extends AbstractArrayBoard {
 
-    ColumnMajorBoard(final int width, final int height, final Cell[][] cells) {
+    protected ColumnMajorBoard(final int width, final int height, final Cell[][] cells) {
         super(width, height, cells);
     }
 
@@ -16,8 +16,8 @@ final class ColumnMajorBoard extends AbstractArrayBoard {
     }
 
     @Override
-    protected int index(int y, int x) {
-        return y + x * getHeight();
+    protected int index(int x, int y) {
+        return y * getHeight() + x;
     }
 
 }

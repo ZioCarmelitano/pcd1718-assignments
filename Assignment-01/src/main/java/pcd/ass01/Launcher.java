@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public final class Launcher extends Application{
 
-    public static void main(String[] args) {
+    public static void main(final String... args) {
         launch(args);
     }
 

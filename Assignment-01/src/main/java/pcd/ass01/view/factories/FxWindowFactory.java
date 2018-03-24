@@ -171,7 +171,6 @@ public final class FxWindowFactory implements WindowFactory{
         ScrollPane scrollPane = new ScrollPane();
         Canvas gameBoard = createCanvas(width, height);
         gameBoard.setId("canvas");
-        drawBoard(gameBoard, Boards.gosperGliderGun(width, height, ROW_MAJOR));
         scrollPane.setContent(gameBoard);
         gamePane.setCenter(scrollPane);
     }
