@@ -9,7 +9,7 @@ public abstract class AbstractBoard<C> implements Board {
     private final int width;
     private final int height;
 
-    protected AbstractBoard(final int width, final int height) {
+    AbstractBoard(final int width, final int height) {
         this.width = width;
         this.height = height;
     }

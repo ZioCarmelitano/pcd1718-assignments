@@ -6,49 +6,52 @@
 <?import javafx.scene.text.Font?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="232.0" prefWidth="352.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pcd.ass01.view.settings.SettingsPresenter">
    <center>
-      <GridPane prefHeight="152.0" prefWidth="352.0" translateY="10.0" BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" text="Number of workers" GridPane.halignment="LEFT">
-               <font>
-                  <Font size="14.0" />
-               </font>
-               <padding>
-                  <Insets left="20.0" />
-               </padding>
-            </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" text="Board Width" GridPane.halignment="LEFT" GridPane.rowIndex="1">
-               <font>
-                  <Font size="14.0" />
-               </font>
-               <padding>
-                  <Insets left="20.0" />
-               </padding>
-            </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" text="Board Height" GridPane.halignment="LEFT" GridPane.rowIndex="2">
-               <font>
-                  <Font size="14.0" />
-               </font>
-               <padding>
-                  <Insets left="20.0" />
-               </padding>
-            </Label>
-            <TextField fx:id="txtNWorkers" alignment="CENTER_RIGHT" maxWidth="75.0" prefHeight="25.0" prefWidth="69.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
-            <TextField fx:id="txtWidth" alignment="CENTER_RIGHT" maxWidth="75.0" prefHeight="25.0" prefWidth="123.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-            <TextField fx:id="txtHeight" alignment="CENTER_RIGHT" maxWidth="75.0" prefHeight="25.0" prefWidth="114.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-         </children>
-         <padding>
-            <Insets bottom="20.0" />
-         </padding>
-      </GridPane>
+       <GridPane prefHeight="152.0" prefWidth="352.0" translateY="10.0" BorderPane.alignment="CENTER">
+           <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+           </rowConstraints>
+           <padding>
+               <Insets bottom="20.0"/>
+           </padding>
+           <Label alignment="CENTER" contentDisplay="CENTER" text="Number of workers" GridPane.halignment="LEFT">
+              <font>
+                  <Font size="14.0"/>
+              </font>
+              <padding>
+                  <Insets left="20.0"/>
+              </padding>
+           </Label>
+           <Label alignment="CENTER" contentDisplay="CENTER" text="Board Width" GridPane.halignment="LEFT"
+                  GridPane.rowIndex="1">
+              <font>
+                  <Font size="14.0"/>
+              </font>
+              <padding>
+                  <Insets left="20.0"/>
+              </padding>
+           </Label>
+           <Label alignment="CENTER" contentDisplay="CENTER" text="Board Height" GridPane.halignment="LEFT"
+                  GridPane.rowIndex="2">
+              <font>
+                  <Font size="14.0"/>
+              </font>
+              <padding>
+                  <Insets left="20.0"/>
+              </padding>
+           </Label>
+           <TextField fx:id="txtNWorkers" alignment="CENTER_RIGHT" maxWidth="75.0" prefHeight="25.0" prefWidth="69.0"
+                      GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
+           <TextField fx:id="txtWidth" alignment="CENTER_RIGHT" maxWidth="75.0" prefHeight="25.0" prefWidth="123.0"
+                      GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+           <TextField fx:id="txtHeight" alignment="CENTER_RIGHT" maxWidth="75.0" prefHeight="25.0" prefWidth="114.0"
+                      GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
+       </GridPane>
    </center>
    <top>
       <Label alignment="CENTER" text="INSERT GAME-OF-LIFE SETTINGS" translateY="5.0" underline="true" BorderPane.alignment="CENTER">

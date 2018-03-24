@@ -20,14 +20,12 @@ import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
-import pcd.ass01.domain.Boards;
 import pcd.ass01.domain.Cell;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
 import static pcd.ass01.util.Preconditions.checkState;
 
 /**
@@ -70,7 +68,7 @@ public final class FxWindowFactory implements WindowFactory{
      *
      * @return root.
      */
-    public static BorderPane openWindow(final String fxmlPath, final String cssPath, final boolean resizable) throws IOException {
+    private static BorderPane openWindow(final String fxmlPath, final String cssPath, final boolean resizable) throws IOException {
             loader = new FXMLLoader(
                     FxWindowFactory.class.getResource(fxmlPath));
             final BorderPane root = loader.load();
@@ -92,7 +90,7 @@ public final class FxWindowFactory implements WindowFactory{
      * @param sceneToClose
      *            link to the window to close.
      */
-    public static void closeWindow(final Scene sceneToClose) {
+    private static void closeWindow(final Scene sceneToClose) {
         final Stage sceneStage = (Stage) sceneToClose.getWindow();
         sceneStage.close();
     }

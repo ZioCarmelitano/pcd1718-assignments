@@ -18,7 +18,7 @@ public final class SystemClock {
                 : unit.convert(currentTime, NANOSECONDS);
     }
 
-    public static long currentTimeNanos() {
+    private static long currentTimeNanos() {
         return System.nanoTime();
     }
 
@@ -46,7 +46,7 @@ public final class SystemClock {
         return currentTime(DAYS);
     }
 
-    public static void sleep(Duration timeout) {
+    private static void sleep(Duration timeout) {
         final long millis = timeout.toMillis();
         final int nanos = (int) (timeout.toNanos() - NANOSECONDS.convert(millis, MILLISECONDS));
 
@@ -57,7 +57,7 @@ public final class SystemClock {
         sleep(millis, 0);
     }
 
-    public static void sleep(long millis, int nanos) {
+    private static void sleep(long millis, int nanos) {
         final Thread ct = Thread.currentThread();
         try {
             Thread.sleep(millis, nanos);
@@ -66,7 +66,7 @@ public final class SystemClock {
         }
     }
 
-    public static void sleep(long timeout, TemporalUnit unit) {
+    private static void sleep(long timeout, TemporalUnit unit) {
         sleep(Duration.of(timeout, unit));
     }
 
