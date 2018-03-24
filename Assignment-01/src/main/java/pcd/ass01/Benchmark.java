@@ -1,7 +1,6 @@
 package pcd.ass01;
 
 import ch.qos.logback.classic.Level;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
@@ -31,10 +30,11 @@ public final class Benchmark {
             final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
             updater.start();
             for (int size = STEP; size <= MAX_SIZE; size += STEP) {
-                final Board board = Board.board(size, size);
+                final Board board = Boards.randomBoard(size, size);
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
-                System.out.printf("%s %dx%d updated with %d worker%s in %d ms\n", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
+
+                logger.info("{} {}x{} updated with {} worker{} in {} ms", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 // checkState(Objects.equals(newBoard, sequentialUpdater.update(board)), "Updates are not equal");
             }
             updater.stop();
@@ -49,7 +49,7 @@ public final class Benchmark {
     }
 
     static {
-        LoggingUtils.setLevel(Level.WARN);
+        LoggingUtils.setLevel(Level.INFO);
         logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     }
 
