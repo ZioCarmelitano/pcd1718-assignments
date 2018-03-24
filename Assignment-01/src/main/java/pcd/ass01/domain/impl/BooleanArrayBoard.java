@@ -44,9 +44,9 @@ final class BooleanArrayBoard extends AbstractBoard<boolean[]> {
     private static boolean toBoolean(final Cell cell) {
         switch (cell) {
             case DEAD:
-                return true;
-            case ALIVE:
                 return false;
+            case ALIVE:
+                return true;
             default:
                 throw CellUtils.throwUnknownCellState(cell);
         }
