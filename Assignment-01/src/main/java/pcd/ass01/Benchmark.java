@@ -14,16 +14,17 @@ import java.util.concurrent.TimeUnit;
 
 import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
 
-class Benchmark {
+public final class Benchmark {
 
     private static final Logger logger;
 
     private static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
-    private static final long MAX_SIZE = 9_000;
+
+    private static final int MAX_SIZE = 10_000;
+
     private static final int STEP = 1_000;
 
-
-    public static void main(String[] args) {
+    public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
         final BoardUpdater sequentialUpdater = BoardUpdater.create();
 
@@ -39,8 +40,9 @@ class Benchmark {
                 logger.info("Board {}x{} updated with {} worker{} in {} ms", size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 // checkState(Objects.equals(newBoard, sequentialUpdater.update(board)), "Updates are not equal");
             }
-            sequentialUpdater.stop();
+            updater.stop();
         }
+        sequentialUpdater.stop();
     }
 
     private static long timeIt(final Stopwatch stopwatch, final Runnable action) {
@@ -52,6 +54,9 @@ class Benchmark {
     static {
         LoggingUtils.setLevel(Level.INFO);
         logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    }
+
+    private Benchmark() {
     }
 
 }

@@ -20,15 +20,12 @@ import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
-import pcd.ass01.domain.Boards;
 import pcd.ass01.domain.Cell;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import static pcd.ass01.domain.Board.Order.ROW_MAJOR;
-import static pcd.ass01.domain.Boards.randomBoard;
 import static pcd.ass01.util.Preconditions.checkState;
 
 /**
