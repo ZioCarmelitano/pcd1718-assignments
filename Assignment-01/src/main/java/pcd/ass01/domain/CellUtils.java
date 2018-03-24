@@ -9,6 +9,10 @@ public final class CellUtils {
     private static final int MIN_ALIVE_NEIGHBORS = 2;
     private static final int MAX_ALIVE_NEIGHBORS = 3;
 
+    public static IllegalStateException throwUnknownCellState(final Cell cell) {
+        throw new IllegalStateException("Unknown cell state: " + cell);
+    }
+
     public static Cell update(final Board board, final int x, final int y) {
         checkNotNull(board, "board");
 
@@ -50,7 +54,7 @@ public final class CellUtils {
             case ALIVE:
                 return 1;
             default:
-                throw new IllegalStateException("Unknown cell state: " + cell);
+                throw CellUtils.throwUnknownCellState(cell);
         }
     }
 

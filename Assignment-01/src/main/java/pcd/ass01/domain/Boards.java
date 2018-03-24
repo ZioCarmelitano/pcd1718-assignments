@@ -1,7 +1,5 @@
 package pcd.ass01.domain;
 
-import pcd.ass01.domain.Board.Order;
-
 import java.util.Arrays;
 
 import static pcd.ass01.domain.Cell.ALIVE;
@@ -21,7 +19,7 @@ public final class Boards {
         return board;
     }
 
-    public static Board gosperGliderGun(final int width, final int height, final Order order) {
+    public static Board gosperGliderGun(final int width, final int height) {
         final Cell[][] cells = new Cell[height][];
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new Cell[width];
@@ -78,7 +76,7 @@ public final class Boards {
         cells[3][36] = ALIVE;
         cells[4][36] = ALIVE;
 
-        return Board.board(cells, order);
+        return Board.board(cells);
     }
 
     private static Cell randomCell() {

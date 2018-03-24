@@ -1,6 +1,7 @@
 package pcd.ass01.domain.impl;
 
 import pcd.ass01.domain.Cell;
+import pcd.ass01.domain.CellUtils;
 
 import static pcd.ass01.domain.Cell.ALIVE;
 import static pcd.ass01.domain.Cell.DEAD;
@@ -47,7 +48,7 @@ final class BooleanArrayBoard extends AbstractBoard<boolean[]> {
             case ALIVE:
                 return true;
             default:
-                throw new IllegalStateException("Unknown cell state: " + cell);
+                throw CellUtils.throwUnknownCellState(cell);
         }
     }
 
