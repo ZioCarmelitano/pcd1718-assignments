@@ -59,7 +59,7 @@ public class GamePresenter implements Initializable{
     }
 
     private void switchButtonGraphic() {
-        if(guiUpdater.isPaused() || !guiUpdater.isUpdating()){
+        if(guiUpdater.isPaused()){
             defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart,
                     BTN_START_HEIGHT, BTN_START_WIDTH);
         } else if (!guiUpdater.isPaused() && guiUpdater.isUpdating()){
@@ -82,11 +82,14 @@ public class GamePresenter implements Initializable{
         if(guiUpdater == null){
             showDialog("Game isn't started",
                     "Please start the game before press STOP", Alert.AlertType.ERROR);
+            return;
         } else if(!guiUpdater.stopGame()){
             switchButtonGraphic();
             showDialog("Execution Error",
                     "Game has been already stopped", Alert.AlertType.ERROR);
         }
+        buttonStart.setDisable(true);
+        btnStop.setDisable(true);
     }
 
     @Override

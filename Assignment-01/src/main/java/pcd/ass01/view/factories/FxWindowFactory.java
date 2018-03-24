@@ -13,6 +13,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
+import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -41,6 +42,8 @@ public final class FxWindowFactory implements WindowFactory{
     private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
     private static final String GAME_CSS_PATH = "/game_of_life_style.css";
     private static final String SETTINGS_CSS_PATH = "/initial_settings_style.css";
+    public static final String BOARD_PANEL_ID = "canvas";
+    public static final String SCROLL_PANE_ID = "scrollPane";
 
     private static FXMLLoader loader;
 
@@ -166,12 +169,34 @@ public final class FxWindowFactory implements WindowFactory{
     @Override
     public void openGameWindow(int width, int height, Board board) throws IOException {
         BorderPane gamePane = openWindow(GAME_FXML_PATH, GAME_CSS_PATH, true);
-        ScrollPane scrollPane = new ScrollPane();
-        Canvas gameBoardPanel = createCanvas(width, height);
-        gameBoardPanel.setId("canvas");
-        drawBoard(gameBoardPanel, board);
-        scrollPane.setContent(gameBoardPanel);
+        Canvas gameBoardPanel = createBoardPanel(width, height, board);
+        ScrollPane scrollPane = createScrollPane(gameBoardPanel);
         gamePane.setCenter(scrollPane);
+        drawBoard(gameBoardPanel, board, scrollPane);
+        handleWindowClosing(gamePane);
+    }
+
+    private ScrollPane createScrollPane(Canvas gameBoardPanel) {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(gameBoardPanel);
+        scrollPane.setId(SCROLL_PANE_ID);
+        return scrollPane;
+    }
+
+    private void handleWindowClosing(BorderPane gamePane) {
+        getStage(gamePane).setOnCloseRequest((event) -> {
+            try {
+                openStartWindow();
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+        });
+    }
+
+    private Canvas createBoardPanel(int width, int height, Board board) {
+        Canvas gameBoardPanel = createCanvas(width, height);
+        gameBoardPanel.setId(BOARD_PANEL_ID);
+        return gameBoardPanel;
     }
 
     private Canvas createCanvas(int width, int height) {
@@ -194,8 +219,10 @@ public final class FxWindowFactory implements WindowFactory{
         return getStage((Node) source);
     }
 
-    public static void drawBoard(final Canvas canvas, final Board board) {
+    public static void drawBoard(final Canvas canvas, final Board board, final ScrollPane scrollPane) {
         final PixelWriter pw = canvas.getGraphicsContext2D().getPixelWriter();
+        scrollPane.viewportBoundsProperty()
+                .addListener((obs, oldValue, newValue) -> System.out.print(newValue));
         for (int y = 0; y < board.getWidth(); y++)
             for (int x = 0; x < board.getHeight(); x++)
                 pw.setColor(y, x, getColor(board.getCell(x, y)));

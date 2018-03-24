@@ -3,22 +3,34 @@ package pcd.ass01.view.game;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.ScrollPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
 import pcd.ass01.interactors.BoardUpdater;
 import pcd.ass01.util.time.SystemClock;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static pcd.ass01.view.factories.FxWindowFactory.*;
+import static pcd.ass01.view.factories.FxWindowFactory.defaultInstance;
 import static pcd.ass01.view.factories.FxWindowFactory.drawBoard;
 import static pcd.ass01.view.factories.FxWindowFactory.getStage;
 
 public class GuiUpdater extends Task<Void> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private Board board;
 
     private final BoardUpdater boardUpdater;
 
     private final Canvas boardView;
+
+    private final Semaphore semaphore;
 
     private final AtomicBoolean isRunning;
     private final AtomicBoolean isNotPaused;
@@ -29,7 +41,19 @@ public class GuiUpdater extends Task<Void> {
         this.boardView = boardView;
         this.isRunning = new AtomicBoolean(true);
         this.isNotPaused = new AtomicBoolean(true);
-        getStage(boardView).setOnCloseRequest(event -> stopGame());
+        this.semaphore = new Semaphore(0);
+        handleGameClosing(boardView);
+    }
+
+    private void handleGameClosing(Canvas boardView) {
+        getStage(boardView).setOnCloseRequest(event -> {
+            stopGame();
+            try {
+                defaultInstance().openStartWindow();
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+        });
     }
 
     public boolean stopGame() {
@@ -55,6 +79,7 @@ public class GuiUpdater extends Task<Void> {
 
     public void resumeGame(){
         isNotPaused.set(true);
+        semaphore.release();
     }
 
     @Override
@@ -63,10 +88,16 @@ public class GuiUpdater extends Task<Void> {
         while(isRunning.get()){
             if (isNotPaused.get()) {
                 board = boardUpdater.update(board);
-                Platform.runLater(() -> drawBoard(boardView, board));
+                Platform.runLater(() -> drawBoard(boardView, board, getScrollPane()));
+            }else{
+                semaphore.acquireUninterruptibly();
             }
             SystemClock.sleep(200);
         }
         return null;
+    }
+
+    private ScrollPane getScrollPane() {
+        return (ScrollPane) getStage(boardView).getScene().lookup("#" + SCROLL_PANE_ID);
     }
 }
