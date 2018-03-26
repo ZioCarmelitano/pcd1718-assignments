@@ -73,6 +73,10 @@ final class Benchmark {
                                 .getAsDouble()))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
+        System.out.println("Iterations: " + MAX_ITERATIONS);
+        System.out.println("Size: " + SIZE + "x" + SIZE);
+        System.out.println();
+
         System.out.println("Min speeds: " + minSpeeds + " ms");
         System.out.println("Max speeds: " + maxSpeeds + " ms");
         System.out.println("Average speeds: " + avgSpeeds + " ns");
@@ -98,7 +102,7 @@ final class Benchmark {
 
     private static Map<Integer, Double> calculateSpeedUps(final Map<? extends Integer, ? extends Number> speeds, final double singleThreadedSpeed) {
         return speeds.entrySet().stream()
-                .map(e -> new SimpleImmutableEntry<>(e.getKey(), e.getValue().doubleValue() / singleThreadedSpeed))
+                .map(e -> new SimpleImmutableEntry<>(e.getKey(), singleThreadedSpeed / e.getValue().doubleValue()))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 

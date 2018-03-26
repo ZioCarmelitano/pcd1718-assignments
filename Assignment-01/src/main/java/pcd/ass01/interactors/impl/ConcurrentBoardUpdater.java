@@ -3,6 +3,7 @@ package pcd.ass01.interactors.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
+import pcd.ass01.util.Semaphores;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater {
 
         // Wait for each worker to finish the update
         if (isNotStopped())
-            finishedList.forEach(Semaphore::acquireUninterruptibly);
+            finishedList.forEach(Semaphores::acquire);
         logger.debug("Finished update");
 
         return newBoard;

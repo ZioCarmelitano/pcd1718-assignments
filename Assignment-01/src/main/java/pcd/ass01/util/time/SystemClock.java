@@ -46,13 +46,6 @@ public final class SystemClock {
         return currentTime(DAYS);
     }
 
-    private static void sleep(Duration timeout) {
-        final long millis = timeout.toMillis();
-        final int nanos = (int) (timeout.toNanos() - NANOSECONDS.convert(millis, MILLISECONDS));
-
-        sleep(millis, nanos);
-    }
-
     public static void sleep(long millis) {
         sleep(millis, 0);
     }
@@ -66,7 +59,14 @@ public final class SystemClock {
         }
     }
 
-    private static void sleep(long timeout, TemporalUnit unit) {
+    private static void sleep(Duration timeout) {
+        final long millis = timeout.toMillis();
+        final int nanos = (int) (timeout.toNanos() - NANOSECONDS.convert(millis, MILLISECONDS));
+
+        sleep(millis, nanos);
+    }
+
+    public static void sleep(long timeout, TemporalUnit unit) {
         sleep(Duration.of(timeout, unit));
     }
 

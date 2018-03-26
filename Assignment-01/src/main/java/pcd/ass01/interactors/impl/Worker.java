@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
 import pcd.ass01.domain.CellUtils;
+import pcd.ass01.util.Semaphores;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Semaphore;
@@ -46,7 +47,7 @@ final class Worker implements Runnable {
         while (isRunning()) {
             // Wait for the start of the update
             logger.debug("Worker waiting to start");
-            startUpdate.acquireUninterruptibly();
+            Semaphores.acquire(startUpdate);
 
             if (isRunning()) {
                 // Update the given portion of the board
