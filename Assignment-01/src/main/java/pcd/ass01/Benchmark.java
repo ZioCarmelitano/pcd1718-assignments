@@ -31,11 +31,9 @@ final class Benchmark {
 
     public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
-        final BoardUpdater sequentialUpdater = BoardUpdater.create();
 
         final Multimap<Integer, Long> results = Multimaps.newListMultimap(new HashMap<>(), ArrayList::new);
 
-        sequentialUpdater.start();
         for (int i = 1; i <= MAX_ITERATIONS; i++) {
             System.out.println("Iteration #" + i);
             for (int numberOfWorkers = 1; numberOfWorkers <= MAX_NUMBER_OF_WORKERS; numberOfWorkers++) {
@@ -46,12 +44,10 @@ final class Benchmark {
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
 
                 // logger.info("{} {}x{} updated with {} worker{} in {} ms", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
-                // checkState(Objects.equals(newBoard, sequentialUpdater.update(board)), "Updates are not equal");
                 results.put(numberOfWorkers, updateTime);
                 updater.stop();
             }
         }
-        sequentialUpdater.stop();
 
         final Map<Integer, Long> minSpeeds = results.asMap().entrySet().stream()
                 .map(e -> new SimpleImmutableEntry<>(
