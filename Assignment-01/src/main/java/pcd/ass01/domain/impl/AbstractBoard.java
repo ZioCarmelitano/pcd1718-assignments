@@ -55,7 +55,7 @@ public abstract class AbstractBoard<C> implements Board {
         return sb.append(']').toString();
     }
 
-    protected final int index(final int x, final int y) {
+    final int index(final int x, final int y) {
         return x * getWidth() + y;
     }
 

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static pcd.ass01.domain.Boards.gosperGliderGun;
 import static pcd.ass01.domain.Boards.randomBoard;
 
 public class SettingsPresenter implements Initializable{

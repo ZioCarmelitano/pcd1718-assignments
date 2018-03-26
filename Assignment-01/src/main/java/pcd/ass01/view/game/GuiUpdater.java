@@ -16,13 +16,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static pcd.ass01.view.factories.FxWindowFactory.*;
-import static pcd.ass01.view.factories.FxWindowFactory.defaultInstance;
-import static pcd.ass01.view.factories.FxWindowFactory.drawBoard;
-import static pcd.ass01.view.factories.FxWindowFactory.getStage;
 
-public class GuiUpdater extends Task<Void> {
+class GuiUpdater extends Task<Void> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private static final int UPDATE_INTERVAL = 5_000;
 
     private Board board;
 
@@ -88,11 +87,11 @@ public class GuiUpdater extends Task<Void> {
         while(isRunning.get()){
             if (isNotPaused.get()) {
                 board = boardUpdater.update(board);
-                Platform.runLater(() -> drawBoard(boardView, board, getScrollPane()));
+                Platform.runLater(() -> drawBoard(boardView, board));
             }else{
                 semaphore.acquireUninterruptibly();
             }
-            SystemClock.sleep(200);
+            SystemClock.sleep(UPDATE_INTERVAL);
         }
         return null;
     }

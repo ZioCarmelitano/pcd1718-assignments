@@ -13,7 +13,6 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
-import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -43,10 +42,20 @@ public final class FxWindowFactory implements WindowFactory{
     private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
     private static final String GAME_CSS_PATH = "/game_of_life_style.css";
     private static final String SETTINGS_CSS_PATH = "/initial_settings_style.css";
-    public static final String BOARD_PANEL_ID = "canvas";
+    private static final String BOARD_PANEL_ID = "canvas";
     public static final String SCROLL_PANE_ID = "scrollPane";
 
+    private static Double scrollHorizontalNewValue = 0.2;
+    private static Double scrollVerticalNewValue = 0.2;
+    private static Double scrollVerticalOldValue = 0.0;
+    private static Double scrollHorizontalOldValue = 0.0;
+
     private static FXMLLoader loader;
+    private static int startY;
+    private static int endY;
+    private static int startX;
+    private static int endX;
+
 
     public static FxWindowFactory defaultInstance() {
         return Holder.INSTANCE;
@@ -54,11 +63,11 @@ public final class FxWindowFactory implements WindowFactory{
 
     /**
      *
-     * @return reference to view handler.
+     * @return reference to view presenter.
      * @param <T>
-     *            type of the handler
+     *            type of the presenter
      */
-    public static <T> T getHandler() {
+    public static <T> T getPresenter() {
         return loader == null ? null : loader.getController();
     }
 
@@ -173,7 +182,7 @@ public final class FxWindowFactory implements WindowFactory{
         Canvas gameBoardPanel = createBoardPanel(width, height, board);
         ScrollPane scrollPane = createScrollPane(gameBoardPanel);
         gamePane.setCenter(scrollPane);
-        drawBoard(gameBoardPanel, board, scrollPane);
+        drawBoard(gameBoardPanel, board);
         handleWindowClosing(gamePane);
     }
 
@@ -181,7 +190,31 @@ public final class FxWindowFactory implements WindowFactory{
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(gameBoardPanel);
         scrollPane.setId(SCROLL_PANE_ID);
+        setScrollVerticalProperty(gameBoardPanel, scrollPane);
+        setScrollHorizontalProperty(gameBoardPanel, scrollPane);
         return scrollPane;
+    }
+
+    private void setScrollHorizontalProperty(Canvas gameBoardPanel, ScrollPane scrollPane) {
+        scrollPane.hvalueProperty()
+                .multiply(gameBoardPanel.getHeight())
+                .addListener(((observable, oldValue, newValue) -> {
+                    scrollHorizontalOldValue = oldValue.doubleValue();
+                    scrollHorizontalNewValue = newValue.doubleValue();
+                    System.out.println("oldH: " + oldValue);
+                    System.out.println("newH: " + newValue);
+                }));
+    }
+
+    private void setScrollVerticalProperty(Canvas gameBoardPanel, ScrollPane scrollPane) {
+        scrollPane.vvalueProperty()
+                .multiply(gameBoardPanel.getWidth())
+                .addListener((observable, oldValue, newValue) -> {
+                    scrollVerticalOldValue = oldValue.doubleValue();
+                    scrollVerticalNewValue = newValue.doubleValue();
+                    System.out.println("oldV: " + oldValue);
+                    System.out.println("newV: " + newValue);
+                });
     }
 
     private void handleWindowClosing(BorderPane gamePane) {
@@ -220,14 +253,38 @@ public final class FxWindowFactory implements WindowFactory{
         return getStage((Node) source);
     }
 
-    public static void drawBoard(final Canvas canvas, final Board board, final ScrollPane scrollPane) {
+    public static void drawBoard(final Canvas canvas, final Board board) {
         final PixelWriter pw = canvas.getGraphicsContext2D().getPixelWriter();
-        scrollPane.viewportBoundsProperty()
-                .addListener((obs, oldValue, newValue) -> System.out.print(newValue));
-        for (int y = 0; y < board.getWidth(); y++)
-            for (int x = 0; x < board.getHeight(); x++)
+        endX = isBoardWidthGreater(canvas, board)
+                ? (int) (endX + getScrollHorizontalTranslation()) : board.getWidth();
+        startX = isBoardWidthGreater(canvas, board)
+                ? (int) (startX + getScrollHorizontalTranslation()) : 0;
+        endY = isBoardHeightGreater(canvas, board)
+                ? (int) (endY + getScrollVerticalTranslation()) : board.getHeight();
+        startY = isBoardHeightGreater(canvas, board)
+                ? (int) (startY + getScrollVerticalTranslation()) : 0;
+        //System.out.println("endX: " + scrollHorizontalNewValue.doubleValue() + "\n endY: " + endY);
+        for (int y = startX; y < endX; y++)
+            for (int x = startY; x < endY; x++)
                 pw.setColor(y, x, getColor(board.getCell(x, y)));
     }
+
+    private static double getScrollHorizontalTranslation() {
+        return scrollHorizontalNewValue - scrollHorizontalOldValue;
+    }
+
+    private static double getScrollVerticalTranslation() {
+        return scrollVerticalNewValue - scrollVerticalOldValue;
+    }
+
+    private static boolean isBoardHeightGreater(Canvas canvas, Board board) {
+        return board.getHeight() > canvas.getHeight();
+    }
+
+    private static boolean isBoardWidthGreater(Canvas canvas, Board board) {
+        return board.getWidth() > canvas.getWidth();
+    }
+
 
     private static Color getColor(final Cell cell) {
         switch (cell) {

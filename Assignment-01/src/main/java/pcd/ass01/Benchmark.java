@@ -24,7 +24,7 @@ final class Benchmark {
 
     private static final Logger logger;
 
-    public static final int MAX_ITERATIONS = 25;
+    private static final int MAX_ITERATIONS = 25;
     private static final int MAX_NUMBER_OF_WORKERS = 10;
 
     private static final int SIZE = 5_000;

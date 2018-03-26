@@ -34,7 +34,7 @@ public class GamePresenter implements Initializable{
     private Button buttonStart;
 
     @FXML
-    private Button btnStop;
+    private Button buttonStop;
 
     private GuiUpdater guiUpdater;
 
@@ -89,7 +89,7 @@ public class GamePresenter implements Initializable{
                     "Game has been already stopped", Alert.AlertType.ERROR);
         }
         buttonStart.setDisable(true);
-        btnStop.setDisable(true);
+        buttonStop.setDisable(true);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class GamePresenter implements Initializable{
         buildBoardUpdater();
         buildGameBoard();
         defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart, BTN_START_HEIGHT, BTN_START_WIDTH);
-        defaultInstance().buildGameButton(STOP_ICON_PATH, btnStop, BTN_STOP_HEIGHT, BTN_STOP_WIDTH);
+        defaultInstance().buildGameButton(STOP_ICON_PATH, buttonStop, BTN_STOP_HEIGHT, BTN_STOP_WIDTH);
     }
 
     private void buildGameBoard() {
