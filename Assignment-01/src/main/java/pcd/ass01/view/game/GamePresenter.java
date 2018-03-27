@@ -36,7 +36,7 @@ public class GamePresenter implements Initializable{
     @FXML
     private Button buttonStop;
 
-    private GuiUpdater guiUpdater;
+    private GameUpdater gameUpdater;
 
     private Board board;
 
@@ -44,12 +44,12 @@ public class GamePresenter implements Initializable{
 
     @FXML
     void playOrResume(ActionEvent event) {
-        if(guiUpdater == null){
+        if(gameUpdater == null){
             launchGUIUpdater(event);
-        } else if(guiUpdater.isPaused() && guiUpdater.isUpdating()) {
-            guiUpdater.resumeGame();
-        }else if(!guiUpdater.isPaused() && guiUpdater.isUpdating()){
-            guiUpdater.pauseGame();
+        } else if(gameUpdater.isPaused() && gameUpdater.isUpdating()) {
+            gameUpdater.resumeGame();
+        }else if(!gameUpdater.isPaused() && gameUpdater.isUpdating()){
+            gameUpdater.pauseGame();
         }else{
             showDialog("Can't restart game","Please restart the application to play a new game!",
                     Alert.AlertType.ERROR);
@@ -59,31 +59,31 @@ public class GamePresenter implements Initializable{
     }
 
     private void switchButtonGraphic() {
-        if(guiUpdater.isPaused()){
+        if(gameUpdater.isPaused()){
             defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart,
                     BTN_START_HEIGHT, BTN_START_WIDTH);
-        } else if (!guiUpdater.isPaused() && guiUpdater.isUpdating()){
+        } else if (!gameUpdater.isPaused() && gameUpdater.isUpdating()){
             defaultInstance().buildGameButton(PAUSE_ICON_PATH, buttonStart,
                     BTN_PAUSE_HEIGHT, BTN_PAUSE_WIDTH);
         }
     }
 
     private void launchGUIUpdater(ActionEvent event) {
-        if(guiUpdater == null) {
+        if(gameUpdater == null) {
             Canvas boardView = (Canvas) getStage(event)
                     .getScene().lookup("#canvas");
-            guiUpdater = new GuiUpdater(board, updater, boardView);
+            gameUpdater = new GameUpdater(board, updater, boardView);
         }
-        new Thread(guiUpdater).start();
+        new Thread(gameUpdater).start();
     }
 
     @FXML
     void stop(ActionEvent event){
-        if(guiUpdater == null){
+        if(gameUpdater == null){
             showDialog("Game isn't started",
                     "Please start the game before press STOP", Alert.AlertType.ERROR);
             return;
-        } else if(!guiUpdater.stopGame()){
+        } else if(!gameUpdater.stopGame()){
             switchButtonGraphic();
             showDialog("Execution Error",
                     "Game has been already stopped", Alert.AlertType.ERROR);

@@ -3,7 +3,6 @@ package pcd.ass01.view.game;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass01.domain.Board;
@@ -16,12 +15,13 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static pcd.ass01.view.factories.FxWindowFactory.*;
+import static pcd.ass01.view.game.RenderingService.renderBoard;
 
-class GuiUpdater extends Task<Void> {
+class GameUpdater extends Task<Void> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final int UPDATE_INTERVAL = 5_000;
+    private static final int UPDATE_INTERVAL = 50;
 
     private Board board;
 
@@ -34,7 +34,7 @@ class GuiUpdater extends Task<Void> {
     private final AtomicBoolean isRunning;
     private final AtomicBoolean isNotPaused;
 
-    public GuiUpdater(Board board, BoardUpdater boardUpdater, Canvas boardView) {
+    public GameUpdater(Board board, BoardUpdater boardUpdater, Canvas boardView) {
         this.board = board;
         this.boardUpdater = boardUpdater;
         this.boardView = boardView;
@@ -87,7 +87,7 @@ class GuiUpdater extends Task<Void> {
         while(isRunning.get()){
             if (isNotPaused.get()) {
                 board = boardUpdater.update(board);
-                Platform.runLater(() -> drawBoard(boardView, board));
+                renderBoard(boardView, board);
             }else{
                 semaphore.acquireUninterruptibly();
             }
@@ -96,7 +96,4 @@ class GuiUpdater extends Task<Void> {
         return null;
     }
 
-    private ScrollPane getScrollPane() {
-        return (ScrollPane) getStage(boardView).getScene().lookup("#" + SCROLL_PANE_ID);
-    }
 }
