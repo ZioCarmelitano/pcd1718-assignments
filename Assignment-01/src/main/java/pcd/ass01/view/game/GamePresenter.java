@@ -50,10 +50,6 @@ public class GamePresenter implements Initializable{
             gameUpdater.resumeGame();
         }else if(!gameUpdater.isPaused() && gameUpdater.isUpdating()){
             gameUpdater.pauseGame();
-        }else{
-            showDialog("Can't restart game","Please restart the application to play a new game!",
-                    Alert.AlertType.ERROR);
-            return;
         }
         switchButtonGraphic();
     }
@@ -71,7 +67,7 @@ public class GamePresenter implements Initializable{
     private void launchGUIUpdater(ActionEvent event) {
         if(gameUpdater == null) {
             Canvas boardView = (Canvas) getStage(event)
-                    .getScene().lookup("#canvas");
+                    .getScene().lookup("#" + getBoardPanelId());
             gameUpdater = new GameUpdater(board, updater, boardView);
         }
         new Thread(gameUpdater).start();
@@ -82,14 +78,11 @@ public class GamePresenter implements Initializable{
         if(gameUpdater == null){
             showDialog("Game isn't started",
                     "Please start the game before press STOP", Alert.AlertType.ERROR);
-            return;
-        } else if(!gameUpdater.stopGame()){
-            switchButtonGraphic();
-            showDialog("Execution Error",
-                    "Game has been already stopped", Alert.AlertType.ERROR);
+        } else{
+            gameUpdater.stopGame();
+            buttonStart.setDisable(true);
+            buttonStop.setDisable(true);
         }
-        buttonStart.setDisable(true);
-        buttonStop.setDisable(true);
     }
 
     @Override

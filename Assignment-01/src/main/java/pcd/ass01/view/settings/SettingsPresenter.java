@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static pcd.ass01.domain.Boards.gosperGliderGun;
 import static pcd.ass01.domain.Boards.randomBoard;
 
 public class SettingsPresenter implements Initializable{
@@ -45,15 +44,17 @@ public class SettingsPresenter implements Initializable{
 
     @FXML
     void startGame(ActionEvent event) throws IOException {
-        String widthInserted = txtWidth.getText();
-        String heightInserted = txtHeight.getText();
-        String workersNumberInserted = txtNWorkers.getText();
-        if (inputIsIncorrect(widthInserted, heightInserted, workersNumberInserted)) return;
-        width = Integer.parseInt(widthInserted);
-        height = Integer.parseInt(heightInserted);
-        workersNumber = Integer.parseInt(workersNumberInserted);
+        if (inputIsIncorrect(txtWidth.getText(), txtHeight.getText(),
+                txtNWorkers.getText())) return;
+        width = Integer.parseInt(txtWidth.getText());
+        height = Integer.parseInt(txtHeight.getText());
+        workersNumber = Integer.parseInt(txtNWorkers.getText());
         boardConfiguration = randomBoard(width, height);
         closeSettingWindow(event);
+        openGameWindow();
+    }
+
+    private void openGameWindow() throws IOException {
         WindowFactory windowFactory = FxWindowFactory.defaultInstance();
         windowFactory.openGameWindow(width, height, boardConfiguration);
     }

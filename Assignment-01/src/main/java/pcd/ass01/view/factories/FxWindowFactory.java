@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static pcd.ass01.util.Preconditions.checkState;
 import static pcd.ass01.view.game.RenderingService.renderBoard;
-import static pcd.ass01.view.properties.ViewProperties.*;
+import static pcd.ass01.view.utils.ScrollManager.*;
 
 /**
  * Utility class to create JavaFx windows using pattern Static Factory.
@@ -39,8 +39,10 @@ public final class FxWindowFactory implements WindowFactory{
     private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
     private static final String GAME_CSS_PATH = "/game_of_life_style.css";
     private static final String SETTINGS_CSS_PATH = "/initial_settings_style.css";
+
+    private static final String PANEL_CONTAINER_ID = "panelContainer";
     private static final String BOARD_PANEL_ID = "canvas";
-    public static final String SCROLL_PANE_ID = "scrollPane";
+    private static final String SCROLL_PANE_ID = "scrollPane";
 
     private static FXMLLoader loader;
 
@@ -167,6 +169,7 @@ public final class FxWindowFactory implements WindowFactory{
     @Override
     public void openGameWindow(int width, int height, Board board) throws IOException {
         BorderPane gamePane = openWindow(GAME_FXML_PATH, GAME_CSS_PATH, true);
+        gamePane.setId(PANEL_CONTAINER_ID);
         Canvas gameBoardPanel = createBoardPanel(width, height, board);
         ScrollPane scrollPane = createScrollPane(gameBoardPanel);
         gamePane.setCenter(scrollPane);
@@ -219,6 +222,8 @@ public final class FxWindowFactory implements WindowFactory{
         return getStage((Node) source);
     }
 
-
+    public static String getBoardPanelId() {
+        return BOARD_PANEL_ID;
+    }
 }
 

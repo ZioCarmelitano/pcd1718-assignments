@@ -66,7 +66,7 @@ public final class SystemClock {
         sleep(millis, nanos);
     }
 
-    public static void sleep(long timeout, TemporalUnit unit) {
+    private static void sleep(long timeout, TemporalUnit unit) {
         sleep(Duration.of(timeout, unit));
     }
 

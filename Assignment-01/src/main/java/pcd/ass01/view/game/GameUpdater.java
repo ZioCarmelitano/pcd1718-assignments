@@ -1,6 +1,5 @@
 package pcd.ass01.view.game;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
 import org.slf4j.Logger;
@@ -55,13 +54,11 @@ class GameUpdater extends Task<Void> {
         });
     }
 
-    public boolean stopGame() {
+    public void stopGame() {
         if(isRunning.get()) {
             isRunning.set(false);
             boardUpdater.stop();
-            return true;
         }
-        return false;
     }
 
     public boolean isUpdating(){

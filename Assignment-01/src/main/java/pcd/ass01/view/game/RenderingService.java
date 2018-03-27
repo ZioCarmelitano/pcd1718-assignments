@@ -12,6 +12,7 @@ import pcd.ass01.domain.Cell;
 import java.nio.IntBuffer;
 
 import static pcd.ass01.domain.CellUtils.throwUnknownCellState;
+import static pcd.ass01.view.utils.ScrollManager.*;
 
 public final class RenderingService {
 
@@ -28,8 +29,8 @@ public final class RenderingService {
 
     private static int[] buildPixelBuffer(Board board, int boardWidth, int boardHeight) {
         int[] boardBuffer = new int[boardWidth * boardHeight];
-        for (int y = 0; y < board.getWidth(); y++)
-            for (int x = 0; x < board.getHeight(); x++)
+        for (int y = getStartX(); y < getEndX(); y++)
+            for (int x = getStartY(); x < getEndY(); x++)
                 boardBuffer[y + boardWidth * x] = colorToInt(getColor(board.getCell(x,y)));
         return boardBuffer;
     }
@@ -42,7 +43,7 @@ public final class RenderingService {
     }
 
     private static int colorToInt(Color c) {
-        return (                               255  << 24) |
+        return (                       255  << 24) |
                 ((int) (c.getRed()   * 255) << 16) |
                 ((int) (c.getGreen() * 255) << 8)  |
                 ((int) (c.getBlue()  * 255));
