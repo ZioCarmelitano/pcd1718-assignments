@@ -10,10 +10,14 @@ import pcd.ass01.domain.Boards;
 import pcd.ass01.interactors.BoardUpdater;
 import pcd.ass01.util.LoggingUtils;
 import pcd.ass01.util.time.Stopwatch;
+import pcd.ass01.util.time.TimeUtils;
 
 import java.lang.invoke.MethodHandles;
-import java.util.*;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -77,9 +81,10 @@ final class Benchmark {
         System.out.println("Size: " + SIZE + "x" + SIZE);
         System.out.println();
 
-        System.out.println("Min speeds: " + minSpeeds + " ms");
-        System.out.println("Max speeds: " + maxSpeeds + " ms");
-        System.out.println("Average speeds: " + avgSpeeds + " ns");
+        final String si = " " + TimeUtils.toSIString(stopwatch.getTimeUnit());
+        System.out.println("Min speeds: " + minSpeeds + si);
+        System.out.println("Max speeds: " + maxSpeeds + si);
+        System.out.println("Average speeds: " + avgSpeeds + si);
         System.out.println();
 
         final double singleThreadedMinSpeed = minSpeeds.get(1);

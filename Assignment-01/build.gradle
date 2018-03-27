@@ -42,7 +42,7 @@ sourceSets.main {
 ext {
     slf4jVersion = '1.7.25'
     logbackVersion = '1.2.3'
-    apacheCommonsLangVersion = '3.7'
+
     guavaVersion = '24.1-jre'
 
     junitVersion = '4.12'
@@ -58,4 +58,9 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion
 
     testCompile group: 'junit', name: 'junit', version: junitVersion
+}
+
+task exec(type: JavaExec) {
+    main = mainClass
+    classpath = sourceSets.main.runtimeClasspath
 }
