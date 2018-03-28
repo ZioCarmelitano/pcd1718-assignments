@@ -42,9 +42,7 @@ sourceSets.main {
 ext {
     slf4jVersion = '1.7.25'
     logbackVersion = '1.2.3'
-
     guavaVersion = '24.1-jre'
-
     junitVersion = '4.12'
 }
 
@@ -60,7 +58,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: junitVersion
 }
 
-task exec(type: JavaExec) {
+task run(type: JavaExec) {
     main = mainClass
     classpath = sourceSets.main.runtimeClasspath
 }
