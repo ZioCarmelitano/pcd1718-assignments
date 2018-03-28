@@ -58,16 +58,34 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: junitVersion
 }
 
-task run(type: JavaExec) {
-    main = mainClass
+task runBenchmark(type: JavaExec) {
+    main = 'pcd.ass01.Benchmark'
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task mkJar(type: Jar) {
+task runGui(type: JavaExec) {
+    main = 'pcd.ass01.Launcher'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task mkBenchmarkJar(type: Jar) {
+    def mainClass = 'pcd.ass01.Benchmark'
     manifest {
         attributes 'Main-Class': mainClass
     }
-    baseName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
+    archiveName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task mkGuiJar(type: Jar) {
+    def mainClass = 'pcd.ass01.Benchmark'
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+    archiveName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
     with jar
 }

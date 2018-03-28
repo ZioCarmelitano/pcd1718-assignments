@@ -1,6 +1,21 @@
 #!/bin/bash
-if [ "$#" -ne 1 ]; then
-    echo "Main class required." >&2
+BENCHMARK_FLAG=-b
+GUI_FLAG=-g
+
+usage() {
+    echo "Usage: $0 <-b|-g>" >&2
+    echo -e "\t$0 $BENCHMARK_FLAG run benchmark"
+    echo -e "\t$0 $GUI_FLAG run GUI"
+}
+
+if [ "$#" -ne "1" ]; then
+    usage >&2
+    exit 1
+elif [[ "$1" == $BENCHMARK_FLAG ]]; then
+    ./gradlew mkBenchmarkJar
+elif [[ "$1" == $GUI_FLAG ]]; then
+    ./gradlew mkGuiJar
+else
+    usage >&2
     exit 1
 fi
-./gradlew mkJar -PmainClass=$1
