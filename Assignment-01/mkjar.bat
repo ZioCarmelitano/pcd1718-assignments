@@ -1,5 +1,4 @@
 @echo off
-setlocal enabledelayedexpansion
 
 set argc=0
 FOR %%x in (%*) DO (
@@ -7,7 +6,8 @@ FOR %%x in (%*) DO (
     set "argv[!argc!]=%%~x"
 )
 
-IF /I "%ERRORLEVEL%" NEQ "1" (
+IF /I "%argc%" NEQ "1" (
     echo "Exacly one argument required, the name of the main class" >&2
-    exit 1
+) ELSE (
+    gradlew mkJar -PmainClass=%1
 )

@@ -64,3 +64,12 @@ task exec(type: JavaExec) {
     main = mainClass
     classpath = sourceSets.main.runtimeClasspath
 }
+
+task mkJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+    baseName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
