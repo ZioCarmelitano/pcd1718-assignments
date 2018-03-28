@@ -1,5 +1,10 @@
 ﻿\documentclass[a4paper]{article}
 
+\usepackage{caption}
+\usepackage{amsmath}
+
+\captionsetup[table]{position=bottom}
+
 %\usepackage[cm]{fullpage}
 
 % some very useful LaTeX packages include:
@@ -282,7 +287,31 @@ La scacchiera di gioco è stata realizzata utilizzando un Canvas sul quale vengo
 \section{Dinamica del sistema}\label{dinamica-del-sistema}
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
+La tabella sottostante mostra gli speedup S (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di core utilizzati.\\
+Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema con algoritmo sequenziale e il tempo di esecuzione del sistema con algoritmo parallelo.\\\\
+\begin{equation}
+ S = \dfrac{T_1}{T_N}
+\end{equation}
+Dove:
+\begin{itemize}
+    \item $ N  \rightarrow$ numero di core utilizzati
+    \item $ T_1 \rightarrow$ tempo di esecuzione del sistema con algoritmo sequenziale
+    \item $ T_N \rightarrow$ tempo di esecuzione del sistema con algoritmo parallelo con $N$ core
+\end{itemize}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|ccccccccc}
+\hline
+    & 2     & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10   \\ \hline
+Min & 1.766 & 2.43 & 3.04 & 2.93 & 2.89 & 2.90 & 2.86 & 2.85 & 2.85 \\
+Max & 2.11  & 2.87 & 3.41 & 3.22 & 3.40 & 3.26 & 3.38 & 3.06 & 3.45 \\
+Avg & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
+\end{tabular}
+\caption{Speedup: sulle colonne sono specificati i core utilizzati nella parallelizzazione del sistema, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati.}
+\label{Tabella speedup del sistema}
+\end{table}
 
 % Your document ends here!
 \end{document}
-
