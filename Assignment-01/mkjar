@@ -3,7 +3,7 @@ BENCHMARK_FLAG=-b
 GUI_FLAG=-g
 
 usage() {
-    echo "Usage: $0 <-b|-g>" >&2
+    echo "Usage: $0 <$BENCHMARK_FLAG|$GUI_FLAG>" >&2
     echo -e "\t$0 $BENCHMARK_FLAG run benchmark"
     echo -e "\t$0 $GUI_FLAG run GUI"
 }
