@@ -10,7 +10,7 @@ FOR %%x in (%*) DO (
 )
 
 IF /I "%argc%" NEQ "1" (
-    echo "Usage: %0 <-b|-g>" >&2
+    echo "Usage: %0 <%BENCHMARK_FLAG%|%GUI_FLAG%>" >&2
     echo "    %0 %BENCHMARK_FLAG% run benchmark" >&2
     echo "    %0 %GUI_FLAG% run GUI" >&2
 ) ELSE IF /I "%1" == %BENCHMARK_FLAG% (
@@ -18,7 +18,7 @@ IF /I "%argc%" NEQ "1" (
 ) ELSE IF /I "%1" == %GUI_FLAG% (
     gradlew runGui
 ) ELSE (
-    echo "Usage: %0 <-b|-g>" >&2
+    echo "Usage: %0 <%BENCHMARK_FLAG%|%GUI_FLAG%>" >&2
     echo "    %0 %BENCHMARK_FLAG% run benchmark" >&2
     echo "    %0 %GUI_FLAG% run GUI" >&2
 )
