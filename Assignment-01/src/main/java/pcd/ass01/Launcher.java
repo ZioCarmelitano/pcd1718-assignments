@@ -15,7 +15,6 @@ public final class Launcher extends Application{
 
     @Override
     public void start(Stage stage) throws IOException {
-        WindowFactory windowFactory = defaultInstance();
-        windowFactory.openStartWindow();
+        defaultInstance().openStartWindow();
     }
 }

@@ -1,4 +1,4 @@
-﻿\documentclass[a4paper]{article}
+\documentclass[a4paper]{article}
 
 \usepackage{caption}
 \usepackage{amsmath}
@@ -280,23 +280,25 @@ proprio lavoro per poi restituire la nuova scacchiera.
 \subsubsection{Interfaccia utente}\label{interfaccia-utente}
 
 L’interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \emph{start} e \emph{stop}. Lo \emph{start} permette l’avvio e la pausa del gioco, mentre lo \emph{stop} la terminazione.\\
-Utilizzando il pattern Factory sono stati incapsulati in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni Presenter che incapsulano la logica di controllo dei componenti (form, pulsanti, …) di cui sono costituite.\\
-La computazione per l’update della scacchiera è effettuata su un thread separato “GuiUpdater” (task di Java FX) e questo permette di mantenere l’interfaccia grafica (gestita dal Java FX Application Thread) reattiva e in grado di intercettare l’input dell’utente.\\
-La scacchiera di gioco è stata realizzata utilizzando un Canvas sul quale vengono disegnati i pixel attraverso la classe PixelWriter di Java FX: una classe ottimizzata per il disegno dei singoli pixel.
+Utilizzando il pattern Factory sono stati incapsulati in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni \texttt{Presenter} che incapsulano la logica di controllo dei componenti (form, pulsanti, …) di cui sono costituite.\\
+La computazione relativa alla coordinazione dell’aggiornamento matriciale e grafico della scacchiera è effettuata su un thread separato \texttt{GameUpdater} (task di Java FX in cui è incapsulato il Game Loop) e questo permette di mantenere l’interfaccia grafica (gestita dal Java FX Application Thread) reattiva ed in grado di intercettare l’input dell’utente.\\
+Il Presenter addetto alla gestione degli eventi di gioco (\texttt{GamePresenter}) utilizza un servizio di rendering offerto dalla  classe \texttt{RenderingService} nella quale sono state incapsulate le funzioni relative al disegno della scacchiera di gioco.
+Quest'ultima è stata realizzata utilizzando un componente grafico \texttt{Canvas} sul quale vengono disegnate le celle attraverso la classe \texttt{PixelWriter} di Java FX: una classe ottimizzata per il disegno dei singoli pixel.
+
 
 \section{Dinamica del sistema}\label{dinamica-del-sistema}
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
-La tabella sottostante mostra gli speedup S (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di core utilizzati.\\
+La tabella sottostante mostra gli speedup S (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di worker utilizzati.\\
 Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema con algoritmo sequenziale e il tempo di esecuzione del sistema con algoritmo parallelo.\\\\
 \begin{equation}
  S = \dfrac{T_1}{T_N}
 \end{equation}
 Dove:
 \begin{itemize}
-    \item $ N  \rightarrow$ numero di core utilizzati
+    \item $ N  \rightarrow$ numero di worker utilizzati
     \item $ T_1 \rightarrow$ tempo di esecuzione del sistema con algoritmo sequenziale
-    \item $ T_N \rightarrow$ tempo di esecuzione del sistema con algoritmo parallelo con $N$ core
+    \item $ T_N \rightarrow$ tempo di esecuzione del sistema con algoritmo parallelo con $N$ worker
 \end{itemize}
 
 
@@ -309,7 +311,7 @@ Min & 1.766 & 2.43 & 3.04 & 2.93 & 2.89 & 2.90 & 2.86 & 2.85 & 2.85 \\
 Max & 2.11  & 2.87 & 3.41 & 3.22 & 3.40 & 3.26 & 3.38 & 3.06 & 3.45 \\
 Avg & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
 \end{tabular}
-\caption{Speedup: sulle colonne sono specificati i core utilizzati nella parallelizzazione del sistema, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati.}
+\caption{Speedup: sulle colonne sono specificati i worker utilizzati nella parallelizzazione del sistema, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati.}
 \label{Tabella speedup del sistema}
 \end{table}
 

@@ -29,16 +29,6 @@ jfx {
     vendor = 'MMN'
 }
 
-sourceSets.main {
-    java {
-        srcDir 'src/main/java'
-    }
-    resources {
-        srcDirs = ['src/main/java', 'src/main/resources']
-        exclude "**/*.java"
-    }
-}
-
 ext {
     slf4jVersion = '1.7.25'
     logbackVersion = '1.2.3'
