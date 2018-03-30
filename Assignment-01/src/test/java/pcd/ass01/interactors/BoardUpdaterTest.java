@@ -10,8 +10,8 @@ import static pcd.ass01.domain.Cell.ALIVE;
 
 public class BoardUpdaterTest {
 
-    private static final int WIDTH = 3;
-    private static final int HEIGHT = 3;
+    private static final int WIDTH = 5;
+    private static final int HEIGHT = 8;
 
     private Board board;
     private BoardUpdater updater;
@@ -19,7 +19,7 @@ public class BoardUpdaterTest {
     @Before
     public void setUp() {
         board = Board.board(WIDTH, HEIGHT);
-        updater = BoardUpdater.create(WIDTH);
+        updater = BoardUpdater.create(2);
         updater.start();
     }
 
