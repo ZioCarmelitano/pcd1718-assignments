@@ -63,7 +63,7 @@ task mkBenchmarkJar(type: Jar) {
     manifest {
         attributes 'Main-Class': mainClass
     }
-    archiveName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
+    baseName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
@@ -73,7 +73,7 @@ task mkGuiJar(type: Jar) {
     manifest {
         attributes 'Main-Class': mainClass
     }
-    archiveName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
+    baseName = mainClass.drop(mainClass.lastIndexOf(".") + 1).toLowerCase()
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }

@@ -191,24 +191,23 @@ Assigment \#1 - ``The Game of Life''
 \maketitle
 \section{Analisi del problema}\label{analisi-del-problema}
 
-L'obiettivo della consegna è l'implementazione, in Java, di una versione concorrente del gioco ``The Game of Life'' usando la programmazione concorrente multi-threaded.\\
-Il gioco consiste nel calcolare e visualizzare l'evoluzione della
-matrice di celle che caratterizza il gioco, come sequenza di fotogrammi (ognuno dei quali rappresenta lo stato del mondo).\\
-Nella matrice, ogni cella può essere in uno dei due stati possibili, \emph{live} o \emph{dead}.\\
+L'obiettivo della consegna è implementare, in Java, una versione concorrente del gioco \textit{``The Game of Life''} usando la programmazione concorrente multi-threaded.\\
+Il gioco consiste nel calcolare e visualizzare l'evoluzione della matrice di celle che caratterizza il gioco, come sequenza di fotogrammi (ognuno dei quali rappresenta lo stato del mondo).\\
+Nella matrice, ogni cella può essere in uno dei due stati possibili, \textit{live} o \textit{dead}.\\
 Dato lo stato \(s\left(t\right)\) della matrice, lo stato \(s\left(t + 1\right)\) si computa con le seguenti regole:
 
 \begin{itemize}
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \emph{live} e ha zero o al più una cella vicina \emph{live} (e le altre \emph{dead}), nello stato \(s\left(t + 1\right)\) diventa \emph{dead} (``muore di solitudine'')
+  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{live} e ha zero o al più una cella vicina \textit{live} (e le altre \textit{dead}), nello stato \(s\left(t + 1\right)\) diventa \textit{dead} (``muore di solitudine'')
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \emph{live} e ha quattro o più celle vicine \emph{live}, nello stato \(s\left(t + 1\right)\) diventa \emph{dead} (``muore di sovrappopolamento'')
+  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{live} e ha quattro o più celle vicine \textit{live}, nello stato \(s\left(t + 1\right)\) diventa \textit{dead} (``muore di sovrappopolamento'')
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \emph{live} e ha due o tre celle vicine \emph{live}, nello stato \(s\left(t + 1\right)\) rimane \emph{live} (``sopravvive'')
+  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{live} e ha due o tre celle vicine \textit{live}, nello stato \(s\left(t + 1\right)\) rimane \textit{live} (``sopravvive'')
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \emph{dead} e ha tre celle vicine \emph{live}, nello stato \(s\left(t + 1\right)\) diventa \emph{live}
+  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{dead} e ha tre celle vicine \textit{live}, nello stato \(s\left(t + 1\right)\) diventa \textit{live}
 \end{itemize}
 Il gioco deve presentare un'interfaccia grafica con pulsanti \texttt{start} e \texttt{stop} con cui si fa partire e fermare il gioco.
-Ogni stato del gioco deve essere visualizzato, insieme al numero di celle nello stato \emph{live}.
+Ogni stato del gioco deve essere visualizzato, insieme al numero di celle nello stato \textit{live}.
 
 \subsection{Requisiti del sistema}\label{requisiti-del-sistema}
 
@@ -216,19 +215,18 @@ Ogni stato del gioco deve essere visualizzato, insieme al numero di celle nello 
 \item
   Il programma deve funzionare anche con matrici di dimensioni significative (ad es. 5000x5000);
 \item
-  Massimizzare lo throughput, minimizzando il tempo di calcolo di ciascun fotogramma ed eventualmente anche della sequenza di fotogrammi;
+  Massimizzare il throughput, minimizzando il tempo di calcolo di ciascun fotogramma ed eventualmente anche della sequenza di fotogrammi;
 \item
   Massimizzare la reattività della GUI;
 \item
   Studiare e implementare meccanismi di coordinazione/sincronizzazione basati su semafori o monitor.
 \end{itemize}
 
-\section{Descrizione della soluzione
-proposta}\label{descrizione-della-soluzione-proposta}
+\section{Descrizione della soluzione proposta}\label{descrizione-della-soluzione-proposta}
 
 \subsection{Architettura del sistema}\label{architettura-del-sistema}
 
-L'architettura del sistema è stata scomposta in tre \emph{live}lli utilizzando il pattern Model View Presenter usando il modello ad Interattori, di conseguenza vi sono tre moduli: il dominio applicativo, gli interattori e la vista:
+L'architettura del sistema è stata scomposta in tre livelli utilizzando il pattern Model View Presenter con modello ad Interattori, di conseguenza vi sono tre moduli: il dominio applicativo, gli interattori e l'interfaccia grafica:
 
 \begin{itemize}
 \item
@@ -245,73 +243,59 @@ L'architettura del sistema è stata scomposta in tre \emph{live}lli utilizzando 
 
 Abbiamo implementato il dominio applicativo attraverso due classi:
 \texttt{Cell} e \texttt{Board}.\\
-L'enum \texttt{Cell} rappresenta lo stato di una cella della scacchiera che può essere \emph{live} o \emph{dead}.
-La classe \texttt{Board} rappresenta la scacchiera di gioco. Questa è
-caratterizzata da un'\emph{altezza} e una \emph{larghezza} variabili e da la possibilità di recuperare/impostare lo stato di una cella date le coordinate $x$ e $y$.
+L'enumerazione \texttt{Cell} rappresenta lo stato di una cella della scacchiera che può essere \textit{live} o \textit{dead}.
+La classe \texttt{Board} rappresenta la scacchiera di gioco. Questa è caratterizzata da un'\textit{altezza} e una \textit{larghezza} variabili e dalla possibilità di recuperare/impostare lo stato di una cella date le coordinate $x$ e $y$.
 
 \subsubsection{Interattori}\label{interattori}
 
-Abbiamo implementato un interattore \texttt{BoardUpdater} che si occupa dell'aggiornamento della scacchiera di gioco. Di questo interattore ne esistono due versioni, una sequenziale e una concorrente.\\\\
-La versione sequenziale \texttt{SequentialBoardUpdater} viene eseguita sul thread corrente senza la creazione di nuovi thread.\\\\
-Nella versione concorrente \texttt{ConcurrentBoardUpdater} è possibile configurare il numero di \texttt{Worker} (ognuno dei quali verrà
-eseguito su un thread indipendente).\\
-Il metodo \texttt{start} si occupa della creazione di un nuovo thread
-per ogni \texttt{Worker} e di eseguirlo.\\
-Il metodo \texttt{stop} si occupa di terminare l'esecuzione dei
-\texttt{Worker}.\\
-Il metodo \texttt{update} gestisce l'aggiornamento della scacchiera di gioco (board). Per prima cosa si occupa di creare una nuova scacchiera che rappresenterà lo stato della scacchiera corrente dopo
-l'aggiornamento. Successivamente divide il lavoro fra i \texttt{Worker} cercando di bilanciarlo il più possibile. Dopodiché sospende la propria esecuzione in attesa che tutti i \texttt{Worker} abbiano terminato
-l'aggiornamento della porzione di scacchiera assegnatagli.\\
-Ogni \texttt{Worker}, appena messo in esecuzione, aspetta che gli venga assegnata la porzione di scacchiera da aggiornare. Una volta terminata l'attesa, se ancora in esecuzione, effettua l'aggiornamento delle celle seguendo le regole del gioco (indicate nell'analisi del problema). Una volta terminato il lavoro, il \texttt{Worker} lo segnala al
-\texttt{CuncurrentBoardUpdater} e si mette in attesa di essere eseguito
-nuovamente.\\\\
-Per ogni \texttt{Worker} la sincronizzazione con
-\texttt{CuncurrentBoardUpdater} è effettuata tramite due semafori
-binari: il primo (\texttt{startUpdate}) viene utilizzato per segnalare al \texttt{Worker} che può iniziare l'aggiornamento della propria
-porzione di scacchiera; il secondo (\texttt{finishedUpdate}) viene
-utilizzato per segnalare al \texttt{CuncurrentBoardUpdater} che il
-\texttt{Worker} ha terminato l'aggiornamento della sua porzione di
-scacchiera.\\
-In questo modo \texttt{ConcurrentBoardUpdateer} segnala ad ogni
-\texttt{Worker} che la relativa porzione di scacchiera è pronta per
-essere aggiornata. Così attende che ogni \texttt{Worker} finisca il
-proprio lavoro per poi restituire la nuova scacchiera.
+Abbiamo implementato un interattore \texttt{BoardUpdater} che si occupa dell'aggiornamento della scacchiera di gioco. Di questo interattore ne esistono due versioni, una sequenziale e una concorrente.
+
+La versione sequenziale (\texttt{SequentialBoardUpdater}) l'aggiornamento della schermata di gioco viene eseguito sul thread corrente senza la creazione di nuovi thread.
+
+Nella versione concorrente \texttt{ConcurrentBoardUpdater} è possibile configurare il numero di \texttt{Worker} che verranno utilizzati per aggiornare la schermata di gioco (ognuno dei quali verrà eseguito su un thread indipendente).\\
+Il metodo \texttt{start} si occupa della creazione di un nuovo thread per ogni \texttt{Worker} e di metterlo in esecuzione.\\
+Il metodo \texttt{stop} si occupa di terminare l'esecuzione dei \texttt{Worker}.\\
+Il metodo \texttt{update} gestisce l'aggiornamento della scacchiera di gioco (board). Per prima cosa si occupa di creare una nuova scacchiera che rappresenterà lo stato della scacchiera corrente dopo l'aggiornamento. Successivamente divide il lavoro fra i \texttt{Worker} cercando di bilanciarlo il più possibile. Dopodiché sospende la propria esecuzione in attesa che tutti i \texttt{Worker} abbiano terminato l'aggiornamento della porzione di scacchiera assegnatagli.\\
+Ogni \texttt{Worker}, appena messo in esecuzione, aspetta che gli venga assegnata la porzione di scacchiera da aggiornare. Una volta terminata l'attesa, se ancora in esecuzione, effettua l'aggiornamento delle celle seguendo le regole del gioco (indicate nell'analisi del problema). Una volta terminato il lavoro, il \texttt{Worker} lo segnala al \texttt{CuncurrentBoardUpdater} di aver terminato l'aggiornamento della propria porzione di scacchiera e si mette in attesa di essere eseguito nuovamente.
+
+Per ogni \texttt{Worker} la sincronizzazione con \texttt{CuncurrentBoardUpdater} è effettuata tramite due semafori binari: il primo (\texttt{startUpdate}) viene utilizzato per segnalare al \texttt{Worker} che può iniziare l'aggiornamento della propria porzione di scacchiera, il secondo (\texttt{finishedUpdate}) viene utilizzato per segnalare al \texttt{CuncurrentBoardUpdater} che il \texttt{Worker} ha terminato l'aggiornamento della sua porzione di scacchiera.
+
+In questo modo \texttt{ConcurrentBoardUpdateer} segnala ad ogni \texttt{Worker} che la relativa porzione di scacchiera è pronta per essere aggiornata. Così attende che ogni \texttt{Worker} finisca il proprio lavoro per poi restituire la nuova scacchiera.
 
 \subsubsection{Interfaccia utente}\label{interfaccia-utente}
 
-L’interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \emph{start} e \emph{stop}. Lo \emph{start} permette l’avvio e la pausa del gioco, mentre lo \emph{stop} la terminazione.\\
+L’interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \textit{start} e \textit{stop}. Lo \textit{start} permette l’avvio e la pausa del gioco, mentre lo \textit{stop} la terminazione.\\
 Utilizzando il pattern Factory sono stati incapsulati in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni \texttt{Presenter} che incapsulano la logica di controllo dei componenti (form, pulsanti, …) di cui sono costituite.\\
 La computazione relativa alla coordinazione dell’aggiornamento matriciale e grafico della scacchiera è effettuata su un thread separato \texttt{GameUpdater} (task di Java FX in cui è incapsulato il Game Loop) e questo permette di mantenere l’interfaccia grafica (gestita dal Java FX Application Thread) reattiva ed in grado di intercettare l’input dell’utente.\\
 Il Presenter addetto alla gestione degli eventi di gioco (\texttt{GamePresenter}) utilizza un servizio di rendering offerto dalla  classe \texttt{RenderingService} nella quale sono state incapsulate le funzioni relative al disegno della scacchiera di gioco.
 Quest'ultima è stata realizzata utilizzando un componente grafico \texttt{Canvas} sul quale vengono disegnate le celle attraverso la classe \texttt{PixelWriter} di Java FX: una classe ottimizzata per il disegno dei singoli pixel.
 
-
 \section{Dinamica del sistema}\label{dinamica-del-sistema}
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
-La tabella sottostante mostra gli speedup S (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di worker utilizzati.\\
-Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema con algoritmo sequenziale e il tempo di esecuzione del sistema con algoritmo parallelo.\\\\
+La tabella sottostante mostra gli speedup $S$ (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di worker utilizzati.\\
+Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema utilizzando un algoritmo sequenziale e il tempo di esecuzione del sistema utilizzando un algoritmo parallelo.
+
 \begin{equation}
  S = \dfrac{T_1}{T_N}
 \end{equation}
 Dove:
 \begin{itemize}
     \item $ N  \rightarrow$ numero di worker utilizzati
-    \item $ T_1 \rightarrow$ tempo di esecuzione del sistema con algoritmo sequenziale
-    \item $ T_N \rightarrow$ tempo di esecuzione del sistema con algoritmo parallelo con $N$ worker
+    \item $ T_1 \rightarrow$ tempo di esecuzione del sistema utilizzando un algoritmo sequenziale
+    \item $ T_N \rightarrow$ tempo di esecuzione del sistema utilizzando un algoritmo parallelo con $N$ worker
 \end{itemize}
-
 
 \begin{table}[H]
 \centering
 \begin{tabular}{l|ccccccccc}
 \hline
-    & 2     & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10   \\ \hline
-Min & 1.766 & 2.43 & 3.04 & 2.93 & 2.89 & 2.90 & 2.86 & 2.85 & 2.85 \\
-Max & 2.11  & 2.87 & 3.41 & 3.22 & 3.40 & 3.26 & 3.38 & 3.06 & 3.45 \\
-Avg & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
+     & 2     & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10   \\ \hline
+Min. & 1.77  & 2.43 & 3.04 & 2.93 & 2.89 & 2.90 & 2.86 & 2.85 & 2.85 \\
+Max. & 2.11  & 2.87 & 3.41 & 3.22 & 3.40 & 3.26 & 3.38 & 3.06 & 3.45 \\
+Avg. & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
 \end{tabular}
-\caption{Speedup: sulle colonne sono specificati i worker utilizzati nella parallelizzazione del sistema, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati.}
+\caption{Speedup: sulle colonne sono specificati il numero di worker utilizzati per la parallelizzazione dell'algoritmo, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati. Gli speed-up sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.}
 \label{Tabella speedup del sistema}
 \end{table}
 
