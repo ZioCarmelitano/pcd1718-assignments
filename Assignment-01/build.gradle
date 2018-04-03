@@ -69,7 +69,7 @@ task mkBenchmarkJar(type: Jar) {
 }
 
 task mkGuiJar(type: Jar) {
-    def mainClass = 'pcd.ass01.Benchmark'
+    def mainClass = 'pcd.ass01.Launcher'
     manifest {
         attributes 'Main-Class': mainClass
     }

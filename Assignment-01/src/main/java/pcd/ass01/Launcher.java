@@ -2,7 +2,7 @@ package pcd.ass01;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import pcd.ass01.view.factories.WindowFactory;
+
 import java.io.IOException;
 
 import static pcd.ass01.view.factories.FxWindowFactory.*;
