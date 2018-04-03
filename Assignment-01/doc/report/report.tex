@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+﻿\documentclass[a4paper]{article}
 
 \usepackage{caption}
 \usepackage{amsmath}
@@ -265,12 +265,19 @@ In questo modo \texttt{ConcurrentBoardUpdateer} segnala ad ogni \texttt{Worker} 
 \subsubsection{Interfaccia utente}\label{interfaccia-utente}
 
 L’interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \textit{start} e \textit{stop}. Lo \textit{start} permette l’avvio e la pausa del gioco, mentre lo \textit{stop} la terminazione.\\
-Utilizzando il pattern Factory sono stati incapsulati in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni \texttt{Presenter} che incapsulano la logica di controllo dei componenti (form, pulsanti, …) di cui sono costituite.\\
+Utilizzando il pattern Factory sono stati incapsulate in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni \texttt{Presenter} che incapsulano la logica di controllo dei componenti (form, pulsanti, …) di cui sono costituite.\\
 La computazione relativa alla coordinazione dell’aggiornamento matriciale e grafico della scacchiera è effettuata su un thread separato \texttt{GameUpdater} (task di Java FX in cui è incapsulato il Game Loop) e questo permette di mantenere l’interfaccia grafica (gestita dal Java FX Application Thread) reattiva ed in grado di intercettare l’input dell’utente.\\
 Il Presenter addetto alla gestione degli eventi di gioco (\texttt{GamePresenter}) utilizza un servizio di rendering offerto dalla  classe \texttt{RenderingService} nella quale sono state incapsulate le funzioni relative al disegno della scacchiera di gioco.
 Quest'ultima è stata realizzata utilizzando un componente grafico \texttt{Canvas} sul quale vengono disegnate le celle attraverso la classe \texttt{PixelWriter} di Java FX: una classe ottimizzata per il disegno dei singoli pixel.
 
 \section{Dinamica del sistema}\label{dinamica-del-sistema}
+La dinamica del sistema è stata rappresentata formalmente con le Reti di Petri. Le piazze (\textit{places}) del livello corrispondono ai \texttt{Worker} che concorrono all'aggiornamento della scacchiera di gioco; in questo esempio è stato scelto di mostrare il sistema nel caso se ne utilizzino 4.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=110mm]{res/reti_di_petri_assigment1.png}
+    \caption{Petri Net}
+    \label{fig:petrinets}
+\end{figure}
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
 La tabella sottostante mostra gli speedup $S$ (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di worker utilizzati.\\
