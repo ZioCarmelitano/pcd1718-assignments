@@ -1,4 +1,4 @@
-﻿\documentclass[a4paper]{article}
+\documentclass[a4paper]{article}
 
 \usepackage{caption}
 \usepackage{amsmath}
@@ -189,6 +189,7 @@ Assigment \#1 - ``The Game of Life''
 \begin{document}
 
 \maketitle
+
 \section{Analisi del problema}\label{analisi-del-problema}
 
 L'obiettivo della consegna è implementare, in Java, una versione concorrente del gioco \textit{``The Game of Life''} usando la programmazione concorrente multi-threaded.\\
@@ -284,13 +285,13 @@ La tabella sottostante mostra gli speedup $S$ (misura quantitativa delle perform
 Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema utilizzando un algoritmo sequenziale e il tempo di esecuzione del sistema utilizzando un algoritmo parallelo.
 
 \begin{equation}
- S = \dfrac{T_1}{T_N}
+ S = \frac{T_1}{T_N}
 \end{equation}
 Dove:
 \begin{itemize}
-    \item $ N  \rightarrow$ numero di worker utilizzati
-    \item $ T_1 \rightarrow$ tempo di esecuzione del sistema utilizzando un algoritmo sequenziale
-    \item $ T_N \rightarrow$ tempo di esecuzione del sistema utilizzando un algoritmo parallelo con $N$ worker
+    \item $N \leftarrow$ numero di worker utilizzati
+    \item $T_1 \leftarrow$ tempo di esecuzione del sistema utilizzando un algoritmo sequenziale
+    \item $T_N \leftarrow$ tempo di esecuzione del sistema utilizzando un algoritmo parallelo con $N$ worker
 \end{itemize}
 
 \begin{table}[H]
