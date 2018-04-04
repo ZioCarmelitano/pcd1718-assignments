@@ -48,16 +48,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: junitVersion
 }
 
-task runBenchmark(type: JavaExec) {
-    main = 'pcd.ass01.Benchmark'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-task runGui(type: JavaExec) {
-    main = 'pcd.ass01.Launcher'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 task mkBenchmarkJar(type: Jar) {
     def mainClass = 'pcd.ass01.Benchmark'
     manifest {

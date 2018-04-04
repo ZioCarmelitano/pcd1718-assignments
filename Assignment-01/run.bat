@@ -14,11 +14,12 @@ IF /I "%argc%" NEQ "1" (
     echo "    %0 %BENCHMARK_FLAG% run benchmark" >&2
     echo "    %0 %GUI_FLAG% run GUI" >&2
 ) ELSE IF /I "%1" == %BENCHMARK_FLAG% (
-    gradlew runBenchmark
+    set baseName=benchmark
 ) ELSE IF /I "%1" == %GUI_FLAG% (
-    gradlew runGui
+    set baseName=launcher
 ) ELSE (
     echo "Usage: %0 <%BENCHMARK_FLAG%|%GUI_FLAG%>" >&2
     echo "    %0 %BENCHMARK_FLAG% run benchmark" >&2
     echo "    %0 %GUI_FLAG% run GUI" >&2
 )
+java -jar build\libs\%baseName%-1.0.jar
