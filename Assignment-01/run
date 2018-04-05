@@ -12,10 +12,12 @@ if [ "$#" -ne "1" ]; then
     usage >&2
     exit 1
 elif [[ "$1" == $BENCHMARK_FLAG ]]; then
-    ./gradlew runBenchmark
+    baseName=benchmark
 elif [[ "$1" == $GUI_FLAG ]]; then
-    ./gradlew runGui
+    baseName=launcher
 else
     usage >&2
     exit 1
 fi
+
+java -jar build/libs/$baseName-1.0.jar

@@ -35,6 +35,7 @@ final class Benchmark {
 
     public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
+        final Board board = Boards.gosperGliderGun(SIZE, SIZE);
 
         final Multimap<Integer, Long> results = Multimaps.newListMultimap(new HashMap<>(), ArrayList::new);
 
@@ -43,7 +44,6 @@ final class Benchmark {
             for (int numberOfWorkers = 1; numberOfWorkers <= MAX_NUMBER_OF_WORKERS; numberOfWorkers++) {
                 final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
                 updater.start();
-                final Board board = Boards.gosperGliderGun(SIZE, SIZE);
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
 
