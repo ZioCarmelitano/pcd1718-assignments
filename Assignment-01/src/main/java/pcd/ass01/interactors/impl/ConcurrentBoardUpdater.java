@@ -8,7 +8,9 @@ import pcd.ass01.util.Semaphores;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.stream.IntStream;
 
 import static pcd.ass01.util.Preconditions.checkNotNull;
@@ -21,12 +23,14 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater {
     private final List<Semaphore> finishedList;
 
     private final List<Worker> workers;
+    private final ThreadFactory factory;
 
-    ConcurrentBoardUpdater(final int numberOfWorkers) {
+    ConcurrentBoardUpdater(final int numberOfWorkers, final ThreadFactory factory) {
         startList = new ArrayList<>(numberOfWorkers);
         finishedList = new ArrayList<>(numberOfWorkers);
 
         workers = new ArrayList<>(numberOfWorkers);
+        this.factory = factory;
         for (int i = 0; i < numberOfWorkers; i++) {
             startList.add(new Semaphore(0, true));
             finishedList.add(new Semaphore(0, true));
@@ -39,7 +43,7 @@ final class ConcurrentBoardUpdater extends AbstractBoardUpdater {
         super.start();
 
         workers.parallelStream()
-                .map(Thread::new)
+                .map(factory::newThread)
                 .forEach(Thread::start);
     }
 

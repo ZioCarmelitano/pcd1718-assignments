@@ -9,6 +9,7 @@ import pcd.ass01.domain.Board;
 import pcd.ass01.domain.Boards;
 import pcd.ass01.interactors.BoardUpdater;
 import pcd.ass01.util.LoggingUtils;
+import pcd.ass01.util.concurrent.ThreadFactoryBuilder;
 import pcd.ass01.util.time.Stopwatch;
 import pcd.ass01.util.time.TimeUtils;
 
@@ -42,7 +43,9 @@ final class Benchmark {
         for (int i = 1; i <= MAX_ITERATIONS; i++) {
             System.out.println("Iteration #" + i);
             for (int numberOfWorkers = 1; numberOfWorkers <= MAX_NUMBER_OF_WORKERS; numberOfWorkers++) {
-                final BoardUpdater updater = BoardUpdater.create(numberOfWorkers);
+                final BoardUpdater updater = BoardUpdater.create(numberOfWorkers, new ThreadFactoryBuilder()
+                        .setPriority(Thread.MAX_PRIORITY)
+                        .build());
                 updater.start();
 
                 final long updateTime = timeIt(stopwatch, () -> updater.update(board));
