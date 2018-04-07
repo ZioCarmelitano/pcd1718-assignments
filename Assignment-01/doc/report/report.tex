@@ -305,8 +305,15 @@ Avg. & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
 \end{tabular}
 \caption{Lo speedup è stato calcolato su 25 iterazioni considerando una schacchiera di gioco 5000x5000. Sulle colonne sono specificati il numero di worker utilizzati per la parallelizzazione dell'algoritmo, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati. Gli speedup sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.
 È possibile eseguire i benchmark lanciando la classe \texttt{pcd.ass01.Benchmark} e visualizzare sia le velocità di computazione di uno stato della scacchiera, sia i relativi speedup ottenuti.}
-\label{Tabella speedup del sistema}
+\label{speedup-table}
 \end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=110mm]{res/execution_times.png}
+    \caption{Grafico che mostra il tempo di esecuzione (in ms) al crescere del numero di worker. Come nel caso precedente i tempi di esecuzione sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz. I tempi di esecuzione sono stati calcolati come media su 25 iterazioni considerando una schacchiera di gioco 5000x5000.}
+    \label{fig:execution-times}
+\end{figure}
 
 % Your document ends here!
 \end{document}
