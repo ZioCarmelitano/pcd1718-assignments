@@ -22,7 +22,7 @@ public class BoardUpdaterFactoryImpl implements BoardUpdaterFactory {
 
     @Override
     public BoardUpdater createBoardUpdater(int numberOfWorkers) {
-        return createBoardUpdater(numberOfWorkers, Executors.defaultThreadFactory());
+        return createBoardUpdater(numberOfWorkers, Thread::new);
     }
 
     @Override

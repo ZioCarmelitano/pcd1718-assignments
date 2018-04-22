@@ -3,10 +3,12 @@
  * http://www.oracle.com/technetwork/articles/java/fork-join-422606.html
  * 
  */
-package fj;
+package pcd.ass02.ex1;
 
-import java.io.*;
-import java.util.*;
+import pcd.ass02.domain.Document;
+import pcd.ass02.domain.Folder;
+import pcd.ass02.ex1.tasks.FolderSearchTask;
+
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 
@@ -33,8 +35,8 @@ public class OccurrencesCounter {
         return count;
     }
 
-    public Long countOccurrencesInParallel(Folder folder, String searchedWord, BiConsumer<Document, Long> callback) {
-        return forkJoinPool.invoke(new FolderSearchTask(this, folder, searchedWord, callback));
+    public Long countOccurrencesInParallel(Folder folder, String regex, BiConsumer<Document, Long> callback) {
+        return forkJoinPool.invoke(new FolderSearchTask(this, folder, regex, callback));
     }
 
 }

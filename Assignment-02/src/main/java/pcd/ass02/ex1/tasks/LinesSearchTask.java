@@ -1,21 +1,25 @@
-package fj;
+package pcd.ass02.ex1.tasks;
+
+import pcd.ass02.ex1.OccurrencesCounter;
 
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
 public class LinesSearchTask extends RecursiveTask<Long> {
+
     private List<String> lines;
     private final String regex;
-    private final OccurrencesCounter wc;
+    private final OccurrencesCounter oc;
 
-    public LinesSearchTask(List<String> lines, String regex, OccurrencesCounter wc) {
+    public LinesSearchTask(List<String> lines, String regex, OccurrencesCounter oc) {
         this.lines = lines;
         this.regex = regex;
-        this.wc = wc;
+        this.oc = oc;
     }
 
     @Override
     protected Long compute() {
         return null;
     }
+
 }

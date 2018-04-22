@@ -1,19 +1,21 @@
-package fj;
+package pcd.ass02.domain;
 
 public class SearchResult {
-    private final String documentName;
-    private final Long count;
 
-    public SearchResult(String documentName, Long count) {
+    private final String documentName;
+    private final long count;
+
+    public SearchResult(String documentName, long count) {
         this.documentName = documentName;
         this.count = count;
     }
 
     public String getDocumentName() {
-        return this.documentName;
+        return documentName;
     }
 
-    public Long getCount() {
-        return this.count;
+    public long getCount() {
+        return count;
     }
+
 }
