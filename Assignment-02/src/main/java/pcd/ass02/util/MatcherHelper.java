@@ -1,4 +1,4 @@
-package pcd.ass02.ex1;
+package pcd.ass02.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,12 +10,12 @@ public final class MatcherHelper {
         return countMatches(pattern, input, disjoint);
     }
 
-    public static int countMatches(final Pattern pattern, final String input, final boolean disjoint) {
+    private static int countMatches(final Pattern pattern, final String input, final boolean disjoint) {
         final Matcher matcher = pattern.matcher(input);
         return countMatches(matcher, disjoint);
     }
 
-    public static int countMatches(final Matcher matcher, final boolean disjoint) {
+    private static int countMatches(final Matcher matcher, final boolean disjoint) {
         return disjoint ? countMatchesDisjoint(matcher) : countMatches(matcher);
     }
 
@@ -24,12 +24,12 @@ public final class MatcherHelper {
         return countMatches(pattern, input);
     }
 
-    public static int countMatches(final Pattern pattern, final String input) {
+    private static int countMatches(final Pattern pattern, final String input) {
         final Matcher matcher = pattern.matcher(input);
         return countMatches(matcher);
     }
 
-    public static int countMatches(final Matcher matcher) {
+    private static int countMatches(final Matcher matcher) {
         int count = 0;
         while (matcher.find())
             count++;
@@ -41,12 +41,12 @@ public final class MatcherHelper {
         return countMatchesDisjoint(pattern, input);
     }
 
-    public static int countMatchesDisjoint(final Pattern pattern, final String input) {
+    private static int countMatchesDisjoint(final Pattern pattern, final String input) {
         final Matcher matcher = pattern.matcher(input);
         return countMatchesDisjoint(matcher);
     }
 
-    public static int countMatchesDisjoint(final Matcher matcher) {
+    private static int countMatchesDisjoint(final Matcher matcher) {
         int count = 0;
         for (int from = 0; matcher.find(from); from = matcher.start() + 1)
             count++;

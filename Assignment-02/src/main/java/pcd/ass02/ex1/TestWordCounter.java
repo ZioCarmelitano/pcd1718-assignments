@@ -7,19 +7,20 @@ package pcd.ass02.ex1;
 
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResult;
+import pcd.ass02.domain.SearchResultStatistics;
 import pcd.ass02.ex1.tasks.SearchResultAccumulatorTask;
-import pcd.ass02.ex1.tasks.SearchResultUpdateListener;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
-public class TestWordCounter {
+class TestWordCounter {
 
     private static long fileWithOccurrencesCount = 0;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         OccurrencesCounter occurrencesCounter = new OccurrencesCounter();
         Folder folder = Folder.fromDirectory(new File(args[0]), Integer.parseInt(args[3]));
 
@@ -30,15 +31,7 @@ public class TestWordCounter {
 
         long[] forkedThreadTimes = new long[repeatCount];
 
-        SearchResultUpdateListener listener = (files, matching, average) -> {
-            if (files.size() > fileWithOccurrencesCount) {
-                fileWithOccurrencesCount = files.size();
-                System.out.println(files);
-                System.out.println("Matching rate: " + matching);
-                System.out.println("Average: " + average);
-                System.out.println("Files with occurences: " + files.size());
-            }
-        };
+        Consumer<SearchResultStatistics> listener = TestWordCounter::accept;
         SearchResultAccumulatorTask accumulator = new SearchResultAccumulatorTask(listener);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(accumulator);
@@ -58,6 +51,19 @@ public class TestWordCounter {
             System.out.println("Execution times: " + forkedThreadTimes[i] + "ms");
         }
 
-        System.out.println();
+    }
+
+    private static void accept(SearchResultStatistics statistics) {
+        List<String> files = statistics.getMatches();
+        double averageMatches = statistics.getAverageMatches();
+        double matchingRate = statistics.getMatchingRate();
+
+        if (files.size() > fileWithOccurrencesCount) {
+            fileWithOccurrencesCount = files.size();
+            System.out.println(files);
+            System.out.println("Matching rate: " + matchingRate);
+            System.out.println("Average: " + averageMatches);
+            System.out.println("Files with occurrences: " + files.size());
+        }
     }
 }

@@ -8,6 +8,7 @@ package pcd.ass02.ex1;
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.ex1.tasks.FolderSearchTask;
+import pcd.ass02.util.MatcherHelper;
 
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
@@ -16,7 +17,7 @@ public class OccurrencesCounter {
 
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     
-    public Long occurrencesCount(Document document, String regex) {
+    public static long occurrencesCount(Document document, String regex) {
         long count = 0;
         for (String line : document.getLines()) {
             count += MatcherHelper.countMatches(regex, line);
@@ -24,7 +25,7 @@ public class OccurrencesCounter {
         return count;
     }
         
-    public Long countOccurrencesOnSingleThread(Folder folder, String regex) {
+    private Long countOccurrencesOnSingleThread(Folder folder, String regex) {
         long count = 0;
         for (Folder subFolder : folder.getSubFolders()) {
             count = count + countOccurrencesOnSingleThread(subFolder, regex);
@@ -36,7 +37,7 @@ public class OccurrencesCounter {
     }
 
     public Long countOccurrencesInParallel(Folder folder, String regex, BiConsumer<Document, Long> callback) {
-        return forkJoinPool.invoke(new FolderSearchTask(this, folder, regex, callback));
+        return forkJoinPool.invoke(new FolderSearchTask(folder, regex, callback));
     }
 
 }

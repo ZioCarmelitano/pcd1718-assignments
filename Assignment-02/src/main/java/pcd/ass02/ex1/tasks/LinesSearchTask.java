@@ -5,9 +5,9 @@ import pcd.ass02.ex1.OccurrencesCounter;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
-public class LinesSearchTask extends RecursiveTask<Long> {
+class LinesSearchTask extends RecursiveTask<Long> {
 
-    private List<String> lines;
+    private final List<String> lines;
     private final String regex;
     private final OccurrencesCounter oc;
 

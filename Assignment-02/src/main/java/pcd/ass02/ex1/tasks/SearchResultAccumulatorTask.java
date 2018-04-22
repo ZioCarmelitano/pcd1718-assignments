@@ -1,28 +1,29 @@
 package pcd.ass02.ex1.tasks;
 
 import pcd.ass02.domain.SearchResult;
+import pcd.ass02.domain.SearchResultStatistics;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class SearchResultAccumulatorTask implements Runnable {
 
     private final BlockingQueue<Optional<SearchResult>> resultQueue;
+
+    private boolean running;
+    private final Consumer<SearchResultStatistics> listener;
+
     private long fileCount;
     private long fileWithOccurrences;
     private long totalOccurrences;
-    private boolean running;
-
-    private SearchResultUpdateListener listener;
-    private List<String> files;
-
     private double averageMatches;
+    private final List<String> files;
 
-    public SearchResultAccumulatorTask(SearchResultUpdateListener listener) {
+    public SearchResultAccumulatorTask(Consumer<SearchResultStatistics> listener) {
         resultQueue = new LinkedBlockingQueue<>();
         files = new ArrayList<>();
         running = true;
@@ -54,7 +55,7 @@ public class SearchResultAccumulatorTask implements Runnable {
                         averageMatches = ((double) totalOccurrences) / ((double) fileWithOccurrences);
                     }
                     final double matchingRate = ((double) fileWithOccurrences) / ((double) fileCount);
-                    listener.onEvent(files, matchingRate, averageMatches);
+                    listener.accept(new SearchResultStatistics(files, matchingRate, averageMatches));
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
