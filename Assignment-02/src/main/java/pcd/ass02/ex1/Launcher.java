@@ -16,41 +16,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-class TestWordCounter {
+class Launcher {
 
     private static long fileWithOccurrencesCount = 0;
 
     public static void main(String[] args) {
         OccurrencesCounter occurrencesCounter = new OccurrencesCounter();
-        Folder folder = Folder.fromDirectory(new File(args[0]), Integer.parseInt(args[3]));
+        Folder folder = Folder.fromDirectory(new File(args[0]), Integer.parseInt(args[2]));
 
-        final int repeatCount = Integer.parseInt(args[2]);
-        long counts = 0;
+        long counts;
         long startTime;
         long stopTime;
 
-        long[] forkedThreadTimes = new long[repeatCount];
-
-        Consumer<SearchResultStatistics> listener = TestWordCounter::accept;
+        Consumer<SearchResultStatistics> listener = Launcher::accept;
         SearchResultAccumulatorTask accumulator = new SearchResultAccumulatorTask(listener);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(accumulator);
 
-        for (int i = 0; i < repeatCount; i++) {
-            startTime = System.currentTimeMillis();
-            counts = occurrencesCounter.countOccurrencesInParallel(folder, args[1], (document, count) -> accumulator.notifyEvent(new SearchResult(document.getName(), count)));
-            accumulator.stop();
-            executor.shutdown();
-            stopTime = System.currentTimeMillis();
-            forkedThreadTimes[i] = (stopTime - startTime);
-        }
+        startTime = System.currentTimeMillis();
+        counts = occurrencesCounter.countOccurrencesInParallel(folder, args[1], (document, count) -> accumulator.notifyEvent(new SearchResult(document.getName(), count)));
+        accumulator.stop();
+        executor.shutdown();
+        stopTime = System.currentTimeMillis();
 
-        for (int i = 0; i < repeatCount; i++) {
-            System.out.println();
-            System.out.println("Total Occurrences: " + counts);
-            System.out.println("Execution times: " + forkedThreadTimes[i] + "ms");
-        }
-
+        System.out.println();
+        System.out.println("Total Occurrences: " + counts);
+        System.out.println("Execution time: " + (stopTime - startTime) + "ms");
     }
 
     private static void accept(SearchResultStatistics statistics) {

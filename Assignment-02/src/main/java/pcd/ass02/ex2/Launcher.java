@@ -17,7 +17,7 @@ class Launcher {
     public static void main(String[] args) {
         File path = new File(args[0]);
         String regex = args[1];
-        int maxDepth = Integer.parseInt(args[3]);
+        int maxDepth = Integer.parseInt(args[2]);
 
         Vertx vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(10));
         vertx.deployVerticle(new FolderSearchVerticle(fromDirectory(path, maxDepth), regex),

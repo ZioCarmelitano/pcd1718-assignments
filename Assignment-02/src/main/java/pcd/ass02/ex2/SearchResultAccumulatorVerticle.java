@@ -30,7 +30,7 @@ class SearchResultAccumulatorVerticle extends AbstractVerticle {
         super.start();
         vertx.eventBus().<JsonObject>consumer("accumulator",
                 (message) -> onMessage(message.body()));
-        timerID = vertx.setTimer(2000, (event) -> vertx.close());
+        timerID = vertx.setTimer(2000, completionHandler());
     }
 
     private void onMessage(JsonObject message){
@@ -51,7 +51,14 @@ class SearchResultAccumulatorVerticle extends AbstractVerticle {
         SearchResultStatistics statistics = new SearchResultStatistics(files, matchingRate, averageMatches);
         handler.handle(statistics);
 
-        timerID = vertx.setTimer(2000, (event) -> vertx.close());
+        timerID = vertx.setTimer(2000, completionHandler());
+    }
+
+    private Handler<Long> completionHandler() {
+        return (event) -> {
+            System.out.println("Total occurrences:" + totalOccurrences);
+            vertx.close();
+        };
     }
 
 }
