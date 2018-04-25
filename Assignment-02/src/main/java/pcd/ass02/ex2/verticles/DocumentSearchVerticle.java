@@ -1,11 +1,11 @@
-package pcd.ass02.ex2;
+package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 import pcd.ass02.domain.Document;
 import pcd.ass02.ex1.OccurrencesCounter;
 
-class DocumentSearchVerticle extends AbstractVerticle {
+public class DocumentSearchVerticle extends AbstractVerticle {
 
     private final Document document;
     private final String regex;

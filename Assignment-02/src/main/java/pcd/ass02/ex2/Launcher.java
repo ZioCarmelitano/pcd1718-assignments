@@ -4,6 +4,8 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import pcd.ass02.domain.SearchResultStatistics;
+import pcd.ass02.ex2.verticles.FolderSearchVerticle;
+import pcd.ass02.ex2.verticles.SearchResultAccumulatorVerticle;
 
 import java.io.File;
 import java.util.List;

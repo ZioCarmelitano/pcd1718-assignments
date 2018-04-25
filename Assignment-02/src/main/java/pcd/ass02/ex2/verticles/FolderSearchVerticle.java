@@ -1,11 +1,11 @@
-package pcd.ass02.ex2;
+package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 
-class FolderSearchVerticle extends AbstractVerticle {
+public class FolderSearchVerticle extends AbstractVerticle {
 
     private final Folder folder;
     private final String regex;

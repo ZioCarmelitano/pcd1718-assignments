@@ -1,4 +1,4 @@
-package pcd.ass02.ex2;
+package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -8,7 +8,7 @@ import pcd.ass02.domain.SearchResultStatistics;
 import java.util.ArrayList;
 import java.util.List;
 
-class SearchResultAccumulatorVerticle extends AbstractVerticle {
+public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
     private final Handler<SearchResultStatistics> handler;
 

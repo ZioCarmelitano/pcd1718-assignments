@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static pcd.ass02.domain.Folder.fromDirectory;
 
-public class Launcher {
+class Launcher {
 
     public static void main(String[] args) {
         File path = new File(args[0]);

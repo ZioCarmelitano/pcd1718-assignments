@@ -7,11 +7,11 @@ import pcd.ass02.domain.SearchResultStatistics;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SearchResultAccumulator implements Observer<SearchResult> {
+abstract class SearchResultAccumulator implements Observer<SearchResult> {
 
-    protected long fileCount;
-    protected long fileWithOccurrences;
-    protected long totalOccurrences;
+    private long fileCount;
+    private long fileWithOccurrences;
+    long totalOccurrences;
     private double averageMatches;
     private final List<String> files;
 
@@ -37,6 +37,6 @@ public abstract class SearchResultAccumulator implements Observer<SearchResult> 
         onNext(statistics);
     }
 
-    public abstract void onNext(SearchResultStatistics statistics);
+    protected abstract void onNext(SearchResultStatistics statistics);
 
 }
