@@ -1,7 +1,7 @@
 /*
  * Fork-Join example, adapted from
  * http://www.oracle.com/technetwork/articles/java/fork-join-422606.html
- * 
+ *
  */
 package pcd.ass02.ex1;
 
@@ -10,13 +10,13 @@ import pcd.ass02.domain.Folder;
 import pcd.ass02.ex1.tasks.FolderSearchTask;
 import pcd.ass02.util.MatcherHelper;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiConsumer;
 
 public class OccurrencesCounter {
 
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
-    
+
     public static long occurrencesCount(Document document, String regex) {
         long count = 0;
         for (String line : document.getLines()) {
@@ -24,7 +24,7 @@ public class OccurrencesCounter {
         }
         return count;
     }
-        
+
     private Long countOccurrencesOnSingleThread(Folder folder, String regex) {
         long count = 0;
         for (Folder subFolder : folder.getSubFolders()) {

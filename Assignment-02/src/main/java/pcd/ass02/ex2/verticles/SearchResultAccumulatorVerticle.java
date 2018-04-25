@@ -33,7 +33,7 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
         timerID = vertx.setTimer(2000, completionHandler());
     }
 
-    private void onMessage(JsonObject message){
+    private void onMessage(JsonObject message) {
         vertx.cancelTimer(timerID);
 
         long occurrences = message.getLong("occurrences");

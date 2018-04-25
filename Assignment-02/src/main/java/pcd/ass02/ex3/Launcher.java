@@ -28,13 +28,12 @@ class Launcher {
                 .observeOn(Schedulers.trampoline())
                 .map(toSearchResult(regex))
                 .blockingSubscribe(new SearchResultAccumulator() {
-
                     private int fileWithOccurrencesCount;
-                    private long start;
+                    private long startTime;
 
                     @Override
                     public void onSubscribe(Disposable d) {
-                        start = System.currentTimeMillis();
+                        startTime = System.currentTimeMillis();
                     }
 
                     @Override
@@ -43,8 +42,9 @@ class Launcher {
 
                     @Override
                     public void onComplete() {
+                        final long endTime = System.currentTimeMillis();
                         System.out.println("\nTotal occurrences: " + totalOccurrences);
-                        System.out.println("Execution time: " + (System.currentTimeMillis() - start) + "ms");
+                        System.out.println("Execution time: " + (endTime - startTime) + "ms");
                     }
 
                     @Override
@@ -64,25 +64,20 @@ class Launcher {
                 });
     }
 
-    private static Function<Document, SearchResult> toSearchResult(String regex) {
-        return doc -> {
-            long occurrences = OccurrencesCounter.occurrencesCount(doc, regex);
-            return new SearchResult(doc.getName(), occurrences);
+    private static Function<? super Document, ? extends SearchResult> toSearchResult(String regex) {
+        return document -> {
+            long occurrences = OccurrencesCounter.occurrencesCount(document, regex);
+            return new SearchResult(document.getName(), occurrences);
         };
     }
 
     private static Observable<Document> getDocuments(Folder folder) {
+        Observable<Document> documents = Observable.fromIterable(folder.getDocuments());
 
-        Observable<Document> documentObservable = Observable.create(emitter -> {
-            folder.getDocuments().forEach(emitter::onNext);
-            emitter.onComplete();
-        });
-
-        return Observable.merge(folder.getSubFolders()
-                .parallelStream()
+        return Observable.merge(folder.getSubFolders().parallelStream()
                 .map(Launcher::getDocuments)
                 .collect(Collectors.toList()))
-                .mergeWith(documentObservable);
+                .mergeWith(documents);
     }
 
 }
