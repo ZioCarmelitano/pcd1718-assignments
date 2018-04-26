@@ -17,7 +17,7 @@ public class OccurrencesCounter {
 
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-    public static long occurrencesCount(Document document, String regex) {
+    public static long countOccurrences(Document document, String regex) {
         long count = 0;
         for (String line : document.getLines()) {
             count += MatcherHelper.countMatches(regex, line);
@@ -31,12 +31,12 @@ public class OccurrencesCounter {
             count = count + countOccurrencesOnSingleThread(subFolder, regex);
         }
         for (Document document : folder.getDocuments()) {
-            count = count + occurrencesCount(document, regex);
+            count = count + countOccurrences(document, regex);
         }
         return count;
     }
 
-    public Long countOccurrencesInParallel(Folder folder, String regex, BiConsumer<Document, Long> callback) {
+    public Long countOccurrencesInParallel(Folder folder, String regex, BiConsumer<? super Document, ? super Long> callback) {
         return forkJoinPool.invoke(new FolderSearchTask(folder, regex, callback));
     }
 

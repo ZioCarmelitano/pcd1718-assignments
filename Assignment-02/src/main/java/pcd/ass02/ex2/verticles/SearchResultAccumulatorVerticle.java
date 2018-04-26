@@ -3,14 +3,16 @@ package pcd.ass02.ex2.verticles;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
-import pcd.ass02.domain.SearchResultStatistics;
+import pcd.ass02.domain.SearchStatistics;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
-    private final Handler<SearchResultStatistics> handler;
+    private static final long CLOSE_DELAY = 2_000;
+
+    private final Handler<SearchStatistics> handler;
 
     private long fileCount;
     private long fileWithOccurrences;
@@ -20,17 +22,23 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
     private long timerID;
 
-    public SearchResultAccumulatorVerticle(Handler<SearchResultStatistics> handler) {
+    private long startTime;
+
+    private long endTime;
+
+    public SearchResultAccumulatorVerticle(Handler<SearchStatistics> handler) {
         this.handler = handler;
         files = new ArrayList<>();
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
+    public void start() {
+        startTime = System.currentTimeMillis();
+
         vertx.eventBus().<JsonObject>consumer("accumulator",
                 (message) -> onMessage(message.body()));
-        timerID = vertx.setTimer(2000, completionHandler());
+
+        timerID = vertx.setTimer(CLOSE_DELAY, completionHandler());
     }
 
     private void onMessage(JsonObject message) {
@@ -48,15 +56,17 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
         }
         final double matchingRate = ((double) fileWithOccurrences) / ((double) fileCount);
 
-        SearchResultStatistics statistics = new SearchResultStatistics(files, matchingRate, averageMatches);
-        handler.handle(statistics);
+        handler.handle(new SearchStatistics(files, matchingRate, averageMatches));
+
+        endTime = System.currentTimeMillis();
 
         timerID = vertx.setTimer(2000, completionHandler());
     }
 
     private Handler<Long> completionHandler() {
-        return (event) -> {
-            System.out.println("Total occurrences:" + totalOccurrences);
+        return event -> {
+            System.out.println("Total occurrences: " + totalOccurrences);
+            System.out.println("Execution time: " + (endTime - startTime) + " ms");
             vertx.close();
         };
     }

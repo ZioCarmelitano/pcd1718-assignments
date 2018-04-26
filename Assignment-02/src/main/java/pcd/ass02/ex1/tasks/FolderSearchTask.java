@@ -12,9 +12,9 @@ public class FolderSearchTask extends RecursiveTask<Long> {
 
     private final Folder folder;
     private final String regex;
-    private final BiConsumer<Document, Long> callback;
+    private final BiConsumer<? super Document, ? super Long> callback;
 
-    public FolderSearchTask(Folder folder, String regex, BiConsumer<Document, Long> callback) {
+    public FolderSearchTask(Folder folder, String regex, BiConsumer<? super Document, ? super Long> callback) {
         super();
         this.folder = folder;
         this.regex = regex;

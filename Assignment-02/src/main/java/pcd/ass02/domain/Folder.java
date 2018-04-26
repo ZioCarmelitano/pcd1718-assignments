@@ -23,15 +23,19 @@ public class Folder {
     }
 
     public static Folder fromDirectory(File dir, int maxDepth) {
-        List<Document> documents = new LinkedList<>();
-        List<Folder> subFolders = new LinkedList<>();
-        for (File entry : dir.listFiles()) {
-            if (entry.isDirectory()) {
-                if (maxDepth != 0) {
-                    subFolders.add(Folder.fromDirectory(entry, maxDepth - 1));
+        final List<Document> documents = new LinkedList<>();
+        final List<Folder> subFolders = new LinkedList<>();
+
+        final File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    if (maxDepth != 0) {
+                        subFolders.add(Folder.fromDirectory(file, maxDepth - 1));
+                    }
+                } else {
+                    documents.add(Document.fromFile(file));
                 }
-            } else {
-                documents.add(Document.fromFile(entry));
             }
         }
         return new Folder(subFolders, documents);

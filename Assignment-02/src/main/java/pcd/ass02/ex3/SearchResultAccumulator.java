@@ -1,17 +1,18 @@
 package pcd.ass02.ex3;
 
-import io.reactivex.Observer;
+import io.reactivex.exceptions.OnErrorNotImplementedException;
+import org.reactivestreams.Subscriber;
 import pcd.ass02.domain.SearchResult;
-import pcd.ass02.domain.SearchResultStatistics;
+import pcd.ass02.domain.SearchStatistics;
 
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class SearchResultAccumulator implements Observer<SearchResult> {
+abstract class SearchResultAccumulator implements Subscriber<SearchResult> {
 
     private long fileCount;
     private long fileWithOccurrences;
-    long totalOccurrences;
+    private long totalOccurrences;
     private double averageMatches;
     private final List<String> files;
 
@@ -20,9 +21,9 @@ abstract class SearchResultAccumulator implements Observer<SearchResult> {
     }
 
     @Override
-    public void onNext(SearchResult searchResult) {
-        long occurrences = searchResult.getCount();
-        String documentName = searchResult.getDocumentName();
+    public final void onNext(SearchResult result) {
+        long occurrences = result.getCount();
+        String documentName = result.getDocumentName();
 
         fileCount++;
         if (occurrences > 0) {
@@ -33,10 +34,21 @@ abstract class SearchResultAccumulator implements Observer<SearchResult> {
         }
         final double matchingRate = ((double) fileWithOccurrences) / ((double) fileCount);
 
-        SearchResultStatistics statistics = new SearchResultStatistics(files, matchingRate, averageMatches);
-        onNext(statistics);
+        onNext(new SearchStatistics(files, matchingRate, averageMatches));
     }
 
-    protected abstract void onNext(SearchResultStatistics statistics);
+    @Override
+    public final void onComplete() {
+        onComplete(totalOccurrences);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        throw new OnErrorNotImplementedException(e);
+    }
+
+    protected abstract void onNext(SearchStatistics statistics);
+
+    protected abstract void onComplete(long totalOccurrences);
 
 }

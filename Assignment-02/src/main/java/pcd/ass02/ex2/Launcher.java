@@ -3,7 +3,7 @@ package pcd.ass02.ex2;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import pcd.ass02.domain.SearchResultStatistics;
+import pcd.ass02.domain.SearchStatistics;
 import pcd.ass02.ex2.verticles.FolderSearchVerticle;
 import pcd.ass02.ex2.verticles.SearchResultAccumulatorVerticle;
 
@@ -12,11 +12,11 @@ import java.util.List;
 
 import static pcd.ass02.domain.Folder.fromDirectory;
 
-class Launcher {
+final class Launcher {
 
     private static int fileWithOccurrencesCount;
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         File path = new File(args[0]);
         String regex = args[1];
         int maxDepth = Integer.parseInt(args[2]);
@@ -28,7 +28,7 @@ class Launcher {
 
     }
 
-    private static void handle(SearchResultStatistics statistics) {
+    private static void handle(SearchStatistics statistics) {
         List<String> files = statistics.getMatches();
         double averageMatches = statistics.getAverageMatches();
         double matchingRate = statistics.getMatchingRate();
@@ -41,4 +41,8 @@ class Launcher {
             System.out.println("Files with occurrences: " + files.size());
         }
     }
+
+    private Launcher() {
+    }
+
 }

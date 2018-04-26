@@ -16,9 +16,7 @@ public class FolderSearchVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-
+    public void start() {
         for (Folder subFolder : folder.getSubFolders()) {
             vertx.deployVerticle(new FolderSearchVerticle(subFolder, regex),
                     new DeploymentOptions().setWorker(true));

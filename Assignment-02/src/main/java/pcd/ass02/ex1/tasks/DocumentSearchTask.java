@@ -10,9 +10,9 @@ class DocumentSearchTask extends RecursiveTask<Long> {
 
     private final Document document;
     private final String regex;
-    private final BiConsumer<Document, Long> callback;
+    private final BiConsumer<? super Document, ? super Long> callback;
 
-    public DocumentSearchTask(Document document, String regex, BiConsumer<Document, Long> callback) {
+    public DocumentSearchTask(Document document, String regex, BiConsumer<? super Document, ? super Long> callback) {
         super();
         this.document = document;
         this.regex = regex;
@@ -21,7 +21,7 @@ class DocumentSearchTask extends RecursiveTask<Long> {
 
     @Override
     protected Long compute() {
-        final long result = OccurrencesCounter.occurrencesCount(document, regex);
+        final long result = OccurrencesCounter.countOccurrences(document, regex);
         callback.accept(document, result);
         return result;
     }
