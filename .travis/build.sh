@@ -1,19 +1,8 @@
 #/bin/bash
-failOnError() {
-    if [ "$?" != "0" ]; then
-        exit 1
-    fi
-}
+set -e
 CWD=`pwd`
-cd Assignment-01
-failOnError
+cd $CWD/Assignment-01
 ./gradlew check clean test build
-failOnError
-cd $CWD
-failOnError
-cd Assignment-02
-failOnError
+cd $CWD/Assignment-02
 ./gradlew clean clean test build
-failOnError
 cd $CWD
-failOnError
