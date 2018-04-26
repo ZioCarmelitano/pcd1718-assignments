@@ -24,13 +24,14 @@ final class Launcher {
                 .subscribeOn(Schedulers.computation())
                 .map(toSearchResult(regex))
                 .blockingSubscribe(new SearchResultAccumulator() {
+                    private int fileWithOccurrencesCount;
+                    private long startTime;
+
                     @Override
                     public void onSubscribe(Subscription s) {
                         startTime = System.currentTimeMillis();
+                        s.request(Long.MAX_VALUE);
                     }
-
-                    private int fileWithOccurrencesCount;
-                    private long startTime;
 
                     @Override
                     public void onNext(SearchStatistics statistics) {
