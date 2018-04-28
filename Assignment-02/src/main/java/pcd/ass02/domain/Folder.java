@@ -9,7 +9,7 @@ public class Folder {
     private final List<Folder> subFolders;
     private final List<Document> documents;
 
-    private Folder(List<Folder> subFolders, List<Document> documents) {
+    public Folder(List<Folder> subFolders, List<Document> documents) {
         this.subFolders = subFolders;
         this.documents = documents;
     }

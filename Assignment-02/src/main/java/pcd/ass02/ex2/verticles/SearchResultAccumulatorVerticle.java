@@ -2,7 +2,7 @@ package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonObject;
+import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
 
 import java.util.ArrayList;
@@ -35,17 +35,17 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
     public void start() {
         startTime = System.currentTimeMillis();
 
-        vertx.eventBus().<JsonObject>consumer("accumulator",
-                (message) -> onMessage(message.body()));
+        vertx.eventBus().<SearchResult>consumer("accumulator",
+                m -> onSearchResult(m.body()));
 
         timerID = vertx.setTimer(CLOSE_DELAY, completionHandler());
     }
 
-    private void onMessage(JsonObject message) {
+    private void onSearchResult(SearchResult result) {
         vertx.cancelTimer(timerID);
 
-        long occurrences = message.getLong("occurrences");
-        String documentName = message.getString("documentName");
+        final long occurrences = result.getCount();
+        final String documentName = result.getDocumentName();
 
         fileCount++;
         if (occurrences > 0) {

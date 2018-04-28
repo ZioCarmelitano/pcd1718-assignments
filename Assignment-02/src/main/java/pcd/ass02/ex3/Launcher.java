@@ -35,7 +35,7 @@ final class Launcher {
 
                     @Override
                     public void onNext(SearchStatistics statistics) {
-                        final List<String> files = statistics.getMatches();
+                        final List<String> files = statistics.getDocumentNames();
                         final double averageMatches = statistics.getAverageMatches();
                         final double matchingRate = statistics.getMatchingRate();
 

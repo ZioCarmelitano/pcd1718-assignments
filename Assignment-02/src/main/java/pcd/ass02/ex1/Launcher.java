@@ -40,7 +40,7 @@ final class Launcher {
     }
 
     private static void accept(SearchStatistics statistics) {
-        List<String> files = statistics.getMatches();
+        List<String> files = statistics.getDocumentNames();
         double averageMatches = statistics.getAverageMatches();
         double matchingRate = statistics.getMatchingRate();
 

@@ -11,7 +11,7 @@ public class Document {
     private final String name;
     private final List<String> lines;
 
-    private Document(List<String> lines, String name) {
+    public Document(String name, List<String> lines) {
         this.lines = lines;
         this.name = name;
     }
@@ -37,6 +37,6 @@ public class Document {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new Document(lines, file.getName());
+        return new Document(file.getName(), lines);
     }
 }
