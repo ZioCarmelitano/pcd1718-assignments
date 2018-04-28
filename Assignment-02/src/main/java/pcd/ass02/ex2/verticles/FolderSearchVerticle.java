@@ -27,4 +27,5 @@ public class FolderSearchVerticle extends AbstractVerticle {
                     new DeploymentOptions().setWorker(true));
         }
     }
+
 }

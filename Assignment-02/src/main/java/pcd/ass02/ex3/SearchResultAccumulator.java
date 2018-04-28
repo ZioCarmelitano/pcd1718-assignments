@@ -2,7 +2,6 @@ package pcd.ass02.ex3;
 
 import io.reactivex.exceptions.OnErrorNotImplementedException;
 import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
 
@@ -17,7 +16,7 @@ abstract class SearchResultAccumulator implements Subscriber<SearchResult> {
     private double averageMatches;
     private final List<String> files;
 
-    public SearchResultAccumulator() {
+    SearchResultAccumulator() {
         this.files = new ArrayList<>();
     }
 

@@ -42,7 +42,6 @@ public class SearchResultAccumulatorTask implements Runnable {
     public void run() {
         while (running || !resultQueue.isEmpty()) {
             try {
-                System.out.println("Im waiting...");
                 Optional<SearchResult> event = resultQueue.take();
                 if (event.isPresent()) {
                     final SearchResult result = event.get();

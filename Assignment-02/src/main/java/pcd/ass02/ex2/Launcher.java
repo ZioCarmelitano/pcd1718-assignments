@@ -25,7 +25,6 @@ final class Launcher {
         vertx.deployVerticle(new FolderSearchVerticle(fromDirectory(path, maxDepth), regex),
                 new DeploymentOptions().setWorker(true));
         vertx.deployVerticle(new SearchResultAccumulatorVerticle(Launcher::handle));
-
     }
 
     private static void handle(SearchStatistics statistics) {
