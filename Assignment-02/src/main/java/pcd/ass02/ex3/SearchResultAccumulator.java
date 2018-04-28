@@ -2,6 +2,7 @@ package pcd.ass02.ex3;
 
 import io.reactivex.exceptions.OnErrorNotImplementedException;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
 
