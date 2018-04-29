@@ -3,19 +3,19 @@ package pcd.ass02.domain;
 public class SearchResult {
 
     private final String documentName;
-    private final long count;
+    private final long occurrences;
 
-    public SearchResult(String documentName, long count) {
+    public SearchResult(String documentName, long occurrences) {
         this.documentName = documentName;
-        this.count = count;
+        this.occurrences = occurrences;
     }
 
     public String getDocumentName() {
         return documentName;
     }
 
-    public long getCount() {
-        return count;
+    public long getOccurrences() {
+        return occurrences;
     }
 
 }

@@ -20,13 +20,13 @@ public class SearchResultAccumulatorTask implements Runnable {
     private long fileWithOccurrences;
     private long totalOccurrences;
     private double averageMatches;
-    private final List<String> files;
+    private final List<String> documentNames;
 
-    private final Consumer<SearchStatistics> listener;
+    private final Consumer<? super SearchStatistics> listener;
 
-    public SearchResultAccumulatorTask(Consumer<SearchStatistics> listener) {
+    public SearchResultAccumulatorTask(Consumer<? super SearchStatistics> listener) {
         resultQueue = new LinkedBlockingQueue<>();
-        files = new ArrayList<>();
+        documentNames = new ArrayList<>();
         running = true;
         this.listener = listener;
     }
@@ -42,27 +42,27 @@ public class SearchResultAccumulatorTask implements Runnable {
     public void run() {
         while (running || !resultQueue.isEmpty()) {
             try {
-                System.out.println("Im waiting...");
-                Optional<SearchResult> event = resultQueue.take();
-                if (event.isPresent()) {
-                    final SearchResult result = event.get();
-                    fileCount++;
-                    final long count = result.getCount();
-                    if (count > 0) {
-                        final String documentName = result.getDocumentName();
-                        files.add(documentName);
-                        fileWithOccurrences++;
-                        totalOccurrences += count;
-                        averageMatches = ((double) totalOccurrences) / ((double) fileWithOccurrences);
-                    }
-                    final double matchingRate = ((double) fileWithOccurrences) / ((double) fileCount);
-
-                    listener.accept(new SearchStatistics(files, matchingRate, averageMatches));
-                }
-            } catch (InterruptedException e) {
+                final Optional<SearchResult> event = resultQueue.take();
+                event.ifPresent(this::onSearchResult);
+            } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void onSearchResult(final SearchResult result) {
+        fileCount++;
+        final long count = result.getOccurrences();
+        if (count > 0) {
+            final String documentName = result.getDocumentName();
+            documentNames.add(documentName);
+            fileWithOccurrences++;
+            totalOccurrences += count;
+            averageMatches = ((double) totalOccurrences) / ((double) fileWithOccurrences);
+        }
+        final double matchingRate = ((double) fileWithOccurrences) / ((double) fileCount);
+
+        listener.accept(new SearchStatistics(documentNames, matchingRate, averageMatches));
     }
 
     public void stop() {

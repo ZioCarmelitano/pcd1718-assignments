@@ -8,7 +8,7 @@ import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
-import pcd.ass02.ex1.OccurrencesCounter;
+import pcd.ass02.util.DocumentHelper;
 
 import java.io.File;
 import java.util.List;
@@ -16,9 +16,9 @@ import java.util.List;
 final class Launcher {
 
     public static void main(String... args) {
-        File path = new File(args[0]);
-        String regex = args[1];
-        int maxDepth = Integer.parseInt(args[2]);
+        final File path = new File(args[0]);
+        final String regex = args[1];
+        final int maxDepth = Integer.parseInt(args[2]);
 
         getDocuments(Folder.fromDirectory(path, maxDepth))
                 .subscribeOn(Schedulers.computation())
@@ -35,7 +35,7 @@ final class Launcher {
 
                     @Override
                     public void onNext(SearchStatistics statistics) {
-                        final List<String> files = statistics.getMatches();
+                        final List<String> files = statistics.getDocumentNames();
                         final double averageMatches = statistics.getAverageMatches();
                         final double matchingRate = statistics.getMatchingRate();
 
@@ -60,7 +60,7 @@ final class Launcher {
 
     private static Function<? super Document, ? extends SearchResult> toSearchResult(String regex) {
         return document -> {
-            final long occurrences = OccurrencesCounter.countOccurrences(document, regex);
+            final long occurrences = DocumentHelper.countOccurrences(document, regex);
             return new SearchResult(document.getName(), occurrences);
         };
     }

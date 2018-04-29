@@ -3,7 +3,7 @@ version '1.0'
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.8
+sourceCompatibility = jdkVersion
 
 repositories {
     mavenCentral()
@@ -11,13 +11,15 @@ repositories {
 
 ext {
     vertxVersion = '3.5.1'
-    rxJavaVersion = '2.1.12'
+    rxJava2Version = '2.1.12'
     junit4Version = '4.12'
+    jacksonVersion = '2.9.5'
 }
 
 dependencies {
     compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
-    compile group: 'io.reactivex.rxjava2', name: 'rxjava', 'version': rxJavaVersion
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', 'version': rxJava2Version
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
 
     testCompile group: 'junit', name: 'junit', version: junit4Version
 }

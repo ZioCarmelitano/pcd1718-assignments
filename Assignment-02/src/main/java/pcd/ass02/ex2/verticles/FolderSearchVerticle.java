@@ -1,30 +1,34 @@
 package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
+import io.vertx.core.eventbus.EventBus;
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 
 public class FolderSearchVerticle extends AbstractVerticle {
 
-    private final Folder folder;
-    private final String regex;
+    private EventBus eventBus;
 
-    public FolderSearchVerticle(Folder folder, String regex) {
-        this.folder = folder;
-        this.regex = regex;
+    public FolderSearchVerticle() {
     }
 
     @Override
     public void start() {
-        for (Folder subFolder : folder.getSubFolders()) {
-            vertx.deployVerticle(new FolderSearchVerticle(subFolder, regex),
-                    new DeploymentOptions().setWorker(true));
-        }
-
-        for (Document document : folder.getDocuments()) {
-            vertx.deployVerticle(new DocumentSearchVerticle(document, regex),
-                    new DeploymentOptions().setWorker(true));
-        }
+        eventBus = vertx.eventBus();
+        eventBus.<Folder>consumer("folderSearch", m -> onFolder(m.body()));
     }
+
+    private void onFolder(Folder folder) {
+        folder.getSubFolders().forEach(this::onSubFolder);
+        folder.getDocuments().forEach(this::onDocument);
+    }
+
+    private void onSubFolder(Folder subFolder) {
+        eventBus.send("folderSearch", subFolder);
+    }
+
+    private void onDocument(Document document) {
+        eventBus.send("documentSearch", document);
+    }
+
 }

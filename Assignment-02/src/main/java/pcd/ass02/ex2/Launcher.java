@@ -3,33 +3,59 @@ package pcd.ass02.ex2;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.eventbus.EventBus;
+import pcd.ass02.domain.Document;
+import pcd.ass02.domain.Folder;
+import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
+import pcd.ass02.ex2.verticles.DocumentSearchVerticle;
 import pcd.ass02.ex2.verticles.FolderSearchVerticle;
 import pcd.ass02.ex2.verticles.SearchResultAccumulatorVerticle;
+import pcd.ass02.ex2.verticles.codecs.DocumentMessageCodec;
+import pcd.ass02.ex2.verticles.codecs.FolderMessageCodec;
+import pcd.ass02.ex2.verticles.codecs.SearchResultMessageCodec;
+import pcd.ass02.ex2.verticles.codecs.SearchStatisticsMessageCodec;
 
 import java.io.File;
 import java.util.List;
 
-import static pcd.ass02.domain.Folder.fromDirectory;
-
 final class Launcher {
+
+    private static final int EVENT_LOOP_POOL_SIZE = 1;
+    private static final int INSTANCES = 10;
+    private static final int WORKER_POOL_SIZE = 2 * INSTANCES;
 
     private static int fileWithOccurrencesCount;
 
     public static void main(String... args) {
-        File path = new File(args[0]);
-        String regex = args[1];
-        int maxDepth = Integer.parseInt(args[2]);
+        final File path = new File(args[0]);
+        final String regex = args[1];
+        final int maxDepth = Integer.parseInt(args[2]);
 
-        Vertx vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(10));
-        vertx.deployVerticle(new FolderSearchVerticle(fromDirectory(path, maxDepth), regex),
-                new DeploymentOptions().setWorker(true));
-        vertx.deployVerticle(new SearchResultAccumulatorVerticle(Launcher::handle));
+        final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
 
+        final Vertx vertx = Vertx.vertx(new VertxOptions()
+                .setWorkerPoolSize(WORKER_POOL_SIZE)
+                .setEventLoopPoolSize(EVENT_LOOP_POOL_SIZE));
+
+        final EventBus eventBus = vertx.eventBus();
+        eventBus.registerDefaultCodec(Document.class, DocumentMessageCodec.getInstance());
+        eventBus.registerDefaultCodec(Folder.class, FolderMessageCodec.getInstance());
+        eventBus.registerDefaultCodec(SearchResult.class, SearchResultMessageCodec.getInstance());
+        eventBus.registerDefaultCodec(SearchStatistics.class, SearchStatisticsMessageCodec.getInstance());
+
+        final DeploymentOptions options = new DeploymentOptions()
+                .setWorker(true)
+                .setInstances(INSTANCES);
+        vertx.deployVerticle(FolderSearchVerticle::new, options);
+        vertx.deployVerticle(() -> new DocumentSearchVerticle(regex), options);
+        vertx.deployVerticle(new SearchResultAccumulatorVerticle(Launcher::handleResult, Launcher::handleCompletion));
+
+        vertx.eventBus().send("folderSearch", rootFolder);
     }
 
-    private static void handle(SearchStatistics statistics) {
-        List<String> files = statistics.getMatches();
+    private static void handleResult(SearchStatistics statistics) {
+        List<String> files = statistics.getDocumentNames();
         double averageMatches = statistics.getAverageMatches();
         double matchingRate = statistics.getMatchingRate();
 
@@ -40,6 +66,10 @@ final class Launcher {
             System.out.println("Average: " + averageMatches);
             System.out.println("Files with occurrences: " + files.size());
         }
+    }
+
+    private static void handleCompletion(long totalOccurrences) {
+        System.out.println("Total occurrences: " + totalOccurrences);
     }
 
     private Launcher() {
