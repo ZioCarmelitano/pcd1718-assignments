@@ -13,8 +13,7 @@ class DocumentSearchTask extends RecursiveTask<Long> {
     private final String regex;
     private final Consumer<? super SearchResult> callback;
 
-    public DocumentSearchTask(Document document, String regex, Consumer<? super SearchResult> callback) {
-        super();
+    DocumentSearchTask(Document document, String regex, Consumer<? super SearchResult> callback) {
         this.document = document;
         this.regex = regex;
         this.callback = callback;

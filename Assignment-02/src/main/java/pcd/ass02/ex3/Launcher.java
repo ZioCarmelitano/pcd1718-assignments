@@ -23,8 +23,8 @@ final class Launcher {
         getDocuments(Folder.fromDirectory(path, maxDepth))
                 .subscribeOn(Schedulers.computation())
                 .map(toSearchResult(regex))
-                .blockingSubscribe(new SearchResultAccumulator() {
-                    private int fileWithOccurrencesCount;
+                .blockingSubscribe(new SearchResultSubscriber() {
+                    private int filesWithOccurrencesCount;
                     private long startTime;
 
                     @Override
@@ -39,8 +39,8 @@ final class Launcher {
                         final double averageMatches = statistics.getAverageMatches();
                         final double matchingRate = statistics.getMatchingRate();
 
-                        if (files.size() > fileWithOccurrencesCount) {
-                            fileWithOccurrencesCount = files.size();
+                        if (files.size() > filesWithOccurrencesCount) {
+                            filesWithOccurrencesCount = files.size();
                             System.out.println(files);
                             System.out.println("Matching rate: " + matchingRate);
                             System.out.println("Average: " + averageMatches);
@@ -52,7 +52,8 @@ final class Launcher {
                     protected void onComplete(long totalOccurrences) {
                         final long endTime = System.currentTimeMillis();
 
-                        System.out.println("\nTotal occurrences: " + totalOccurrences);
+                        System.out.println();
+                        System.out.println("Total occurrences: " + totalOccurrences);
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
                     }
                 });

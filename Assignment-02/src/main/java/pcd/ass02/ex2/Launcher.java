@@ -21,11 +21,13 @@ import java.util.List;
 
 final class Launcher {
 
-    private static final int EVENT_LOOP_POOL_SIZE = 1;
     private static final int INSTANCES = 10;
+    private static final int EVENT_LOOP_POOL_SIZE = 1;
     private static final int WORKER_POOL_SIZE = 2 * INSTANCES;
 
-    private static int fileWithOccurrencesCount;
+    private static final Vertx vertx;
+
+    private static int filesWithOccurrencesCount;
 
     public static void main(String... args) {
         final File path = new File(args[0]);
@@ -33,10 +35,6 @@ final class Launcher {
         final int maxDepth = Integer.parseInt(args[2]);
 
         final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
-
-        final Vertx vertx = Vertx.vertx(new VertxOptions()
-                .setWorkerPoolSize(WORKER_POOL_SIZE)
-                .setEventLoopPoolSize(EVENT_LOOP_POOL_SIZE));
 
         final EventBus eventBus = vertx.eventBus();
         eventBus.registerDefaultCodec(Document.class, DocumentMessageCodec.getInstance());
@@ -51,7 +49,7 @@ final class Launcher {
         vertx.deployVerticle(() -> new DocumentSearchVerticle(regex), options);
         vertx.deployVerticle(new SearchResultAccumulatorVerticle(Launcher::handleResult, Launcher::handleCompletion));
 
-        vertx.eventBus().send("folderSearch", rootFolder);
+        eventBus.send("folderSearch", rootFolder);
     }
 
     private static void handleResult(SearchStatistics statistics) {
@@ -59,8 +57,8 @@ final class Launcher {
         double averageMatches = statistics.getAverageMatches();
         double matchingRate = statistics.getMatchingRate();
 
-        if (files.size() > fileWithOccurrencesCount) {
-            fileWithOccurrencesCount = files.size();
+        if (files.size() > filesWithOccurrencesCount) {
+            filesWithOccurrencesCount = files.size();
             System.out.println(files);
             System.out.println("Matching rate: " + matchingRate);
             System.out.println("Average: " + averageMatches);
@@ -70,6 +68,13 @@ final class Launcher {
 
     private static void handleCompletion(long totalOccurrences) {
         System.out.println("Total occurrences: " + totalOccurrences);
+        vertx.close();
+    }
+
+    static {
+        vertx = Vertx.vertx(new VertxOptions()
+                .setWorkerPoolSize(WORKER_POOL_SIZE)
+                .setEventLoopPoolSize(EVENT_LOOP_POOL_SIZE));
     }
 
     private Launcher() {

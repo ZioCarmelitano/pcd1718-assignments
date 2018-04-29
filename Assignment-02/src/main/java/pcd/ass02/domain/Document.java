@@ -29,7 +29,7 @@ public class Document {
 
     private static List<String> readLines(File file) {
         final List<String> lines = new LinkedList<>();
-        try (final BufferedReader reader = new BufferedReader(new FileReader(file))){
+        try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
             while (line != null) {
                 lines.add(line);

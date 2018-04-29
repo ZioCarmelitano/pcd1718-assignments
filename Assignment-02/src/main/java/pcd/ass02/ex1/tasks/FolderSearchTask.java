@@ -6,6 +6,7 @@ import pcd.ass02.domain.SearchResult;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 import java.util.function.Consumer;
 
@@ -16,7 +17,6 @@ public class FolderSearchTask extends RecursiveTask<Long> {
     private final Consumer<? super SearchResult> callback;
 
     public FolderSearchTask(Folder folder, String regex, Consumer<? super SearchResult> callback) {
-        super();
         this.folder = folder;
         this.regex = regex;
         this.callback = callback;
@@ -24,20 +24,20 @@ public class FolderSearchTask extends RecursiveTask<Long> {
 
     @Override
     protected Long compute() {
-        final List<RecursiveTask<Long>> forks = new LinkedList<>();
+        final List<ForkJoinTask<Long>> tasks = new LinkedList<>();
         for (final Folder subFolder : folder.getSubFolders()) {
-            FolderSearchTask task = new FolderSearchTask(subFolder, regex, callback);
-            forks.add(task);
+            final FolderSearchTask task = new FolderSearchTask(subFolder, regex, callback);
+            tasks.add(task);
             task.fork();
         }
         for (final Document document : folder.getDocuments()) {
-            DocumentSearchTask task = new DocumentSearchTask(document, regex, callback);
-            forks.add(task);
+            final DocumentSearchTask task = new DocumentSearchTask(document, regex, callback);
+            tasks.add(task);
             task.fork();
         }
 
         long count = 0L;
-        for (final RecursiveTask<Long> task : forks) {
+        for (final ForkJoinTask<Long> task : tasks) {
             count += task.join();
         }
         return count;
