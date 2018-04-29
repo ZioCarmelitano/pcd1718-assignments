@@ -10,7 +10,7 @@ public class SearchStatistics {
     private final double averageMatches;
 
     public SearchStatistics(List<String> documentNames, double matchingRate, double averageMatches) {
-        this.documentNames = Collections.unmodifiableList(documentNames);
+        this.documentNames = documentNames;
         this.matchingRate = matchingRate;
         this.averageMatches = averageMatches;
     }
@@ -26,4 +26,5 @@ public class SearchStatistics {
     public double getAverageMatches() {
         return averageMatches;
     }
+
 }

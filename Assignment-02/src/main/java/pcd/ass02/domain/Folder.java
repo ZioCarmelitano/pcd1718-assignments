@@ -28,7 +28,7 @@ public class Folder {
 
         final File[] files = dir.listFiles();
         if (files != null) {
-            for (File file : files) {
+            for (final File file : files) {
                 if (file.isDirectory()) {
                     if (maxDepth != 0) {
                         subFolders.add(Folder.fromDirectory(file, maxDepth - 1));

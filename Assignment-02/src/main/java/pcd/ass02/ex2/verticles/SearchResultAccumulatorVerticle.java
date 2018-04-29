@@ -12,7 +12,8 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
     private static final long CLOSE_DELAY = 2_000;
 
-    private final Handler<SearchStatistics> handler;
+    private final Handler<? super SearchStatistics> handler;
+    private final Handler<? super Long> completionHandler;
 
     private long fileCount;
     private long fileWithOccurrences;
@@ -26,8 +27,9 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
     private long endTime;
 
-    public SearchResultAccumulatorVerticle(Handler<SearchStatistics> handler) {
-        this.handler = handler;
+    public SearchResultAccumulatorVerticle(Handler<? super SearchStatistics> resultHandler, Handler<? super Long> completionHandler) {
+        this.handler = resultHandler;
+        this.completionHandler = completionHandler;
         files = new ArrayList<>();
     }
 
@@ -35,10 +37,9 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
     public void start() {
         startTime = System.currentTimeMillis();
 
-        vertx.eventBus().<SearchResult>consumer("accumulator",
-                m -> onSearchResult(m.body()));
+        vertx.eventBus().<SearchResult>consumer("accumulator", m -> onSearchResult(m.body()));
 
-        timerID = vertx.setTimer(CLOSE_DELAY, completionHandler());
+        timerID = vertx.setTimer(CLOSE_DELAY, this::completionHandler);
     }
 
     private void onSearchResult(SearchResult result) {
@@ -60,15 +61,13 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
         endTime = System.currentTimeMillis();
 
-        timerID = vertx.setTimer(2000, completionHandler());
+        timerID = vertx.setTimer(2000, this::completionHandler);
     }
 
-    private Handler<Long> completionHandler() {
-        return event -> {
-            System.out.println("Total occurrences: " + totalOccurrences);
-            System.out.println("Execution time: " + (endTime - startTime) + " ms");
-            vertx.close();
-        };
+    private void completionHandler(long tid) {
+        completionHandler.handle(totalOccurrences);
+        System.out.println("Execution time: " + (endTime - startTime) + " ms");
+        vertx.close();
     }
 
 }

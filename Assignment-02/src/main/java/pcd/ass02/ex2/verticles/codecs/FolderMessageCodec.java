@@ -1,4 +1,4 @@
-package pcd.ass02.ex2.verticles.codec;
+package pcd.ass02.ex2.verticles.codecs;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -8,28 +8,28 @@ import pcd.ass02.domain.Folder;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FolderCodec extends AbstractMessageCodec<Folder, Folder> {
+public class FolderMessageCodec extends AbstractMessageCodec<Folder, Folder> {
 
-    private static DocumentCodec documentCodec = DocumentCodec.getInstance();
+    private static final DocumentMessageCodec documentCodec = DocumentMessageCodec.getInstance();
 
     @Override
-    protected void encodeToWire(JsonObject json, Folder folder) {
-        json.put("subFolders", new JsonArray(folder.getSubFolders()));
-        json.put("folders", new JsonArray(folder.getDocuments()));
+    protected void encodeToWire(JsonObject jsonObject, Folder folder) {
+        jsonObject.put("subFolders", new JsonArray(folder.getSubFolders()));
+        jsonObject.put("folders", new JsonArray(folder.getDocuments()));
     }
 
     @Override
-    protected Folder decodeFromWire(JsonObject json) {
+    protected Folder decodeFromWire(JsonObject jsonObject) {
         final List<Folder> subFolders = new LinkedList<>();
         final List<Document> documents = new LinkedList<>();
 
-        final JsonArray subFoldersJson = json.getJsonArray("subFolders");
+        final JsonArray subFoldersJson = jsonObject.getJsonArray("subFolders");
         for (int i = 0; i < subFoldersJson.size(); i++) {
             final JsonObject subFolder = subFoldersJson.getJsonObject(i);
             subFolders.add(decodeFromWire(subFolder));
         }
 
-        final JsonArray documentsJson = json.getJsonArray("documents");
+        final JsonArray documentsJson = jsonObject.getJsonArray("documents");
         for (int i = 0; i < documentsJson.size(); i++) {
             final JsonObject document = subFoldersJson.getJsonObject(i);
             documents.add(documentCodec.decodeFromWire(document));
@@ -43,15 +43,20 @@ public class FolderCodec extends AbstractMessageCodec<Folder, Folder> {
         return folder;
     }
 
-    public static FolderCodec getInstance() {
+    @Override
+    public String name() {
+        return "folder";
+    }
+
+    public static FolderMessageCodec getInstance() {
         return Holder.INSTANCE;
     }
 
-    private FolderCodec() {
+    private FolderMessageCodec() {
     }
 
     private static final class Holder {
-        static final FolderCodec INSTANCE = new FolderCodec();
+        static final FolderMessageCodec INSTANCE = new FolderMessageCodec();
     }
 
 }

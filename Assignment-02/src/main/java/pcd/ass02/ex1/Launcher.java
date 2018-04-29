@@ -3,12 +3,14 @@ package pcd.ass02.ex1;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
+import pcd.ass02.ex1.tasks.FolderSearchTask;
 import pcd.ass02.ex1.tasks.SearchResultAccumulatorTask;
 
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 
 final class Launcher {
@@ -16,27 +18,33 @@ final class Launcher {
     private static long fileWithOccurrencesCount = 0;
 
     public static void main(String... args) {
-        OccurrencesCounter occurrencesCounter = new OccurrencesCounter();
-        Folder folder = Folder.fromDirectory(new File(args[0]), Integer.parseInt(args[2]));
+        final File path = new File(args[0]);
+        final String regex = args[1];
+        final int maxDepth = Integer.parseInt(args[2]);
+
+        final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
 
         long counts;
         long startTime;
         long stopTime;
 
-        Consumer<SearchStatistics> listener = Launcher::accept;
-        SearchResultAccumulatorTask accumulator = new SearchResultAccumulatorTask(listener);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        final SearchResultAccumulatorTask accumulator = new SearchResultAccumulatorTask(Launcher::accept);
+        final Consumer<SearchResult> resultCallback = accumulator::notify;
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(accumulator);
 
+        final ForkJoinPool pool = new ForkJoinPool();
+
+        final FolderSearchTask task = new FolderSearchTask(rootFolder, regex, resultCallback);
         startTime = System.currentTimeMillis();
-        counts = occurrencesCounter.countOccurrencesInParallel(folder, args[1], (document, count) -> accumulator.notify(new SearchResult(document.getName(), count)));
+        counts = pool.invoke(task);
         accumulator.stop();
         executor.shutdown();
         stopTime = System.currentTimeMillis();
 
         System.out.println();
         System.out.println("Total Occurrences: " + counts);
-        System.out.println("Execution time: " + (stopTime - startTime) + "ms");
+        System.out.println("Execution time: " + (stopTime - startTime) + " ms");
     }
 
     private static void accept(SearchStatistics statistics) {
