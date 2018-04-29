@@ -200,7 +200,7 @@ Lo strumento deve avere il seguente comportamento:
         \begin{itemize}
             \item Percorso di base della ricerca (ad esempio, un percorso del filesystem o un URL della pagina web)
             \item Espressione regolare
-            \item Profondit‡ massima di ricerca
+            \item Profondit√† massima di ricerca
         \end{itemize}
     \item Output\label{output}:
         \begin{itemize}
@@ -215,7 +215,7 @@ Lo strumento deve avere il seguente comportamento:
 Risolvere il problema usando task ed executor
         \begin{itemize}
             \item I file devono essere letti e analizzati contemporaneamente.
-            \item Si puÚ anche optare per parallelizzare l'analisi di file di grandi dimensioni.
+            \item Si pu√≤ anche optare per parallelizzare l'analisi di file di grandi dimensioni.
         \end{itemize}
 \textbf{Esercizio 2}:\\
 Risolvere il problema utilizzando la programmazione asincrona con Event Loop
@@ -225,25 +225,25 @@ Risolvere il problema utilizzando la programmazione asincrona con Event Loop
 \textbf{Esercizio 3}:\\
 Risolvere il problema utilizzando i flussi reattivi
         \begin{itemize}
-            \item Ad esempio, i risultati dell'elaborazione possono essere reificati in un flusso di eventi che puÚ essere manipolato mediante tecniche di programmazione reattiva
+            \item Ad esempio, i risultati dell'elaborazione possono essere reificati in un flusso di eventi che pu√≤ essere manipolato mediante tecniche di programmazione reattiva
         \end{itemize}
 \\
 \textbf{Ulteriori note}:
 \begin{itemize}
-    \item L'interfaccia utente puÚ essere a riga di comando, grafica o basata sul web. 
+    \item L'interfaccia utente pu√≤ essere a riga di comando, grafica o basata sul web. 
     \item Sei libero di utilizzare qualsiasi framework basato sugli eventi (ad es. Vertx, NodeJS) e la libreria del flusso reattivo (ad es. RxJava, Sodio).
 \end{itemize}
 
 \section{Descrizione della soluzione proposta}\label{descrizione-della-soluzione-proposta}
-Il programma realizzato serve per la ricerca di corrispondenze di un'espressione regolare tra i file, dato un percordo di partenza e la profondit‡ massima. 
+Il programma realizzato serve per la ricerca di corrispondenze di un'espressione regolare tra i file, dato un percordo di partenza e la profondit√† massima. 
 \subsection{Dinamica del Sistema}
 \subsubsection{Dominio Applicativo}
-L'architettura del sistema Ë stata realizzata in modo che il dominio applicativo fosse svincolato dalla logica di controllo e fosse condiviso fra le tre soluzioni.\\\\
-Il dominio applicativo Ë composto dai seguenti elementi:
+L'architettura del sistema √® stata realizzata in modo che il dominio applicativo fosse svincolato dalla logica di controllo e fosse condiviso fra le tre soluzioni.\\\\
+Il dominio applicativo √® composto dai seguenti elementi:
 \begin{itemize}
-    \item \texttt{Document}: classe che astrae il concetto di documento, Ë composto da una lista ordinata di linee che rappresentano il suo contenuto e dal nome del documento.
-    \item \texttt{Folder} classe che astrae il concetto di cartella di un filesystem, Ë composta da una lista di documenti e da una lista di sottocartelle.
-    \item \texttt{SearchResult}: classe che rappresenta il risultato della ricerca delle occorrenze dell'espressione regolare (fornita in input) in uno specifico documento. Il risultato Ë composto dal nome del documento e dal numero di occorrenze trovate.
+    \item \texttt{Document}: classe che astrae il concetto di documento, √® composto da una lista ordinata di linee che rappresentano il suo contenuto e dal nome del documento.
+    \item \texttt{Folder} classe che astrae il concetto di cartella di un filesystem, √® composta da una lista di documenti e da una lista di sottocartelle.
+    \item \texttt{SearchResult}: classe che rappresenta il risultato della ricerca delle occorrenze dell'espressione regolare (fornita in input) in uno specifico documento. Il risultato √® composto dal nome del documento e dal numero di occorrenze trovate.
     \item \texttt{SearchStatistics}: classe che rappresenta le statistiche della ricerca in atto come richieste nell'Output specificato nell'analisi del problema. 
 \end{itemize}
 \subsubsection{Esercizio 1: Task \& Executors}
@@ -254,40 +254,40 @@ Analizzando i requisiti abbiamo individuato tre task principali:
     \item \texttt{DocumentSearchTask}: ricerca delle occorrenze dell'espressione regolare in un documento
     \item \texttt{SearchResultAccumulatorTask}: aggregazione dei risultati e calcolo delle statistiche
 \end{itemize}
-Dato un percorso e una profondit‡ massima viene costruito un albero nel quale le cartelle rappresentano i rami e i documenti le foglie. Partendo dalla radice visitiamo tutte le sottocartelle e i documenti presenti: nel primo caso viene eseguito un nuovo \texttt{FolderSearchTask}, nel secondo caso viene eseguito un nuovo \texttt{DocumentSearchTask}.\\
+Dato un percorso e una profondit√† massima viene costruito un albero nel quale le cartelle rappresentano i rami e i documenti le foglie. Partendo dalla radice visitiamo tutte le sottocartelle e i documenti presenti: nel primo caso viene eseguito un nuovo \texttt{FolderSearchTask}, nel secondo caso viene eseguito un nuovo \texttt{DocumentSearchTask}.\\
 Ogni risultato intermedio trovato mette in esecuzione una callback che notifica il \texttt{SearchResultAccumulatorTask}, eseguito su un executor dedicato.\\
 \texttt{SearchResultAccumulatorTask} si occupa di aggiornare i risultati e di passarli ad una callback responsabile di aggiornare l'output.  
 
 \subsubsection{Esercizio 2: Event Loop}
-Come implementazione del modello a Event Loop Ë stato utilizzato il framework Vert.x \footnote{\url{https://vertx.io/docs/}}.
-Analogamente all'Esercizio 1 il problema Ë stato scomposto in tre sottoproblemi, in questo caso risolti da tre tipologie di Verticle:
+Come implementazione del modello a Event Loop √® stato utilizzato il framework Vert.x \footnote{\url{https://vertx.io/docs/}}.
+Analogamente all'Esercizio 1 il problema √® stato scomposto in tre sottoproblemi, in questo caso risolti da tre tipologie di Verticle:
 \begin{itemize}
     \item \texttt{FolderSearchVerticle}: ricerca delle occorrenze dell'espressione regolare in una cartella
     \item \texttt{DocumentSearchVertice}: ricerca delle occorrenze dell'espressione regolare in un documento
     \item \texttt{SearchResultAccumulatorVerticle}: aggregazione dei risultati e calcolo delle statistiche
 \end{itemize}
-Si Ë scelto di mantenere un numero fisso di istanze per ogni tipologia di Verticle. Nel caso del \texttt{SearchResultAccumulatorVerticle} l'istanza Ë unica, mentre per le altre due tipologie il numero di istanze puÚ variare al fine di parallelizzare il carico di lavoro.\\
+Si √® scelto di mantenere un numero fisso di istanze per ogni tipologia di Verticle. Nel caso del \texttt{SearchResultAccumulatorVerticle} l'istanza √® unica, mentre per le altre due tipologie il numero di istanze pu√≤ variare al fine di parallelizzare il carico di lavoro.\\
 La comunicazione tra i verticle si basa sullo scambio di messaggi attraverso un canale condiviso (Event Bus): ogni tipologia di verticle ascolta su un canale dedicato.\\
 La ricerca inizia inviando un messaggio all'indirizzo dedicato alle cartelle con la radice dell'albero.
-Il verticle che riceve il messaggio (\texttt{FolderSearchVerticle}) visita tutte le sottocartelle e per ognuna di esse invia un messaggio sullo stesso indirizzo (in questo modo un altro \texttt{FolderSearchVerticle} provveder‡ alla ricerca sulla sottocartella e cosÏ via).
-Analogamente, per ogni documento, viene inviato un messaggio ad un \texttt{DocumentSearchVerticle} che provveder‡ alla ricerca delle occorrenze dell'espressione regolare nel documento.\\
+Il verticle che riceve il messaggio (\texttt{FolderSearchVerticle}) visita tutte le sottocartelle e per ognuna di esse invia un messaggio sullo stesso indirizzo (in questo modo un altro \texttt{FolderSearchVerticle} provveder√† alla ricerca sulla sottocartella e cos√¨ via).
+Analogamente, per ogni documento, viene inviato un messaggio ad un \texttt{DocumentSearchVerticle} che provveder√† alla ricerca delle occorrenze dell'espressione regolare nel documento.\\
 Il \texttt{DocumentSearchVerticle} dopo aver trovato il risultato invia un messaggio al verticle che si occupa dell'aggiornamento delle statistiche:\\ \texttt{SearchResultAccumulatorVerticle}.\\
 Quest'ultimo chiama una callback responsabile di aggiornare l'output.
 
 \subsubsection{Esercizio 3: Reactive Streams}
 Come implementazione dei flussi reattivi abbiamo usato la libreria RxJava2 \footnote{\url{https://github.com/ReactiveX/RxJava}}.
 L'approccio dichiarativo fornito dall'utilizzo dei Reactive Stream permette di semplificare la soluzione.
-In questo caso l'insieme di documenti Ë visto come flusso reattivo al quale Ë possibile applicare operazioni di trasformazione, di calcolo e di sottoscrizione.  
-Abbiamo scelto di utilizzare i Flowable perchÈ implementano i reactive stream e il meccanismo di backpressure che permette di ottimizzare l'elaborazione del flusso di dati.\\
-Lo stream di dati Ë stato creato a partire dalla radice dell'albero di cartelle: con il metodo \texttt{getDocuments()} otteniamo ricorsivamente i documenti di ogni cartella e sottocartella e li mappiamo in un unico stream di documenti.
+In questo caso l'insieme di documenti √® visto come flusso reattivo al quale √® possibile applicare operazioni di trasformazione, di calcolo e di sottoscrizione.  
+Abbiamo scelto di utilizzare i Flowable perch√© implementano i reactive stream e il meccanismo di backpressure che permette di ottimizzare l'elaborazione del flusso di dati.\\
+Lo stream di dati √® stato creato a partire dalla radice dell'albero di cartelle: con il metodo \texttt{getDocuments()} otteniamo ricorsivamente i documenti di ogni cartella e sottocartella e li mappiamo in un unico stream di documenti.
 
 Generato lo stream specifichiamo su quale Scheduler verrano eseguite le manipolazioni.
 
 Per ogni documento dello stream contiamo il numero di occorrenze dell'espressione regolare in input e lo trasformiamo in un \texttt{SearchResult}.
 
-A questo punto sottoscriviamo \texttt{SearchResultAccumulator} al flusso utilizzando \texttt{blockingSubscribe()}: questa scelta permette di sospenderci sul thread corrente finchÈ tutto lo stream non Ë stato processato, in caso contrario il thread principale terminerebbe prima che gli elementi contenuti nello stream siano processati.
+A questo punto sottoscriviamo \texttt{SearchResultAccumulator} al flusso utilizzando \texttt{blockingSubscribe()}: questa scelta permette di sospenderci sul thread corrente finch√© tutto lo stream non √® stato processato, in caso contrario il thread principale terminerebbe prima che gli elementi contenuti nello stream siano processati.doc
 
-\texttt{SearchResultAccumulator} implementa l'interfaccia \texttt{Subscriber}, che gli permette di essere notificato quando un nuovo elemento del flusso Ë disponibile e della sua terminazione.
+\texttt{SearchResultAccumulator} implementa l'interfaccia \texttt{Subscriber}, che gli permette di essere notificato quando un nuovo elemento del flusso √® disponibile e della sua terminazione.
 All'arrivo di un nuovo dato si occupa di aggiornare i risultati e della creazione delle statistiche. Quest'ultime vengono passate ad una callback responsabile dell'aggiornamento dell'output.
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
