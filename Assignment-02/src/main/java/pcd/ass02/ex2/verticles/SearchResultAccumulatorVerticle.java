@@ -45,7 +45,7 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
     private void onSearchResult(SearchResult result) {
         vertx.cancelTimer(timerID);
 
-        final long occurrences = result.getCount();
+        final long occurrences = result.getOccurrences();
         final String documentName = result.getDocumentName();
 
         fileCount++;

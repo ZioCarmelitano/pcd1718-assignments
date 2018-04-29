@@ -22,7 +22,7 @@ abstract class SearchResultAccumulator implements Subscriber<SearchResult> {
 
     @Override
     public final void onNext(SearchResult result) {
-        long occurrences = result.getCount();
+        long occurrences = result.getOccurrences();
         String documentName = result.getDocumentName();
 
         fileCount++;

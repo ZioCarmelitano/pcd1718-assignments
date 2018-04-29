@@ -52,7 +52,7 @@ public class SearchResultAccumulatorTask implements Runnable {
 
     private void onSearchResult(final SearchResult result) {
         fileCount++;
-        final long count = result.getCount();
+        final long count = result.getOccurrences();
         if (count > 0) {
             final String documentName = result.getDocumentName();
             documentNames.add(documentName);

@@ -1,7 +1,6 @@
 package pcd.ass02.domain;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 

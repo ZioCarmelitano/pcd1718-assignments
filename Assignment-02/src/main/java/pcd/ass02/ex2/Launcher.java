@@ -32,6 +32,8 @@ final class Launcher {
         final String regex = args[1];
         final int maxDepth = Integer.parseInt(args[2]);
 
+        final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
+
         final Vertx vertx = Vertx.vertx(new VertxOptions()
                 .setWorkerPoolSize(WORKER_POOL_SIZE)
                 .setEventLoopPoolSize(EVENT_LOOP_POOL_SIZE));
@@ -41,8 +43,6 @@ final class Launcher {
         eventBus.registerDefaultCodec(Folder.class, FolderMessageCodec.getInstance());
         eventBus.registerDefaultCodec(SearchResult.class, SearchResultMessageCodec.getInstance());
         eventBus.registerDefaultCodec(SearchStatistics.class, SearchStatisticsMessageCodec.getInstance());
-
-        final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
 
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)

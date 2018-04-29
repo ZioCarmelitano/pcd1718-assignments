@@ -5,7 +5,6 @@ import pcd.ass02.domain.SearchResult;
 import pcd.ass02.util.DocumentHelper;
 
 import java.util.concurrent.RecursiveTask;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 class DocumentSearchTask extends RecursiveTask<Long> {

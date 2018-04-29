@@ -8,13 +8,14 @@ public class SearchResultMessageCodec extends AbstractMessageCodec<SearchResult,
     @Override
     protected void encodeToWire(JsonObject jsonObject, SearchResult result) {
         jsonObject.put("documentName", result.getDocumentName());
-        jsonObject.put("count", result.getCount());
+        jsonObject.put("count", result.getOccurrences());
     }
 
     @Override
     protected SearchResult decodeFromWire(JsonObject jsonObject) {
         final String documentName = jsonObject.getString("documentName");
         final long count = jsonObject.getLong("count");
+
         return new SearchResult(documentName, count);
     }
 

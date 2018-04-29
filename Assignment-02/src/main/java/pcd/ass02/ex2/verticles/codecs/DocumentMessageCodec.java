@@ -10,6 +10,9 @@ import java.util.List;
 
 public class DocumentMessageCodec extends AbstractMessageCodec<Document, Document> {
 
+    private static final TypeReference<List<String>> REFERENCE = new TypeReference<List<String>>() {
+    };
+
     @Override
     protected void encodeToWire(JsonObject jsonObject, Document document) {
         jsonObject.put("lines", new JsonArray(document.getLines()));
@@ -19,7 +22,6 @@ public class DocumentMessageCodec extends AbstractMessageCodec<Document, Documen
     @Override
     protected Document decodeFromWire(JsonObject jsonObject) {
         final String linesStr = jsonObject.getJsonArray("lines").encode();
-
         final List<String> lines = Json.decodeValue(linesStr, REFERENCE);
         final String name = jsonObject.getString("name");
 
@@ -39,9 +41,6 @@ public class DocumentMessageCodec extends AbstractMessageCodec<Document, Documen
     public static DocumentMessageCodec getInstance() {
         return Holder.INSTANCE;
     }
-
-    private static final TypeReference<List<String>> REFERENCE = new TypeReference<List<String>>() {
-    };
 
     private DocumentMessageCodec() {
     }

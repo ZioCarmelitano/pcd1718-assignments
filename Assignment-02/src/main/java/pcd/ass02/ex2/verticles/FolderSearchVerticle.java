@@ -15,7 +15,6 @@ public class FolderSearchVerticle extends AbstractVerticle {
     @Override
     public void start() {
         eventBus = vertx.eventBus();
-
         eventBus.<Folder>consumer("folderSearch", m -> onFolder(m.body()));
     }
 

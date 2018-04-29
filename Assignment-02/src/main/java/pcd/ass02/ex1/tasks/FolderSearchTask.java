@@ -7,7 +7,6 @@ import pcd.ass02.domain.SearchResult;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class FolderSearchTask extends RecursiveTask<Long> {

@@ -10,6 +10,9 @@ import java.util.List;
 
 public class SearchStatisticsMessageCodec extends AbstractMessageCodec<SearchStatistics, SearchStatistics> {
 
+    private static final TypeReference<List<String>> REFERENCE = new TypeReference<List<String>>() {
+    };
+
     @Override
     protected void encodeToWire(JsonObject jsonObject, SearchStatistics statistics) {
         jsonObject.put("documentNames", new JsonArray(statistics.getDocumentNames()));
@@ -20,10 +23,8 @@ public class SearchStatisticsMessageCodec extends AbstractMessageCodec<SearchSta
     @Override
     protected SearchStatistics decodeFromWire(JsonObject jsonObject) {
         final String documentNamesStr = jsonObject.getJsonArray("documentNames").encode();
-        final TypeReference<List<String>> ref = new TypeReference<List<String>>() {
-        };
 
-        final List<String> documentNames = Json.decodeValue(documentNamesStr, ref);
+        final List<String> documentNames = Json.decodeValue(documentNamesStr, REFERENCE);
         final double matchingRate = jsonObject.getDouble("matchingRate");
         final double averageMatches = jsonObject.getDouble("averageMatches");
 
