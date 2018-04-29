@@ -235,8 +235,8 @@ Risolvere il problema utilizzando i flussi reattivi
 \end{itemize}
 
 \section{Descrizione della soluzione proposta}\label{descrizione-della-soluzione-proposta}
-Lo strumento realizzato serve per la ricerca di corrispondenze di un'espressione regolare tra i file, dato un percordo di partenza e la profondità massima. 
-\subsection{Design}\label{design}
+Il programma realizzato serve per la ricerca di corrispondenze di un'espressione regolare tra i file, dato un percordo di partenza e la profondità massima. 
+\subsection{Dinamica del Sistema}
 \subsubsection{Dominio Applicativo}
 L'architettura del sistema è stata realizzata in modo che il dominio applicativo fosse svincolato dalla logica di controllo e fosse condiviso fra le tre soluzioni.\\\\
 Il dominio applicativo è composto dai seguenti elementi:
@@ -244,10 +244,10 @@ Il dominio applicativo è composto dai seguenti elementi:
     \item \texttt{Document}: classe che astrae il concetto di documento, è composto da una lista ordinata di linee che rappresentano il suo contenuto e dal nome del documento.
     \item \texttt{Folder} classe che astrae il concetto di cartella di un filesystem, è composta da una lista di documenti e da una lista di sottocartelle.
     \item \texttt{SearchResult}: classe che rappresenta il risultato della ricerca delle occorrenze dell'espressione regolare (fornita in input) in uno specifico documento. Il risultato è composto dal nome del documento e dal numero di occorrenze trovate.
-    \item \texttt{SearchStatistics}: classe che rappresenta le statistiche della ricerca in atto come richieste nell'Output specificato nell'analisi del problema \ref{output}. 
+    \item \texttt{SearchStatistics}: classe che rappresenta le statistiche della ricerca in atto come richieste nell'Output specificato nell'analisi del problema. 
 \end{itemize}
-\subsubsection{Esercizio 1: Task & Executors}
-La soluzione proposta vede l'utilizzo del modello ForkJoin, questo ci permette di suddividere il problema in una gerarchia di compiti atomici.
+\subsubsection{Esercizio 1: Task \& Executors}
+La soluzione proposta vede l'utilizzo del modello Fork-Join. L'adozione di tale modello a task permette di suddividere il problema in una gerarchia di compiti atomici.
 Analizzando i requisiti abbiamo individuato tre task principali:
 \begin{itemize}
     \item \texttt{FolderSearchTask}: ricerca delle occorrenze dell'espressione regolare in una cartella
@@ -259,6 +259,20 @@ Ogni risultato intermedio trovato mette in esecuzione una callback che notifica 
 \texttt{SearchResultAccumulatorTask} si occupa di aggiornare i risultati e di passarli ad una callback responsabile di aggiornare l'output.  
 
 \subsubsection{Esercizio 2: Event Loop}
+Come implementazione del modello a Event Loop è stato utilizzato il framework Vert.x \footnote{\url{https://vertx.io/docs/}}.
+Analogamente all'Esercizio 1 il problema è stato scomposto in tre sottoproblemi, in questo caso risolti da tre tipologie di Verticle:
+\begin{itemize}
+    \item \texttt{FolderSearchVerticle}: ricerca delle occorrenze dell'espressione regolare in una cartella
+    \item \texttt{DocumentSearchVertice}: ricerca delle occorrenze dell'espressione regolare in un documento
+    \item \texttt{SearchResultAccumulatorVerticle}: aggregazione dei risultati e calcolo delle statistiche
+\end{itemize}
+Si è scelto di mantenere un numero fisso di istanze per ogni tipologia di Verticle. Nel caso del \texttt{SearchResultAccumulatorVerticle} l'istanza è unica, mentre per le altre due tipologie il numero di istanze può variare al fine di parallelizzare il carico di lavoro.\\
+La comunicazione tra i verticle si basa sullo scambio di messaggi attraverso un canale condiviso (Event Bus): ogni tipologia di verticle ascolta su un canale dedicato.\\
+La ricerca inizia inviando un messaggio all'indirizzo dedicato alle cartelle con la radice dell'albero.
+Il verticle che riceve il messaggio (\texttt{FolderSearchVerticle}) visita tutte le sottocartelle e per ognuna di esse invia un messaggio sullo stesso indirizzo (in questo modo un altro \texttt{FolderSearchVerticle} provvederà alla ricerca sulla sottocartella e così via).
+Analogamente, per ogni documento, viene inviato un messaggio ad un \texttt{DocumentSearchVerticle} che provvederà alla ricerca delle occorrenze dell'espressione regolare nel documento.\\
+Il \texttt{DocumentSearchVerticle} dopo aver trovato il risultato invia un messaggio al verticle che si occupa dell'aggiornamento delle statistiche:\\ \texttt{SearchResultAccumulatorVerticle}.\\
+Quest'ultimo chiama una callback responsabile di aggiornare l'output.
 
 \subsubsection{Esercizio 3: Reactive Streams}
 Come implementazione dei flussi reattivi abbiamo usato la libreria RxJava2 \footnote{\url{https://github.com/ReactiveX/RxJava}}.
@@ -271,32 +285,24 @@ Generato lo stream specifichiamo su quale Scheduler verrano eseguite le manipola
 
 Per ogni documento dello stream contiamo il numero di occorrenze dell'espressione regolare in input e lo trasformiamo in un \texttt{SearchResult}.
 
-A questo punto sottoscriviamo \texttt{SearchResultAccumulator} al flusso utilizzando \texttt{blockingSubscribe()}: questa scelta è dovuta al fatto che vogliamo sospenderci sul thread corrente finché tutto lo stream non è stato processato.
+A questo punto sottoscriviamo \texttt{SearchResultAccumulator} al flusso utilizzando \texttt{blockingSubscribe()}: questa scelta permette di sospenderci sul thread corrente finché tutto lo stream non è stato processato, in caso contrario il thread principale terminerebbe prima che gli elementi contenuti nello stream siano processati.
 
 \texttt{SearchResultAccumulator} implementa l'interfaccia \texttt{Subscriber}, che gli permette di essere notificato quando un nuovo elemento del flusso è disponibile e della sua terminazione.
 All'arrivo di un nuovo dato si occupa di aggiornare i risultati e della creazione delle statistiche. Quest'ultime vengono passate ad una callback responsabile dell'aggiornamento dell'output.
-
-\section{Dinamica del sistema}\label{dinamica-del-sistema}
-La dinamica del sistema è stata rappresentata formalmente con le Reti di Petri. Le piazze (\textit{places}) del livello corrispondono ai \texttt{Worker} che concorrono all'aggiornamento della scacchiera di gioco; in questo esempio è stato scelto di mostrare il sistema nel caso se ne utilizzino 4.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=110mm]{res/reti_di_petri_assigment1.png}
-    \caption{Petri Net}
-    \label{fig:petrinets}
-\end{figure}
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
 
 \begin{table}[H]
 \centering
-\begin{tabular}{l|ccccccccc}
+\label{my-label}
+\begin{tabular}{l|ccc}
 \hline
-     & 2     & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10   \\ \hline
-Min. & 1.77  & 2.43 & 3.04 & 2.93 & 2.89 & 2.90 & 2.86 & 2.85 & 2.85 \\
-Max. & 2.11  & 2.87 & 3.41 & 3.22 & 3.40 & 3.26 & 3.38 & 3.06 & 3.45 \\
-Avg. & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
+    & Executors & Event Loop & Reactive Streams \\ \hline
+Min & 1.766     & 2.43       & 3.04            \\
+Max & 2.11      & 2.87       & 3.41            \\
+Avg & 1.81      & 2.50       & 3.06            \\ \hline
 \end{tabular}
-\caption{Speedup considerando schacchiera di gioco 5000x5000: sulle colonne sono specificati il numero di worker utilizzati per la parallelizzazione dell'algoritmo, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati. Gli speed-up sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.}
+\caption{Tempo di esecuzione.}
 \label{Tabella speedup del sistema}
 \end{table}
 
