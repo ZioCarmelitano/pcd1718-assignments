@@ -1,8 +1,9 @@
 #/bin/bash
 set -e
-CWD=`pwd`
-cd $CWD/Assignment-01
-./gradlew check clean test build
-cd $CWD/Assignment-02
-./gradlew clean clean test build
+CWD=`git rev-parse --show-toplevel`
+assignments=`ls -1 | grep 'Assignment-*'`
+for assignment in $assignments; do
+    cd $CWD/$assignment
+    ./gradlew check clean test build
+done
 cd $CWD

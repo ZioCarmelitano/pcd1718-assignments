@@ -2,20 +2,21 @@ package pcd.ass02.ex1.tasks;
 
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
+import pcd.ass02.domain.SearchResult;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class FolderSearchTask extends RecursiveTask<Long> {
 
     private final Folder folder;
     private final String regex;
-    private final BiConsumer<? super Document, ? super Long> callback;
+    private final Consumer<? super SearchResult> callback;
 
-    public FolderSearchTask(Folder folder, String regex, BiConsumer<? super Document, ? super Long> callback) {
-        super();
+    public FolderSearchTask(Folder folder, String regex, Consumer<? super SearchResult> callback) {
         this.folder = folder;
         this.regex = regex;
         this.callback = callback;
@@ -23,20 +24,21 @@ public class FolderSearchTask extends RecursiveTask<Long> {
 
     @Override
     protected Long compute() {
+        final List<ForkJoinTask<Long>> forks = new LinkedList<>();
+        for (final Folder subFolder : folder.getSubFolders()) {
+            final FolderSearchTask task = new FolderSearchTask(subFolder, regex, callback);
+            forks.add(task);
+            task.fork();
+        }
+        for (final Document document : folder.getDocuments()) {
+            final DocumentSearchTask task = new DocumentSearchTask(document, regex, callback);
+            forks.add(task);
+            task.fork();
+        }
+
         long count = 0L;
-        List<RecursiveTask<Long>> forks = new LinkedList<>();
-        for (Folder subFolder : folder.getSubFolders()) {
-            FolderSearchTask task = new FolderSearchTask(subFolder, regex, callback);
-            forks.add(task);
-            task.fork();
-        }
-        for (Document document : folder.getDocuments()) {
-            DocumentSearchTask task = new DocumentSearchTask(document, regex, callback);
-            forks.add(task);
-            task.fork();
-        }
-        for (RecursiveTask<Long> task : forks) {
-            count += task.join();
+        for (final ForkJoinTask<Long> fork : forks) {
+            count += fork.join();
         }
         return count;
     }
