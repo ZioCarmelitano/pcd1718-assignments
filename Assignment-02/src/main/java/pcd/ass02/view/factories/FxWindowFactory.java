@@ -1,48 +1,30 @@
-package pcd.ass01.view.factories;
+package pcd.ass02.view.factories;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pcd.ass01.domain.Board;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.Optional;
-
-import static pcd.ass01.util.Preconditions.checkState;
-import static pcd.ass01.view.game.RenderingService.renderBoard;
-import static pcd.ass01.view.utils.ScrollManager.*;
 
 /**
  * Utility class to create JavaFx windows using pattern Static Factory.
  */
 public final class FxWindowFactory implements WindowFactory{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    private static final String APP_TITLE = "Game Of Life";
-    private static final String APP_ICON_PATH = "/game_of_life_icon.png";
-    private static final String GAME_FXML_PATH = "/game_of_life.fxml";
-    private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
-    private static final String GAME_CSS_PATH = "/game_of_life_style.css";
-    private static final String SETTINGS_CSS_PATH = "/initial_settings_style.css";
-
-    private static final String PANEL_CONTAINER_ID = "panelContainer";
-    private static final String BOARD_PANEL_ID = "canvas";
-    private static final String SCROLL_PANE_ID = "scrollPane";
+    private static final String APP_TITLE = "Regex Search Tool";
+    private static final String APP_ICON_PATH = "/regex_search_tool.png";
+    private static final String FXML_PATH = "/main.fxml";
+    private static final String CSS_PATH = "/main_style.css";
 
     private static FXMLLoader loader;
 
@@ -108,7 +90,7 @@ public final class FxWindowFactory implements WindowFactory{
      *            link to the window to close.
      */
     public static void replaceWindow(final String fxmlPath, final Scene sceneToClose) throws IOException {
-        FxWindowFactory.openWindow(fxmlPath, GAME_CSS_PATH, true);
+        FxWindowFactory.openWindow(fxmlPath, CSS_PATH, true);
         FxWindowFactory.closeWindow(sceneToClose);
     }
 
@@ -161,49 +143,8 @@ public final class FxWindowFactory implements WindowFactory{
         button.setGraphic(btnImage);
     }
 
-    @Override
     public void openStartWindow() throws IOException {
-        openWindow(SETTINGS_FXML_PATH, SETTINGS_CSS_PATH, false);
-    }
-
-    @Override
-    public void openGameWindow(int width, int height, Board board) throws IOException {
-        BorderPane gamePane = openWindow(GAME_FXML_PATH, GAME_CSS_PATH, true);
-        gamePane.setId(PANEL_CONTAINER_ID);
-        Canvas gameBoardPanel = createBoardPanel(width, height, board);
-        ScrollPane scrollPane = createScrollPane(gameBoardPanel);
-        gamePane.setCenter(scrollPane);
-        renderBoard(gameBoardPanel, board);
-        handleWindowClosing(gamePane);
-    }
-
-    private ScrollPane createScrollPane(Canvas gameBoardPanel) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(gameBoardPanel);
-        scrollPane.setId(SCROLL_PANE_ID);
-        setScrollVerticalProperty(gameBoardPanel, scrollPane);
-        setScrollHorizontalProperty(gameBoardPanel, scrollPane);
-        return scrollPane;
-    }
-
-     private void handleWindowClosing(BorderPane gamePane) {
-        getStage(gamePane).setOnCloseRequest((event) -> {
-            try {
-                openStartWindow();
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage());
-            }
-        });
-    }
-
-    private Canvas createBoardPanel(int width, int height, Board board) {
-        Canvas gameBoardPanel = createCanvas(width, height);
-        gameBoardPanel.setId(BOARD_PANEL_ID);
-        return gameBoardPanel;
-    }
-
-    private Canvas createCanvas(int width, int height) {
-       return new Canvas(width, height);
+        openWindow(FXML_PATH, CSS_PATH, false);
     }
 
     private static final class Holder {
@@ -212,18 +153,13 @@ public final class FxWindowFactory implements WindowFactory{
 
     public static Stage getStage(Node node){
         final Window window = node.getScene().getWindow();
-        checkState(window instanceof Stage, "window (%s) is not an instance of %s", window.getClass().getName(), Stage.class.getName());
         return (Stage) window;
     }
 
     public static Stage getStage(ActionEvent event) {
         final Object source = event.getSource();
-        checkState(source instanceof Node, "source (%s) is not an instance of %s", source.getClass().getName(), Node.class.getName());
         return getStage((Node) source);
     }
 
-    public static String getBoardPanelId() {
-        return BOARD_PANEL_ID;
-    }
 }
 

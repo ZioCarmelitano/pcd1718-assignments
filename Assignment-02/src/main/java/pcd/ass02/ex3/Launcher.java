@@ -52,7 +52,6 @@ final class Launcher {
                     protected void onComplete(long totalOccurrences) {
                         final long endTime = System.currentTimeMillis();
 
-                        System.out.println();
                         System.out.println("Total occurrences: " + totalOccurrences);
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
                     }

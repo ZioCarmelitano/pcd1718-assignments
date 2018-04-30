@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
-final class Launcher {
+public final class Launcher {
 
     private static long filesWithOccurrencesCount = 0;
 
@@ -36,7 +36,6 @@ final class Launcher {
         accumulator.stop();
         executor.shutdown();
 
-        System.out.println();
         System.out.println("Total Occurrences: " + totalOccurrences);
         System.out.println("Execution time: " + (stopTime - startTime) + " ms");
     }
