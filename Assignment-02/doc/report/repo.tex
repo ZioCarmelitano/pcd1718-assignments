@@ -5,7 +5,6 @@
 
 \captionsetup[table]{position=bottom}
 
-\setlength{\parindent}{0}
 
 %\usepackage[cm]{fullpage}
 
@@ -117,6 +116,9 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
+
+\setlength{\parindent}{0}
+\graphicspath{{./img/}}
 
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -245,6 +247,7 @@ Il dominio applicativo è composto dai seguenti elementi:
     \item \texttt{Folder} classe che astrae il concetto di cartella di un filesystem, è composta da una lista di documenti e da una lista di sottocartelle.
     \item \texttt{SearchResult}: classe che rappresenta il risultato della ricerca delle occorrenze dell'espressione regolare (fornita in input) in uno specifico documento. Il risultato è composto dal nome del documento e dal numero di occorrenze trovate.
     \item \texttt{SearchStatistics}: classe che rappresenta le statistiche della ricerca in atto come richieste nell'Output specificato nell'analisi del problema. 
+    \item \texttt{SearchResultAccumulator}: classe che implementa la logica di accumulazione dei risultati.
 \end{itemize}
 \subsubsection{Esercizio 1: Task \& Executors}
 La soluzione proposta vede l'utilizzo del modello Fork-Join. L'adozione di tale modello a task permette di suddividere il problema in una gerarchia di compiti atomici.
@@ -257,6 +260,13 @@ Analizzando i requisiti abbiamo individuato tre task principali:
 Dato un percorso e una profondità massima viene costruito un albero nel quale le cartelle rappresentano i rami e i documenti le foglie. Partendo dalla radice visitiamo tutte le sottocartelle e i documenti presenti: nel primo caso viene eseguito un nuovo \texttt{FolderSearchTask}, nel secondo caso viene eseguito un nuovo \texttt{DocumentSearchTask}.\\
 Ogni risultato intermedio trovato mette in esecuzione una callback che notifica il \texttt{SearchResultAccumulatorTask}, eseguito su un executor dedicato.\\
 \texttt{SearchResultAccumulatorTask} si occupa di aggiornare i risultati e di passarli ad una callback responsabile di aggiornare l'output.  
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth, height=\textheight,keepaspectratio]{TaskExecutors}
+    \caption{Diagramma di sequenza dell'Esercizio 1}
+    \label{fig:task-executors}
+\end{figure}
 
 \subsubsection{Esercizio 2: Event Loop}
 Come implementazione del modello a Event Loop è stato utilizzato il framework Vert.x \footnote{\url{https://vertx.io/docs/}}.
@@ -273,6 +283,12 @@ Il verticle che riceve il messaggio (\texttt{FolderSearchVerticle}) visita tutte
 Analogamente, per ogni documento, viene inviato un messaggio ad un \texttt{DocumentSearchVerticle} che provvederà alla ricerca delle occorrenze dell'espressione regolare nel documento.\\
 Il \texttt{DocumentSearchVerticle} dopo aver trovato il risultato invia un messaggio al verticle che si occupa dell'aggiornamento delle statistiche:\\ \texttt{SearchResultAccumulatorVerticle}.\\
 Quest'ultimo chiama una callback responsabile di aggiornare l'output.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth, height=\textheight,keepaspectratio]{EventLoop}
+    \caption{Diagramma di sequenza dell'Esercizio 2}
+    \label{fig:event-loop}
+\end{figure}
 
 \subsubsection{Esercizio 3: Reactive Streams}
 Come implementazione dei flussi reattivi abbiamo usato la libreria RxJava2 \footnote{\url{https://github.com/ReactiveX/RxJava}}.
@@ -285,10 +301,16 @@ Generato lo stream specifichiamo su quale Scheduler verrano eseguite le manipola
 
 Per ogni documento dello stream contiamo il numero di occorrenze dell'espressione regolare in input e lo trasformiamo in un \texttt{SearchResult}.
 
-A questo punto sottoscriviamo \texttt{SearchResultAccumulator} al flusso utilizzando \texttt{blockingSubscribe()}: questa scelta permette di sospenderci sul thread corrente finché tutto lo stream non è stato processato, in caso contrario il thread principale terminerebbe prima che gli elementi contenuti nello stream siano processati.
+A questo punto sottoscriviamo \texttt{SearchResultSubscriber} al flusso utilizzando \texttt{blockingSubscribe()}: questa scelta permette di sospenderci sul thread corrente finché tutto lo stream non è stato processato, in caso contrario il thread principale terminerebbe prima che gli elementi contenuti nello stream siano processati.
 
-\texttt{SearchResultAccumulator} implementa l'interfaccia \texttt{Subscriber}, che gli permette di essere notificato quando un nuovo elemento del flusso è disponibile e della sua terminazione.
+\texttt{SearchResultSubscriber} implementa l'interfaccia \texttt{Subscriber}, che gli permette di essere notificato quando un nuovo elemento del flusso è disponibile e della sua terminazione.
 All'arrivo di un nuovo dato si occupa di aggiornare i risultati e della creazione delle statistiche. Quest'ultime vengono passate ad una callback responsabile dell'aggiornamento dell'output.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth, height=\textheight,keepaspectratio]{ReactiveStreams}
+    \caption{Marble Diagram dell'Esercizio 3}
+    \label{fig:event-loop}
+\end{figure}
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
 
