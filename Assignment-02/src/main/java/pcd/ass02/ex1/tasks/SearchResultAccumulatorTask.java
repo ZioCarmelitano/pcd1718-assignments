@@ -34,13 +34,13 @@ public class SearchResultAccumulatorTask implements Runnable {
 
     @Override
     public void run() {
-        while (running || !resultQueue.isEmpty()) {
-            try {
+        try {
+            while (running || !resultQueue.isEmpty()) {
                 resultQueue.take()
                         .ifPresent(this::onSearchResult);
-            } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
             }
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

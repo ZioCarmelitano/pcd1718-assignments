@@ -35,16 +35,16 @@ final class Launcher {
 
                     @Override
                     public void onNext(SearchStatistics statistics) {
-                        final List<String> files = statistics.getDocumentNames();
+                        final List<String> documentNames = statistics.getDocumentNames();
                         final double averageMatches = statistics.getAverageMatches();
                         final double matchingRate = statistics.getMatchingRate();
 
-                        if (files.size() > filesWithOccurrencesCount) {
-                            filesWithOccurrencesCount = files.size();
-                            System.out.println(files);
+                        if (documentNames.size() > filesWithOccurrencesCount) {
+                            filesWithOccurrencesCount = documentNames.size();
+                            System.out.println(documentNames);
                             System.out.println("Matching rate: " + matchingRate);
                             System.out.println("Average: " + averageMatches);
-                            System.out.println("Files with occurrences: " + files.size());
+                            System.out.println("Files with occurrences: " + documentNames.size());
                         }
                     }
 

@@ -53,9 +53,9 @@ final class Launcher {
     }
 
     private static void handleResult(SearchStatistics statistics) {
-        List<String> files = statistics.getDocumentNames();
-        double averageMatches = statistics.getAverageMatches();
-        double matchingRate = statistics.getMatchingRate();
+        final List<String> files = statistics.getDocumentNames();
+        final double averageMatches = statistics.getAverageMatches();
+        final double matchingRate = statistics.getMatchingRate();
 
         if (files.size() > filesWithOccurrencesCount) {
             filesWithOccurrencesCount = files.size();
