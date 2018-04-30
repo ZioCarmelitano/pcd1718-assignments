@@ -21,7 +21,6 @@ public class SearchResultAccumulatorTask implements Runnable {
     public SearchResultAccumulatorTask(Consumer<? super SearchStatistics> listener) {
         resultQueue = new LinkedBlockingQueue<>();
         accumulator = new SearchResultAccumulator();
-        running = true;
         this.listener = listener;
     }
 
@@ -34,6 +33,7 @@ public class SearchResultAccumulatorTask implements Runnable {
 
     @Override
     public void run() {
+        running = true;
         try {
             while (running || !resultQueue.isEmpty()) {
                 resultQueue.take()
