@@ -3,17 +3,13 @@ package pcd.ass02.ex3;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import org.reactivestreams.Subscription;
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResult;
-import pcd.ass02.domain.SearchStatistics;
 import pcd.ass02.interactors.OccurrencesCounter;
 import pcd.ass02.util.DocumentHelper;
 
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 
 public class RxJavaOccurrencesCounter implements OccurrencesCounter {
 

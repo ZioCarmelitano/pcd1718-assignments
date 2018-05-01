@@ -2,15 +2,10 @@ package pcd.ass02.ex1;
 
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchStatistics;
-import pcd.ass02.ex1.tasks.FolderSearchTask;
-import pcd.ass02.ex1.tasks.SearchResultAccumulatorTask;
 import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 
 final class Launcher {
 

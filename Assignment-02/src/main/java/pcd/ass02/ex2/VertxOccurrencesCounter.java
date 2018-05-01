@@ -18,8 +18,6 @@ import pcd.ass02.ex2.verticles.codecs.SearchResultMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.SearchStatisticsMessageCodec;
 import pcd.ass02.interactors.OccurrencesCounter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;

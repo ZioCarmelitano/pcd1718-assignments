@@ -33,7 +33,7 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
     public void start() {
         vertx.eventBus().<SearchResult>consumer("accumulator", m -> onSearchResult(m.body()));
 
-        timerID = vertx.setTimer(COMPLETION_DELAY, this::handleCompletion);
+        timerID = vertx.setTimer(COMPLETION_DELAY, tid -> handleCompletion());
 
         startTime = System.currentTimeMillis();
     }
@@ -44,10 +44,10 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
         endTime = System.currentTimeMillis();
 
         vertx.cancelTimer(timerID);
-        timerID = vertx.setTimer(COMPLETION_DELAY, this::handleCompletion);
+        timerID = vertx.setTimer(COMPLETION_DELAY, tid -> handleCompletion());
     }
 
-    private void handleCompletion(long tid) {
+    private void handleCompletion() {
         long executionTime = endTime - startTime;
         completionHandler.handle(Arrays.asList(accumulator.getTotalOccurrences(), executionTime));
         //System.out.println("Execution time: " + executionTime + " ms");

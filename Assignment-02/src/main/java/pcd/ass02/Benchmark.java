@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Benchmark {
+class Benchmark {
 
     private static final int EXERCISE_NUMBER = 3;
     private static final int RUN_NUMBER  = 10;
