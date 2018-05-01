@@ -8,7 +8,7 @@ import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
-import pcd.ass02.ex1.OccurrencesCounter;
+import pcd.ass02.util.DocumentHelper;
 
 import java.io.File;
 import java.util.List;
@@ -16,15 +16,15 @@ import java.util.List;
 final class Launcher {
 
     public static void main(String... args) {
-        File path = new File(args[0]);
-        String regex = args[1];
-        int maxDepth = Integer.parseInt(args[2]);
+        final File path = new File(args[0]);
+        final String regex = args[1];
+        final int maxDepth = Integer.parseInt(args[2]);
 
         getDocuments(Folder.fromDirectory(path, maxDepth))
                 .subscribeOn(Schedulers.computation())
                 .map(toSearchResult(regex))
-                .blockingSubscribe(new SearchResultAccumulator() {
-                    private int fileWithOccurrencesCount;
+                .blockingSubscribe(new SearchResultSubscriber() {
+                    private int filesWithOccurrencesCount;
                     private long startTime;
 
                     @Override
@@ -35,16 +35,16 @@ final class Launcher {
 
                     @Override
                     public void onNext(SearchStatistics statistics) {
-                        final List<String> files = statistics.getMatches();
+                        final List<String> documentNames = statistics.getDocumentNames();
                         final double averageMatches = statistics.getAverageMatches();
                         final double matchingRate = statistics.getMatchingRate();
 
-                        if (files.size() > fileWithOccurrencesCount) {
-                            fileWithOccurrencesCount = files.size();
-                            System.out.println(files);
+                        if (documentNames.size() > filesWithOccurrencesCount) {
+                            filesWithOccurrencesCount = documentNames.size();
+                            System.out.println(documentNames);
                             System.out.println("Matching rate: " + matchingRate);
                             System.out.println("Average: " + averageMatches);
-                            System.out.println("Files with occurrences: " + files.size());
+                            System.out.println("Files with occurrences: " + documentNames.size());
                         }
                     }
 
@@ -52,7 +52,8 @@ final class Launcher {
                     protected void onComplete(long totalOccurrences) {
                         final long endTime = System.currentTimeMillis();
 
-                        System.out.println("\nTotal occurrences: " + totalOccurrences);
+                        System.out.println();
+                        System.out.println("Total occurrences: " + totalOccurrences);
                         System.out.println("Execution time: " + (endTime - startTime) + "ms");
                     }
                 });
@@ -60,7 +61,7 @@ final class Launcher {
 
     private static Function<? super Document, ? extends SearchResult> toSearchResult(String regex) {
         return document -> {
-            final long occurrences = OccurrencesCounter.countOccurrences(document, regex);
+            final long occurrences = DocumentHelper.countOccurrences(document, regex);
             return new SearchResult(document.getName(), occurrences);
         };
     }
