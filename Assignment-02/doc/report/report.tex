@@ -208,9 +208,9 @@ Assignment \#2 - ``Asynchronous Programming''
 
 \section{Analisi del problema}\label{analisi-del-problema}
 
-Progettare e implementare un programma per cercare le corrispondenze di un'espressione regolare in una struttura ad albero o a grafo (come un filesystem o un sito web).
+L'obiettivo dell'assignment è progettare ed implementare uno strumento per cercare corrispondenze di un'espressione regolare in una struttura ad albero o grafo di file (come un filesystem o un sito web).
 
-Il programma deve avere il seguente comportamento:
+Lo strumento deve avere il seguente comportamento:
 
 \begin{itemize}
 %
@@ -238,11 +238,11 @@ Il programma deve avere il seguente comportamento:
 %
         \end{itemize}
 %
-        Gli output devono essere aggiornate in tempo reale con il procedere dell'elaborazione.
+        L'output deve essere aggiornato in tempo reale con il procedere dell'elaborazione.
 %
 \end{itemize}
 
-\textbf{Esercizio 1}: risolvere il problema usando task ed executor:
+\textbf{Esercizio 1}: risolvere il problema utilizzando task ed executors.
 
 \begin{itemize}
 %
@@ -252,7 +252,7 @@ Il programma deve avere il seguente comportamento:
 %
 \end{itemize}
 
-\textbf{Esercizio 2}: risolvere il problema utilizzando la programmazione asincrona con Event Loop:
+\textbf{Esercizio 2}: risolvere il problema utilizzando la programmazione asincrona con Event Loop.
 
 \begin{itemize}
 %
@@ -260,7 +260,7 @@ Il programma deve avere il seguente comportamento:
 %
 \end{itemize}
 
-\textbf{Esercizio 3}: risolvere il problema utilizzando i flussi reattivi:
+\textbf{Esercizio 3}: risolvere il problema utilizzando i flussi reattivi.
 
 \begin{itemize}
 %
@@ -426,8 +426,8 @@ All'arrivo di un nuovo elemento si occupa di aggiornare i risultati e della aggi
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
 
 Le prestazioni sono state valutate considerando i tempi di esecuzione di ogni esercizio.
-
-Il calcolo \`e stato automatizzato e
+%
+Il calcolo delle statistiche \`e stato automatizzato tramite un apposita classe \texttt{Benchmark}.
 
 \begin{table}[H]
 
@@ -443,7 +443,7 @@ Max & 2.11      & 2.87       & 3.41             \\
 Avg & 1.81      & 2.50       & 3.06             \\ \hline
 \end{tabular}
 
-\caption{Tempo di esecuzione.}
+\caption{Tempi aggregati di esecuzione delle tre soluzioni}
 
 \label{Tabella speedup del sistema}
 
