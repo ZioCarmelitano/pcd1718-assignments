@@ -18,6 +18,9 @@ import pcd.ass02.ex2.verticles.codecs.SearchResultMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.SearchStatisticsMessageCodec;
 import pcd.ass02.interactors.OccurrencesCounter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,9 +33,9 @@ public class  VertxOccurrencesCounter implements OccurrencesCounter {
     private final Vertx vertx;
     private final EventBus eventBus;
     private final Handler<? super SearchStatistics> resultHandler;
-    private final Handler<? super Long> completionHandler;
+    private final Handler<? super List<Long>> completionHandler;
 
-    public VertxOccurrencesCounter(Handler<? super SearchStatistics> resultHandler, Handler<? super Long> completionHandler) {
+    public VertxOccurrencesCounter(Handler<? super SearchStatistics> resultHandler, Handler<? super List<Long>> completionHandler) {
         this.resultHandler = resultHandler;
         this.completionHandler = completionHandler;
         vertx = Vertx.vertx(new VertxOptions()
@@ -64,9 +67,9 @@ public class  VertxOccurrencesCounter implements OccurrencesCounter {
 
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicLong result = new AtomicLong();
-        vertx.deployVerticle(new SearchResultAccumulatorVerticle(resultHandler, totalOccurrences -> {
-            completionHandler.handle(totalOccurrences);
-            result.set(totalOccurrences);
+        vertx.deployVerticle(new SearchResultAccumulatorVerticle(resultHandler, (statistics) -> {
+            completionHandler.handle(statistics);
+            result.set(statistics.get(0));
             latch.countDown();
         }));
 

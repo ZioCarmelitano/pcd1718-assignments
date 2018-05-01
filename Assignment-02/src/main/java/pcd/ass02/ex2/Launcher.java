@@ -43,8 +43,8 @@ final class Launcher {
         }
     }
 
-    private static void handleCompletion(long totalOccurrences) {
-        System.out.println("Total occurrences: " + totalOccurrences);
+    private static void handleCompletion(List<Long> statistics) {
+        System.out.println("Total occurrences: " + statistics.get(0));
     }
 
     private Launcher() {

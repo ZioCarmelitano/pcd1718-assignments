@@ -6,12 +6,15 @@ import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchResultAccumulator;
 import pcd.ass02.domain.SearchStatistics;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
     private static final long COMPLETION_DELAY = 2_000;
 
     private final Handler<? super SearchStatistics> handler;
-    private final Handler<? super Long> completionHandler;
+    private final Handler<? super List<Long>> completionHandler;
 
     private final SearchResultAccumulator accumulator;
 
@@ -20,7 +23,7 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
     private long startTime;
     private long endTime;
 
-    public SearchResultAccumulatorVerticle(Handler<? super SearchStatistics> resultHandler, Handler<? super Long> completionHandler) {
+    public SearchResultAccumulatorVerticle(Handler<? super SearchStatistics> resultHandler, Handler<? super List<Long>> completionHandler) {
         this.handler = resultHandler;
         this.completionHandler = completionHandler;
         accumulator = new SearchResultAccumulator();
@@ -45,8 +48,9 @@ public class SearchResultAccumulatorVerticle extends AbstractVerticle {
     }
 
     private void handleCompletion(long tid) {
-        completionHandler.handle(accumulator.getTotalOccurrences());
-        System.out.println("Execution time: " + (endTime - startTime) + " ms");
+        long executionTime = endTime - startTime;
+        completionHandler.handle(Arrays.asList(accumulator.getTotalOccurrences(), executionTime));
+        //System.out.println("Execution time: " + executionTime + " ms");
     }
 
 }
