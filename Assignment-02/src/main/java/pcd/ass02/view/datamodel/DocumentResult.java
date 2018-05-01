@@ -1,16 +1,17 @@
 package pcd.ass02.view.datamodel;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class DocumentResult {
 
     private final SimpleStringProperty documentName;
-    private final SimpleIntegerProperty occurrences;
+    private final SimpleLongProperty occurrences;
 
-    public DocumentResult(String documentName, int occurrences){
+    public DocumentResult(String documentName, long occurrences){
         this.documentName = new SimpleStringProperty(documentName);
-        this.occurrences = new SimpleIntegerProperty(occurrences);
+        this.occurrences = new SimpleLongProperty(occurrences);
     }
 
     public String getDocumentName() {
@@ -21,7 +22,7 @@ public class DocumentResult {
         this.documentName.set(documentName);
     }
 
-    public int getOccurrences() {
+    public long getOccurrences() {
         return occurrences.get();
     }
 
