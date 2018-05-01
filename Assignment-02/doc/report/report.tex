@@ -199,8 +199,7 @@ Assignment \#2 - ``Asynchronous Programming''
 \maketitle
 \section{Analisi del problema}\label{analisi-del-problema}
 
-Progettare e implementare uno strumento per cercare corrispondenze di un'espressione regolare in una struttura ad albero o grafo di file (come un filesystem o un sito web).
-
+L'obiettivo dell'assignment è progettare ed implementare uno strumento per cercare corrispondenze di un'espressione regolare in una struttura ad albero o grafo di file (come un filesystem o un sito web).\\
 Lo strumento deve avere il seguente comportamento:
 
 \begin{itemize}
@@ -209,11 +208,11 @@ Lo strumento deve avere il seguente comportamento:
 
         \begin{itemize}
 
-            \item Percorso di base della ricerca (ad esempio, un percorso del filesystem o un URL della pagina web)
+            \item Percorso di base della ricerca (ad esempio, un percorso del filesystem o un URL della pagina web);
 
-            \item Espressione regolare
+            \item Espressione regolare;
 
-            \item Profondit\`a massima di ricerca
+            \item Profondit\`a massima di ricerca.
 
         \end{itemize}
 
@@ -221,21 +220,21 @@ Lo strumento deve avere il seguente comportamento:
 
         \begin{itemize}
 
-            \item Elenco dei file corrispondenti
+            \item Elenco dei file corrispondenti;
 
             \item Percentuale di file con almeno una corrispondenza (somma di file con corrispondenza/file totali);
 
             \item Numero medio di corrispondenze tra i file con corrispondenze (somma di tutte le corrispondenze/numero di file con corrispondenze).
 
         \end{itemize}
-
-        Le uscite devono essere aggiornate in tempo reale con il procedere dell'elaborazione.
+    
+L'output deve essere aggiornato in tempo reale con il procedere dell'elaborazione.
 
 \end{itemize}
 
 \textbf{Esercizio 1}:
 
-Risolvere il problema usando task ed executor
+Risolvere il problema usando task ed executor:
 
         \begin{itemize}
 
@@ -247,7 +246,7 @@ Risolvere il problema usando task ed executor
 
 \textbf{Esercizio 2}:
 
-Risolvere il problema utilizzando la programmazione asincrona con Event Loop
+Risolvere il problema utilizzando la programmazione asincrona con Event Loop:
 
         \begin{itemize}
 
@@ -257,7 +256,7 @@ Risolvere il problema utilizzando la programmazione asincrona con Event Loop
 
 \textbf{Esercizio 3}:
 
-Risolvere il problema utilizzando i flussi reattivi
+Risolvere il problema utilizzando i flussi reattivi:
 
         \begin{itemize}
 
@@ -272,17 +271,17 @@ Risolvere il problema utilizzando i flussi reattivi
     \item L'interfaccia utente pu\`o essere a riga di comando, grafica o basata sul web.
 %
 
-    \item Sei libero di utilizzare qualsiasi framework basato sugli eventi (ad es.
+    \item È utilizzabile qualsiasi framework basato sugli eventi (ad es.
 %
-Vertx, NodeJS) e la libreria del flusso reattivo (ad es.
+Vertx, NodeJS) e libreria di Reactive Streams (ad es.
 %
-RxJava, Sodio).
+RxJava, Sodium).
 
 \end{itemize}
 
 \section{Descrizione della soluzione proposta}\label{descrizione-della-soluzione-proposta}
 
-Il programma realizzato serve per la ricerca di corrispondenze di un'espressione regolare tra i file, dato un percordo di partenza e la profondit\`a massima.
+Il programma realizzato ricerca le corrispondenze di un'espressione regolare tra i file, dato un percorso di partenza e la profondità massima.
 %
 
 \subsection{Dinamica del Sistema}
@@ -433,9 +432,8 @@ Quest'ultime vengono passate ad una callback responsabile dell'aggiornamento del
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
 
-Le prestazioni sono state valutate considerando i tempi di esecuzione di ogni esercizio.
-
-Il calcolo \`e stato automatizzato e
+Le prestazioni sono state valutate considerando i tempi di esecuzione di ogni esercizio.\\
+Il calcolo delle statistiche \`e stato automatizzato tramite un apposita classe \texttt{Benchmark}.
 
 \begin{table}[H]
 
@@ -451,7 +449,7 @@ Max & 2.11      & 2.87       & 3.41             \\
 Avg & 1.81      & 2.50       & 3.06             \\ \hline
 \end{tabular}
 
-\caption{Tempo di esecuzione.}
+\caption{Tempi aggregati di esecuzione delle tre soluzioni}
 
 \label{Tabella speedup del sistema}
 
