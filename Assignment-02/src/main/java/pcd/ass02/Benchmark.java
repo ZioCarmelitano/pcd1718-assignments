@@ -40,8 +40,10 @@ class Benchmark {
 
         /*Collect execution times*/
         for (int j = 0; j < EXERCISE_NUMBER; j++) {
+            System.out.println("Searching with Exercise " + j);
             List<Long> exerciseTimes = new ArrayList<>();
             for (int i = 0; i < RUN_NUMBER; i++) {
+                System.out.println("Run number:" + i);
                 long result = 0;
                 /* Recalculate in case of negative result (exercise 2) */
                 while(result <= 0) {
@@ -68,7 +70,7 @@ class Benchmark {
                     .orElse(0L);
 
             /*Print statistics*/
-            System.out.println("Exercise " + (exKey + 1) + ":"
+            System.out.println("\nExercise " + (exKey + 1) + ":"
                     + "\n--------------------------------");
             System.out.println("Avg Execution Time: " + averageTime + " ms");
             System.out.println("Max Execution Time: " + maxTime + " ms");
