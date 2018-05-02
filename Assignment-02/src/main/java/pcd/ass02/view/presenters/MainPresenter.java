@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -25,7 +26,7 @@ public class MainPresenter implements Initializable {
     private TextField regex;
 
     @FXML
-    private TextField maxDepthField;
+    private Spinner<Integer> maxDepthField;
 
     @FXML
     private TableView<DocumentResult> table;
@@ -58,7 +59,7 @@ public class MainPresenter implements Initializable {
     void search(){
         final String rootFolder = path.getText();
         final String regularExp = regex.getText();
-        final String maxDepth = maxDepthField.getText();
+        final Integer maxDepth = maxDepthField.getValue();
         new Thread(new Task<Void>() {
             @Override
             protected Void call(){
