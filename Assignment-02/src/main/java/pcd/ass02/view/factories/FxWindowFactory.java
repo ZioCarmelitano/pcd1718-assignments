@@ -53,7 +53,7 @@ public final class FxWindowFactory implements WindowFactory{
      *
      * @return root.
      */
-    private static BorderPane openWindow(final String fxmlPath, final String cssPath, final boolean resizable) throws IOException {
+    private static Node openWindow(final String fxmlPath, final String cssPath, final boolean resizable) throws IOException {
             loader = new FXMLLoader(
                     FxWindowFactory.class.getResource(fxmlPath));
             final BorderPane root = loader.load();
@@ -133,14 +133,6 @@ public final class FxWindowFactory implements WindowFactory{
         dialog.setContentText(message);
         final Optional<String> result = dialog.showAndWait();
         return result.orElse("");
-    }
-
-    public void buildGameButton(String iconPath, Button button, int height, int width) {
-        Image imageDecline = new Image(getClass().getResourceAsStream(iconPath));
-        ImageView btnImage = new ImageView(imageDecline);
-        btnImage.setFitHeight(height);
-        btnImage.setFitWidth(width);
-        button.setGraphic(btnImage);
     }
 
     public void openStartWindow() throws IOException {

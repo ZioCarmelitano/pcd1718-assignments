@@ -63,6 +63,10 @@ public class MainPresenter implements Initializable {
             @Override
             protected Void call(){
                 // TODO call the interactor...
+                //tableItems.add(new DocumentResult("bau.txt", 50));
+                //tableItems.add(new DocumentResult("asd.txt", 50));
+                //tableItems.add(new DocumentResult("ggg.txt", 50));
+
                 return null;
             }
         }).start();
