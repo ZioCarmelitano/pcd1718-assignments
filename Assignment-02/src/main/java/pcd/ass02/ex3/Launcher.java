@@ -36,11 +36,11 @@ final class Launcher {
 
             @Override
             protected void onComplete(long totalOccurrences) {
-                final long endTime = System.currentTimeMillis();
+                final long executionTime = System.currentTimeMillis() - startTime;
 
                 System.out.println();
                 System.out.println("Total occurrences: " + totalOccurrences);
-                System.out.println("Execution time: " + (endTime - startTime) + "ms");
+                System.out.println("Execution time: " + executionTime + "ms");
             }
 
             @Override

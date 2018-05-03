@@ -5,78 +5,79 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
-import pcd.ass02.domain.Document;
-import pcd.ass02.domain.Folder;
-import pcd.ass02.domain.SearchResult;
-import pcd.ass02.domain.SearchStatistics;
+import pcd.ass02.domain.*;
 import pcd.ass02.ex2.verticles.DocumentSearchVerticle;
 import pcd.ass02.ex2.verticles.FolderSearchVerticle;
+import pcd.ass02.ex2.verticles.SearchCoordinatorVerticle;
 import pcd.ass02.ex2.verticles.SearchResultAccumulatorVerticle;
 import pcd.ass02.ex2.verticles.codecs.DocumentMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.FolderMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.SearchResultMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.SearchStatisticsMessageCodec;
-import pcd.ass02.interactors.OccurrencesCounter;
+import pcd.ass02.interactors.AbstractOccurrencesCounter;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.Semaphore;
+import java.util.stream.Stream;
 
-public class  VertxOccurrencesCounter implements OccurrencesCounter {
+public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
 
     private static final int INSTANCES = 10;
-    private static final int EVENT_LOOP_POOL_SIZE = 1;
+    private static final int EVENT_LOOP_POOL_SIZE = 2;
     private static final int WORKER_POOL_SIZE = 2 * INSTANCES;
 
-    private final Vertx vertx;
     private final EventBus eventBus;
-    private final Handler<? super SearchStatistics> resultHandler;
-    private final Handler<? super Long> completionHandler;
+    private final Semaphore semaphore;
+    private final Vertx vertx;
 
-    public VertxOccurrencesCounter(Handler<? super SearchStatistics> resultHandler, Handler<? super Long> completionHandler) {
-        this.resultHandler = resultHandler;
-        this.completionHandler = completionHandler;
-        vertx = Vertx.vertx(new VertxOptions()
+    public VertxOccurrencesCounter(Handler<? super SearchStatistics> resultHandler) {
+        final SearchResultAccumulator accumulator = new SearchResultAccumulator();
+        this.vertx = Vertx.vertx(new VertxOptions()
                 .setWorkerPoolSize(WORKER_POOL_SIZE)
                 .setEventLoopPoolSize(EVENT_LOOP_POOL_SIZE));
-        eventBus = vertx.eventBus();
-    }
 
-    @Override
-    public void start() {
+        setAccumulator(accumulator);
+
+        eventBus = vertx.eventBus();
+
         eventBus.registerDefaultCodec(Document.class, DocumentMessageCodec.getInstance());
         eventBus.registerDefaultCodec(Folder.class, FolderMessageCodec.getInstance());
         eventBus.registerDefaultCodec(SearchResult.class, SearchResultMessageCodec.getInstance());
         eventBus.registerDefaultCodec(SearchStatistics.class, SearchStatisticsMessageCodec.getInstance());
-    }
 
-    @Override
-    public void stop() {
-        vertx.close();
-    }
-
-    @Override
-    public long countOccurrences(Folder rootFolder, String regex) {
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
                 .setInstances(INSTANCES);
         vertx.deployVerticle(FolderSearchVerticle::new, options);
-        vertx.deployVerticle(() -> new DocumentSearchVerticle(regex), options);
+        vertx.deployVerticle(DocumentSearchVerticle::new, options);
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicLong result = new AtomicLong();
-        vertx.deployVerticle(new SearchResultAccumulatorVerticle(resultHandler, totalOccurrences -> {
-            completionHandler.handle(totalOccurrences);
-            result.set(totalOccurrences);
-            latch.countDown();
-        }));
+        semaphore = new Semaphore(0);
+        vertx.deployVerticle(new SearchResultAccumulatorVerticle(accumulator, resultHandler));
+        vertx.deployVerticle(new SearchCoordinatorVerticle());
 
+        eventBus.consumer("coordinator.done", msg -> semaphore.release());
+    }
+
+    @Override
+    protected void onStop() {
+        vertx.close();
+    }
+
+    @Override
+    protected long doCount(Folder rootFolder, String regex) {
+        eventBus.publish("coordinator.documentCount", getDocuments(rootFolder).count());
+        eventBus.publish("documentSearch.regex", regex);
         eventBus.send("folderSearch", rootFolder);
-        try {
-            latch.await();
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return result.get();
+
+        semaphore.acquireUninterruptibly();
+
+        return getTotalOccurrences();
+    }
+
+    private static Stream<Document> getDocuments(Folder folder) {
+        return Stream.concat(
+                folder.getDocuments().stream(),
+                folder.getSubFolders().stream()
+                        .flatMap(VertxOccurrencesCounter::getDocuments));
     }
 
 }

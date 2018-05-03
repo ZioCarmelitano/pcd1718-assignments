@@ -18,9 +18,9 @@ public class SearchResultAccumulatorTask implements Runnable {
 
     private final Consumer<? super SearchStatistics> listener;
 
-    public SearchResultAccumulatorTask(Consumer<? super SearchStatistics> listener) {
+    public SearchResultAccumulatorTask(SearchResultAccumulator accumulator, Consumer<? super SearchStatistics> listener) {
         resultQueue = new LinkedBlockingQueue<>();
-        accumulator = new SearchResultAccumulator();
+        this.accumulator = accumulator;
         this.listener = listener;
     }
 

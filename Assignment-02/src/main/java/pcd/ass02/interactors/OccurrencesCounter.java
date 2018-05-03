@@ -6,6 +6,8 @@ public interface OccurrencesCounter {
 
     void start();
 
+    void reset();
+
     void stop();
 
     long countOccurrences(Folder rootFolder, String regex);

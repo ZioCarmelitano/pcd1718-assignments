@@ -8,23 +8,25 @@ import pcd.ass02.util.DocumentHelper;
 
 public class DocumentSearchVerticle extends AbstractVerticle {
 
-    private final String regex;
+    private String regex;
     private EventBus eventBus;
-
-    public DocumentSearchVerticle(String regex) {
-        this.regex = regex;
-    }
 
     @Override
     public void start() {
         eventBus = vertx.eventBus();
+        eventBus.<String>consumer("documentSearch.regex", m -> onRegex(m.body()));
         eventBus.<Document>consumer("documentSearch", m -> onDocument(m.body()));
+    }
+
+    private void onRegex(String regex) {
+        this.regex = regex;
     }
 
     private void onDocument(Document document) {
         final long occurrences = DocumentHelper.countOccurrences(document, regex);
         final SearchResult result = new SearchResult(document.getName(), occurrences);
         eventBus.publish("accumulator", result);
+        eventBus.publish("coordinator.documentProcessed", null);
     }
 
 }

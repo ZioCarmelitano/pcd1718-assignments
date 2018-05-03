@@ -6,35 +6,25 @@ import io.reactivex.schedulers.Schedulers;
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResult;
-import pcd.ass02.interactors.OccurrencesCounter;
+import pcd.ass02.interactors.AbstractOccurrencesCounter;
 import pcd.ass02.util.DocumentHelper;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-public class RxJavaOccurrencesCounter implements OccurrencesCounter {
+public class RxJavaOccurrencesCounter extends AbstractOccurrencesCounter {
 
     private final SearchResultSubscriber subscriber;
 
     public RxJavaOccurrencesCounter(SearchResultSubscriber subscriber) {
         this.subscriber = subscriber;
+        setAccumulator(subscriber.getAccumulator());
     }
 
     @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public long countOccurrences(Folder rootFolder, String regex) {
-        final AtomicLong result = new AtomicLong();
+    protected long doCount(Folder rootFolder, String regex) {
         getDocuments(rootFolder)
                 .subscribeOn(Schedulers.computation())
                 .map(toSearchResult(regex))
                 .blockingSubscribe(subscriber);
-        return result.get();
+        return getTotalOccurrences();
     }
 
     private static Function<? super Document, ? extends SearchResult> toSearchResult(String regex) {

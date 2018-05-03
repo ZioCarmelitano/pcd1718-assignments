@@ -18,15 +18,17 @@ final class Launcher {
 
         final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
 
-        final OccurrencesCounter counter = new VertxOccurrencesCounter(Launcher::handleResult, Launcher::handleCompletion);
+        final OccurrencesCounter counter = new VertxOccurrencesCounter(Launcher::handleResult);
 
         counter.start();
 
+        final long startTime = System.currentTimeMillis();
         final long totalOccurrences = counter.countOccurrences(rootFolder, regex);
+        final long executionTime = System.currentTimeMillis() - startTime;
 
         counter.stop();
-
         System.out.println("Total occurrences: " + totalOccurrences);
+        System.out.println("Execution time: " + executionTime + " ms");
     }
 
     private static void handleResult(SearchStatistics statistics) {
@@ -41,10 +43,6 @@ final class Launcher {
             System.out.println("Average: " + averageMatches);
             System.out.println("Files with occurrences: " + files.size());
         }
-    }
-
-    private static void handleCompletion(long totalOccurrences) {
-        System.out.println("Total occurrences: " + totalOccurrences);
     }
 
     private Launcher() {
