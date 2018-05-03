@@ -20,7 +20,6 @@ import pcd.ass02.view.datamodel.DocumentResult;
 import pcd.ass02.view.factories.FxWindowFactory;
 
 import java.io.File;
-import java.lang.management.PlatformManagedObject;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -85,6 +84,7 @@ public class MainPresenter implements Initializable {
 
         // Button graphic setting
         FxWindowFactory.setSearchButtonGraphic(searchButton);
+
     }
 
     @FXML
