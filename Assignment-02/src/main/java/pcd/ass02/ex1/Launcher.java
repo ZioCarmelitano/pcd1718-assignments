@@ -7,7 +7,7 @@ import pcd.ass02.interactors.OccurrencesCounter;
 import java.io.File;
 import java.util.List;
 
-final class Launcher {
+public final class Launcher {
 
     private static long filesWithOccurrencesCount = 0;
 
@@ -28,7 +28,6 @@ final class Launcher {
 
         counter.stop();
 
-        System.out.println();
         System.out.println("Total Occurrences: " + totalOccurrences);
         System.out.println("Execution time: " + (stopTime - startTime) + " ms");
     }
