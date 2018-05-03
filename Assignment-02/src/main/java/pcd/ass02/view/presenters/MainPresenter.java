@@ -6,10 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 
@@ -23,8 +20,9 @@ import pcd.ass02.view.datamodel.DocumentResult;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class MainPresenter implements Initializable {
 
@@ -52,7 +50,15 @@ public class MainPresenter implements Initializable {
     @FXML
     private TextField txtAverageMatching;
 
+    @FXML
+    private TextField txtTotalOccurrences;
+
     private static ObservableList<DocumentResult> tableItems = FXCollections.observableArrayList();
+
+    /* Spinner options */
+    private static final int MIN_DEPTH_SELECTABLE = 1;
+    private static final int MAX_DEPTH_SELECTABLE = 1000;
+    private static final int DEFAULT_MAX_DEPTH = 1;
 
 
     @Override
@@ -62,13 +68,20 @@ public class MainPresenter implements Initializable {
                 new PropertyValueFactory<>("documentName"));
         occurrencesColumn.setCellValueFactory(
                 new PropertyValueFactory<>("occurrences"));
+
+        // Value factory.
+        SpinnerValueFactory<Integer> valueFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(MIN_DEPTH_SELECTABLE,
+                        MAX_DEPTH_SELECTABLE, DEFAULT_MAX_DEPTH);
+
+        maxDepthField.setValueFactory(valueFactory);
     }
 
     @FXML
     void search() {
         final String rootFolder = path.getText();
         final String regularExp = regex.getText();
-        final Integer maxDepth = maxDepthField.getValue();
+        final Integer maxDepth = 20;//maxDepthField.getValue();
         new Thread(new Task<Void>() {
             @Override
             protected Void call(){
@@ -85,14 +98,14 @@ public class MainPresenter implements Initializable {
 
             @Override
             protected void onNext(SearchStatistics statistics) {
-                final List<String> documentNames = statistics.getDocumentNames();
+                final Map<String, Long> documentResults = statistics.getDocumentResults();
                 final double averageMatches = statistics.getAverageMatches();
                 final double matchingRate = statistics.getMatchingRate();
 
-                if (documentNames.size() > filesWithOccurrencesCount) {
-                    filesWithOccurrencesCount = documentNames.size();
-                    updateTable(documentNames);
-                    updateStatisticsField(averageMatches, matchingRate);
+                if (documentResults.size() > filesWithOccurrencesCount) {
+                    filesWithOccurrencesCount = documentResults.size();
+                    updateTable(documentResults);
+                    updateStatisticsField(averageMatches, matchingRate, documentResults.size());
                 }
             }
 
@@ -117,16 +130,18 @@ public class MainPresenter implements Initializable {
         counter.stop();
     }
 
-    private void updateStatisticsField(double averageMatches, double matchingRate) {
+    private void updateStatisticsField(double averageMatches, double matchingRate, int filesWithOccurrences) {
         Platform.runLater(() -> {
-            txtAverageMatching.setText(String.valueOf(averageMatches));
-            txtMatchingRate.setText(String.valueOf(matchingRate));
+            txtAverageMatching.setText(String.valueOf(Math.round(averageMatches)));
+            txtMatchingRate.setText(Math.round(matchingRate * 100) + "%");
+            txtTotalOccurrences.setText(String.valueOf(filesWithOccurrences));
         });
     }
 
-    //TODO
-    private void updateTable(List<String> documentNames) {
-        Platform.runLater(() -> tableItems.add(new DocumentResult("file.txt", 0)));
+    private void updateTable(Map<String, Long> documentResults) {
+        tableItems.setAll(documentResults.keySet().stream()
+                .map(doc -> new DocumentResult(doc, documentResults.get(doc)))
+                .collect(Collectors.toList()));
     }
 
     @FXML

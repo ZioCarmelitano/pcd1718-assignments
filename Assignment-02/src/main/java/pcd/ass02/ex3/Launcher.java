@@ -7,6 +7,7 @@ import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 final class Launcher {
 
@@ -21,7 +22,7 @@ final class Launcher {
 
             @Override
             protected void onNext(SearchStatistics statistics) {
-                final List<String> documentNames = statistics.getDocumentNames();
+                final Set<String> documentNames = statistics.getDocumentNames();
                 final double averageMatches = statistics.getAverageMatches();
                 final double matchingRate = statistics.getMatchingRate();
 
