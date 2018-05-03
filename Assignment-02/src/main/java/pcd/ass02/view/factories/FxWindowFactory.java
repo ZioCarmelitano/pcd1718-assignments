@@ -2,14 +2,18 @@ package pcd.ass02.view.factories;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -23,6 +27,7 @@ public final class FxWindowFactory implements WindowFactory{
 
     private static final String APP_TITLE = "Regex Search Tool";
     private static final String APP_ICON_PATH = "/regex_search_tool.png";
+    private static final String BUTTON_ICON_PATH = "/search_button_icon.png";
     private static final String FXML_PATH = "/main.fxml";
     private static final String CSS_PATH = "/main_style.css";
 
@@ -133,6 +138,17 @@ public final class FxWindowFactory implements WindowFactory{
         dialog.setContentText(message);
         final Optional<String> result = dialog.showAndWait();
         return result.orElse("");
+    }
+
+    public static void setSearchButtonGraphic(Button searchButton) {
+        Image imageDecline = new Image(FxWindowFactory.class.getResourceAsStream(BUTTON_ICON_PATH));
+        HBox hBox = new HBox();
+        Label label = new Label("Search");
+        label.setStyle("-fx-font-weight: bold; -fx-font-size: 17.0");
+        hBox.getChildren().addAll(label, new ImageView(imageDecline));
+        hBox.setAlignment(Pos.CENTER);
+        searchButton.setGraphic(hBox);
+        searchButton.setStyle("-fx-base: #b6e7c9;");
     }
 
     public void openStartWindow() throws IOException {

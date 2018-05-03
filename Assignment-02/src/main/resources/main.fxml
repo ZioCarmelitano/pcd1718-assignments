@@ -37,7 +37,7 @@
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <children>
                   <Button mnemonicParsing="false" onAction="#browse" text="Browse..." />
-                  <TextField fx:id="path" prefHeight="25.0" prefWidth="227.0" />
+                  <TextField fx:id="path" editable="false" prefHeight="25.0" prefWidth="227.0" />
                </children>
             </HBox>
             <Spinner fx:id="maxDepthField" prefHeight="25.0" prefWidth="98.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
@@ -50,7 +50,7 @@
    <center>
       <VBox prefHeight="310.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="873.0" text="Search">
+            <Button fx:id="searchButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="873.0">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font></Button>
@@ -75,7 +75,7 @@
                         <Insets />
                      </GridPane.margin>
                   </Label>
-                  <TextField fx:id="txtTotalOccurrences" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="txtTotalOccurrences" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
                <padding>
                   <Insets bottom="10.0" top="10.0" />

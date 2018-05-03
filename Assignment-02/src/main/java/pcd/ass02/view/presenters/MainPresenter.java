@@ -17,8 +17,10 @@ import pcd.ass02.ex3.RxJavaOccurrencesCounter;
 import pcd.ass02.ex3.SearchResultSubscriber;
 import pcd.ass02.interactors.OccurrencesCounter;
 import pcd.ass02.view.datamodel.DocumentResult;
+import pcd.ass02.view.factories.FxWindowFactory;
 
 import java.io.File;
+import java.lang.management.PlatformManagedObject;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -53,6 +55,9 @@ public class MainPresenter implements Initializable {
     @FXML
     private TextField txtTotalOccurrences;
 
+    @FXML
+    private Button searchButton;
+
     private static ObservableList<DocumentResult> tableItems = FXCollections.observableArrayList();
 
     /* Spinner options */
@@ -63,25 +68,31 @@ public class MainPresenter implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        // TableView init
         table.setItems(tableItems);
         documentNameColumn.setCellValueFactory(
                 new PropertyValueFactory<>("documentName"));
         occurrencesColumn.setCellValueFactory(
                 new PropertyValueFactory<>("occurrences"));
 
-        // Value factory.
+        // Spinner Value factory setting
         SpinnerValueFactory<Integer> valueFactory =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(MIN_DEPTH_SELECTABLE,
                         MAX_DEPTH_SELECTABLE, DEFAULT_MAX_DEPTH);
 
         maxDepthField.setValueFactory(valueFactory);
+
+        // Button graphic setting
+        FxWindowFactory.setSearchButtonGraphic(searchButton);
     }
 
     @FXML
     void search() {
         final String rootFolder = path.getText();
         final String regularExp = regex.getText();
-        final Integer maxDepth = 20;//maxDepthField.getValue();
+        final Integer maxDepth = maxDepthField.getValue();
+        searchButton.setDisable(true);
         new Thread(new Task<Void>() {
             @Override
             protected Void call(){
@@ -89,6 +100,9 @@ public class MainPresenter implements Initializable {
                 return null;
             }
         }).start();
+
+        //Debug
+        System.out.println("Max Depth selected: " + maxDepth);
     }
 
     private void performSearch(String path, String regularExp, Integer maxDepth) {
@@ -111,6 +125,7 @@ public class MainPresenter implements Initializable {
 
             @Override
             protected void onComplete(long totalOccurrences) {
+                Platform.runLater(() -> searchButton.setDisable(false));
                 final long endTime = System.currentTimeMillis();
                 System.out.println();
                 System.out.println("Total occurrences: " + totalOccurrences);
