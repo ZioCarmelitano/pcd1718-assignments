@@ -5,17 +5,18 @@ import io.vertx.core.eventbus.EventBus;
 import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
 
-public class FolderSearchVerticle extends AbstractVerticle {
+import static pcd.ass02.ex2.util.MessageHelper.handler;
+import static pcd.ass02.ex2.verticles.Channels.*;
+import static pcd.ass02.ex2.verticles.Channels.folderSearch;
+
+class FolderSearchVerticle extends AbstractVerticle {
 
     private EventBus eventBus;
-
-    public FolderSearchVerticle() {
-    }
 
     @Override
     public void start() {
         eventBus = vertx.eventBus();
-        eventBus.<Folder>consumer("folderSearch", m -> onFolder(m.body()));
+        eventBus.consumer(folderSearch, handler(this::onFolder));
     }
 
     private void onFolder(Folder folder) {
@@ -24,11 +25,11 @@ public class FolderSearchVerticle extends AbstractVerticle {
     }
 
     private void onSubFolder(Folder subFolder) {
-        eventBus.send("folderSearch", subFolder);
+        eventBus.send(folderSearch, subFolder);
     }
 
     private void onDocument(Document document) {
-        eventBus.send("documentSearch", document);
+        eventBus.send(documentSearch.analyze, document);
     }
 
 }

@@ -1,4 +1,4 @@
-package pcd.ass02.ex1;
+package pcd.ass02.ex1.tasks;
 
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResultAccumulator;

@@ -2,6 +2,7 @@ package pcd.ass02.ex2;
 
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchStatistics;
+import pcd.ass02.ex2.verticles.VertxOccurrencesCounter;
 import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;

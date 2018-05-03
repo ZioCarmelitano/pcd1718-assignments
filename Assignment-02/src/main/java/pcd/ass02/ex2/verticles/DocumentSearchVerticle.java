@@ -6,7 +6,10 @@ import pcd.ass02.domain.Document;
 import pcd.ass02.domain.SearchResult;
 import pcd.ass02.util.DocumentHelper;
 
-public class DocumentSearchVerticle extends AbstractVerticle {
+import static pcd.ass02.ex2.util.MessageHelper.handler;
+import static pcd.ass02.ex2.verticles.Channels.*;
+
+class DocumentSearchVerticle extends AbstractVerticle {
 
     private String regex;
     private EventBus eventBus;
@@ -14,8 +17,8 @@ public class DocumentSearchVerticle extends AbstractVerticle {
     @Override
     public void start() {
         eventBus = vertx.eventBus();
-        eventBus.<String>consumer("documentSearch.regex", m -> onRegex(m.body()));
-        eventBus.<Document>consumer("documentSearch", m -> onDocument(m.body()));
+        eventBus.consumer(documentSearch.regex, handler(this::onRegex));
+        eventBus.consumer(documentSearch.analyze, handler(this::onDocument));
     }
 
     private void onRegex(String regex) {
@@ -25,8 +28,8 @@ public class DocumentSearchVerticle extends AbstractVerticle {
     private void onDocument(Document document) {
         final long occurrences = DocumentHelper.countOccurrences(document, regex);
         final SearchResult result = new SearchResult(document.getName(), occurrences);
-        eventBus.publish("accumulator", result);
-        eventBus.publish("coordinator.documentProcessed", null);
+        eventBus.publish(accumulator, result);
+        eventBus.publish(coordinator.documentAnalyzed, null);
     }
 
 }

@@ -1,4 +1,4 @@
-package pcd.ass02.ex2;
+package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -6,10 +6,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import pcd.ass02.domain.*;
-import pcd.ass02.ex2.verticles.DocumentSearchVerticle;
-import pcd.ass02.ex2.verticles.FolderSearchVerticle;
-import pcd.ass02.ex2.verticles.SearchCoordinatorVerticle;
-import pcd.ass02.ex2.verticles.SearchResultAccumulatorVerticle;
 import pcd.ass02.ex2.verticles.codecs.DocumentMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.FolderMessageCodec;
 import pcd.ass02.ex2.verticles.codecs.SearchResultMessageCodec;
@@ -18,6 +14,8 @@ import pcd.ass02.interactors.AbstractOccurrencesCounter;
 
 import java.util.concurrent.Semaphore;
 import java.util.stream.Stream;
+
+import static pcd.ass02.ex2.verticles.Channels.*;
 
 public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
 
@@ -49,12 +47,11 @@ public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
                 .setInstances(INSTANCES);
         vertx.deployVerticle(FolderSearchVerticle::new, options);
         vertx.deployVerticle(DocumentSearchVerticle::new, options);
-
-        semaphore = new Semaphore(0);
         vertx.deployVerticle(new SearchResultAccumulatorVerticle(accumulator, resultHandler));
         vertx.deployVerticle(new SearchCoordinatorVerticle());
 
-        eventBus.consumer("coordinator.done", msg -> semaphore.release());
+        semaphore = new Semaphore(0);
+        eventBus.consumer(coordinator.done,m -> semaphore.release());
     }
 
     @Override
@@ -64,9 +61,10 @@ public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
 
     @Override
     protected long doCount(Folder rootFolder, String regex) {
-        eventBus.publish("coordinator.documentCount", getDocuments(rootFolder).count());
-        eventBus.publish("documentSearch.regex", regex);
-        eventBus.send("folderSearch", rootFolder);
+        final long documentCount = getDocuments(rootFolder).count();
+        eventBus.publish(coordinator.documentCount, documentCount);
+        eventBus.publish(documentSearch.regex, regex);
+        eventBus.send(folderSearch, rootFolder);
 
         semaphore.acquireUninterruptibly();
 

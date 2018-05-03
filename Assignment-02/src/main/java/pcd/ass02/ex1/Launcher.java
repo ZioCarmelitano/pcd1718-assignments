@@ -2,6 +2,7 @@ package pcd.ass02.ex1;
 
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchStatistics;
+import pcd.ass02.ex1.tasks.ForkJoinOccurrencesCounter;
 import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
