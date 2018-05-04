@@ -8,7 +8,6 @@ import pcd.ass02.interactors.OccurrencesCounter;
 import java.io.File;
 import java.util.Map;
 
-
 public final class Launcher {
 
     private static long filesWithOccurrencesCount = 0;
