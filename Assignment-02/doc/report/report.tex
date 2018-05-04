@@ -306,6 +306,16 @@ Il dominio applicativo \`e composto dai seguenti elementi:
 %
 \end{itemize}
 
+\subsection{Interattori}
+Per dare la possibilità di eseguire i tre esercizi indistintamente è stato scelto di utilizzare degli interattori. Con una classe astratta \texttt{AbstractOccurrencesCounter} abbiamo astratto il concetto di contatore di occorrenze di cui ogni esercizio definirà il comportamento in maniera specifica.
+I metodi interessati sono:
+\begin{itemize}
+    \item \texttt{start()}: inizializza il contatore 
+    \item \texttt{reset()}: resetta l'accumulatore
+    \item \texttt{stop()}: termina l'esecuzione
+    \item \texttt{countOccurrences(rootFolder, regex)}: esegue la ricerca delle occorrenze
+\end{itemize}
+
 \subsubsection{Esercizio 1: Task ed Executors}
 
 La soluzione proposta vede l'utilizzo del modello Fork-Join.
@@ -342,7 +352,7 @@ Ogni risultato intermedio trovato mette in esecuzione una callback che notifica 
     \label{fig:task-executors}
 
 \end{figure}
-
+\newpage
 \subsubsection{Esercizio 2: Event Loop}
 
 Come implementazione del modello a Event Loop \`e stato utilizzato il framework Vert.x \footnote{\url{https://vertx.io}}.
@@ -379,8 +389,7 @@ Analogamente, per ogni documento, viene inviato un messaggio ad un \texttt{Docum
 %
 Ogni \texttt{DocumentSearchVerticle}, dopo aver contato il numero di occorrenze, invia un messaggio con il risultato al \texttt{SearchResultAccumulatorVerticle}. Quest'ultimo, dopo aver aggiornato le statistche, chiama una callback responsabile di aggiornare l'output.
 %
-Alla fine il \texttt{DocumentSearchVerticle} invia un messaggio al \texttt{SearchCoordinatorVerticle} per comunicargli che il calcolo delle occorrenze in quel documento è terminato. Con questa informazione il coordinatore è in grado di capire quanti documenti devono essere ancora processati.
-Quando tutti i documenti sono stati controllati informa il thread principale che il lavoro è concluso.
+Infine il \texttt{DocumentSearchVerticle} invia un messaggio al \texttt{SearchCoordinatorVerticle} per comunicargli che l'analisi del documento in esame è terminata. Con questa informazione il coordinatore è in grado di capire quanti documenti devono essere ancora processati, così quando tutti i documenti sono stati controllati può informare il chiamante che il lavoro è concluso.
 %
 
 \begin{figure}[H]
@@ -444,12 +453,13 @@ Il calcolo delle statistiche \`e stato automatizzato tramite un apposita classe 
 \begin{tabular}{l|ccc}
 \hline
     & Executors & Event Loop & Reactive Streams \\ \hline
-Min & 1.766     & 2.43       & 3.04             \\
-Max & 2.11      & 2.87       & 3.41             \\
-Avg & 1.81      & 2.50       & 3.06             \\ \hline
+Min & 23        & 23         & 26               \\
+Max & 108       & 55         & 122               \\
+Avg & 31        & 29         & 33               \\ \hline
 \end{tabular}
 
-\caption{Tempi aggregati di esecuzione delle tre soluzioni}
+\caption{Tempi aggregati di esecuzione delle tre soluzioni. I tempi sono espressi in millisecondi, considerando come percordo di partenza la radice del progetto, ricercando l'espressione regolare 'class' e specificando come profondità massima 25.
+Le velocità di esecuzione sono state calcolate su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.}
 
 \label{Tabella speedup del sistema}
 
