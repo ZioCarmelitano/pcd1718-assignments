@@ -10,7 +10,8 @@ import java.util.Map;
 
 public class SearchStatisticsMessageCodec extends AbstractMessageCodec<SearchStatistics, SearchStatistics> {
 
-    private static final TypeReference<Map<String, Long>> REFERENCE = new TypeReference<Map<String, Long>>() {};
+    private static final TypeReference<Map<String, Long>> REFERENCE = new TypeReference<Map<String, Long>>() {
+    };
 
     @Override
     protected void encodeToWire(JsonObject jsonObject, SearchStatistics statistics) {

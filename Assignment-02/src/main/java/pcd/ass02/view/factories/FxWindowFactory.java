@@ -10,10 +10,10 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.image.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  * Utility class to create JavaFx windows using pattern Static Factory.
  */
-public final class FxWindowFactory implements WindowFactory{
+public final class FxWindowFactory implements WindowFactory {
 
     private static final String APP_TITLE = "Regex Search Tool";
     private static final String APP_ICON_PATH = "/regex_search_tool.png";
@@ -39,10 +39,8 @@ public final class FxWindowFactory implements WindowFactory{
     }
 
     /**
-     *
+     * @param <T> type of the presenter
      * @return reference to view presenter.
-     * @param <T>
-     *            type of the presenter
      */
     public static <T> T getPresenter() {
         return loader == null ? null : loader.getController();
@@ -52,33 +50,29 @@ public final class FxWindowFactory implements WindowFactory{
      * Load a new window. If it is contained in a menu, the method return the
      * root of the new scene.
      *
-     * @param fxmlPath
-     *            path of the GUI structure file FXML.
-     *
-     *
+     * @param fxmlPath path of the GUI structure file FXML.
      * @return root.
      */
     private static Node openWindow(final String fxmlPath, final String cssPath, final boolean resizable) throws IOException {
-            loader = new FXMLLoader(
-                    FxWindowFactory.class.getResource(fxmlPath));
-            final BorderPane root = loader.load();
-            final Stage stage = new Stage();
-            stage.setResizable(resizable);
-            final Scene scene = new Scene(root);
-            scene.getStylesheets().add(FxWindowFactory.class
-                    .getResource(cssPath).toExternalForm());
-            stage.setTitle(APP_TITLE);
-            stage.getIcons().add(new Image(APP_ICON_PATH));
-            stage.setScene(scene);
-            stage.show();
+        loader = new FXMLLoader(
+                FxWindowFactory.class.getResource(fxmlPath));
+        final BorderPane root = loader.load();
+        final Stage stage = new Stage();
+        stage.setResizable(resizable);
+        final Scene scene = new Scene(root);
+        scene.getStylesheets().add(FxWindowFactory.class
+                .getResource(cssPath).toExternalForm());
+        stage.setTitle(APP_TITLE);
+        stage.getIcons().add(new Image(APP_ICON_PATH));
+        stage.setScene(scene);
+        stage.show();
         return root;
     }
 
     /**
      * Close a JavaFx window.
      *
-     * @param sceneToClose
-     *            link to the window to close.
+     * @param sceneToClose link to the window to close.
      */
     private static void closeWindow(final Scene sceneToClose) {
         final Stage sceneStage = (Stage) sceneToClose.getWindow();
@@ -88,11 +82,8 @@ public final class FxWindowFactory implements WindowFactory{
     /**
      * Replace a old window with a new one.
      *
-     * @param fxmlPath
-     *            path of the GUI structure file FXML to open.
-     *
-     * @param sceneToClose
-     *            link to the window to close.
+     * @param fxmlPath     path of the GUI structure file FXML to open.
+     * @param sceneToClose link to the window to close.
      */
     public static void replaceWindow(final String fxmlPath, final Scene sceneToClose) throws IOException {
         FxWindowFactory.openWindow(fxmlPath, CSS_PATH, true);
@@ -102,12 +93,9 @@ public final class FxWindowFactory implements WindowFactory{
     /**
      * Show a simple info dialog with a optional image.
      *
-     * @param title
-     *            header of the show dialog.
-     * @param message
-     *            content of the dialog.
-     * @param alertType
-     *            to select the type of dialog.
+     * @param title     header of the show dialog.
+     * @param message   content of the dialog.
+     * @param alertType to select the type of dialog.
      */
     public static void showDialog(final String title, final String message,
                                   final AlertType alertType) {
@@ -122,13 +110,9 @@ public final class FxWindowFactory implements WindowFactory{
 
 
     /**
-     *
-     * @param title
-     *            of dialog window.
-     * @param message
-     *            to user.
-     * @param inputText
-     *            to show in input text field.
+     * @param title     of dialog window.
+     * @param message   to user.
+     * @param inputText to show in input text field.
      * @return input string written by user.
      */
     public static String createInputDialog(final String title, final String message, final String inputText) {
@@ -159,7 +143,7 @@ public final class FxWindowFactory implements WindowFactory{
         static final FxWindowFactory INSTANCE = new FxWindowFactory();
     }
 
-    public static Stage getStage(Node node){
+    public static Stage getStage(Node node) {
         final Window window = node.getScene().getWindow();
         return (Stage) window;
     }

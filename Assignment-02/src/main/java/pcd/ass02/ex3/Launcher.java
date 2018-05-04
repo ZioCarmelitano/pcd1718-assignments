@@ -6,7 +6,6 @@ import pcd.ass02.domain.SearchStatistics;
 import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 final class Launcher {

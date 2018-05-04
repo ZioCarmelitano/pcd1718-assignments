@@ -3,8 +3,6 @@ package pcd.ass02.ex1.tasks;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchResultAccumulator;
 import pcd.ass02.domain.SearchStatistics;
-import pcd.ass02.ex1.tasks.FolderSearchTask;
-import pcd.ass02.ex1.tasks.SearchResultAccumulatorTask;
 import pcd.ass02.interactors.AbstractOccurrencesCounter;
 
 import java.util.concurrent.ExecutorService;

@@ -9,7 +9,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
-
 import org.reactivestreams.Subscription;
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchStatistics;
@@ -95,7 +94,7 @@ public class MainPresenter implements Initializable {
         searchButton.setDisable(true);
         new Thread(new Task<Void>() {
             @Override
-            protected Void call(){
+            protected Void call() {
                 performSearch(rootFolder, regularExp, maxDepth);
                 return null;
             }

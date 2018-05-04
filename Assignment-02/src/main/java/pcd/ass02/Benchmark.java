@@ -18,7 +18,7 @@ import java.util.Map;
 class Benchmark {
 
     private static final int EXERCISE_NUMBER = 3;
-    private static final int RUN_NUMBER  = 10;
+    private static final int RUN_NUMBER = 10;
 
     private static File path;
     private static String regex;
@@ -46,7 +46,7 @@ class Benchmark {
                 System.out.println("Run number:" + i);
                 long result = 0;
                 /* Recalculate in case of negative result (exercise 2) */
-                while(result <= 0) {
+                while (result <= 0) {
                     result = getSearchResult(j);
                 }
                 exerciseTimes.add(result);
@@ -80,7 +80,7 @@ class Benchmark {
     }
 
     private static long getSearchResult(int exerciseNumber) {
-        switch (exerciseNumber){
+        switch (exerciseNumber) {
             case 0:
                 return forkJoinSearch();
             case 1:
@@ -93,8 +93,9 @@ class Benchmark {
     }
 
 
-    private static long forkJoinSearch(){
-        final OccurrencesCounter counter = new ForkJoinOccurrencesCounter(searchStatistics -> {});
+    private static long forkJoinSearch() {
+        final OccurrencesCounter counter = new ForkJoinOccurrencesCounter(searchStatistics -> {
+        });
 
         counter.start();
 
@@ -111,7 +112,8 @@ class Benchmark {
     private static long vertxSearch() {
         Long[] executionTime = new Long[1];
 
-        final OccurrencesCounter counter = new VertxOccurrencesCounter(s -> {});
+        final OccurrencesCounter counter = new VertxOccurrencesCounter(s -> {
+        });
 
         counter.start();
 
@@ -131,7 +133,8 @@ class Benchmark {
             private long startTime;
 
             @Override
-            protected void onNext(SearchStatistics statistics) {}
+            protected void onNext(SearchStatistics statistics) {
+            }
 
             @Override
             protected void onComplete(long totalOccurrences) {

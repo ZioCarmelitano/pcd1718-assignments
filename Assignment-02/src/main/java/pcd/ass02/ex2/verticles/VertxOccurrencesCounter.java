@@ -56,7 +56,7 @@ public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
         vertx.deployVerticle(new SearchCoordinatorVerticle());
 
         semaphore = new Semaphore(0);
-        eventBus.consumer(C.coordinator.done,m -> semaphore.release());
+        eventBus.consumer(C.coordinator.done, m -> semaphore.release());
     }
 
     @Override

@@ -17,7 +17,7 @@ public final class MessageHelper {
         return message -> handler.run();
     }
 
-    private  MessageHelper() {
+    private MessageHelper() {
     }
 
 }

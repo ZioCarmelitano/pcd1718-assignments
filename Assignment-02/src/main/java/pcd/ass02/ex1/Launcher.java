@@ -6,7 +6,6 @@ import pcd.ass02.ex1.tasks.ForkJoinOccurrencesCounter;
 import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 
