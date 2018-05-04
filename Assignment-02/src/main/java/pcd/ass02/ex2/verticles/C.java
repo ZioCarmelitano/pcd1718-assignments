@@ -4,6 +4,8 @@ final class C {
 
     static final String accumulator = "accumulator";
 
+    static final String folderSearch = "folderSearch";
+
     static final class coordinator {
         static final String documentAnalyzed = "coordinator.documentAnalyzed";
 
@@ -23,8 +25,6 @@ final class C {
         private documentSearch() {
         }
     }
-
-    static final String folderSearch = "folderSearch";
 
     private C() {
     }

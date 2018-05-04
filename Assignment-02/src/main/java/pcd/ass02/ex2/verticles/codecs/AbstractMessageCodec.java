@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonObject;
 
 abstract class AbstractMessageCodec<S, R> implements MessageCodec<S, R> {
 
-    protected AbstractMessageCodec() {
+    AbstractMessageCodec() {
     }
 
     @Override

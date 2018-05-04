@@ -4,7 +4,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 
 import static pcd.ass02.ex2.util.MessageHelper.wrap;
-import static pcd.ass02.ex2.verticles.C.*;
 
 class SearchCoordinatorVerticle extends AbstractVerticle {
 
@@ -18,7 +17,7 @@ class SearchCoordinatorVerticle extends AbstractVerticle {
         eventBus.consumer(C.coordinator.documentAnalyzed, wrap(this::onDocumentAnalyzed));
     }
 
-    private void onDocumentAnalyzed(Object ignored) {
+    private void onDocumentAnalyzed() {
         documentCount--;
         if (documentCount == 0) {
             eventBus.publish(C.coordinator.done, null);
