@@ -32,6 +32,13 @@ public class SearchResultAccumulator {
         return new SearchStatistics(documentNames, matchingRate, averageMatches);
     }
 
+    public void resetStatistics() {
+        fileCount = 0;
+        totalOccurrences = 0;
+        averageMatches = 0.0;
+        documentNames.clear();
+    }
+
     public long getTotalOccurrences() {
         return totalOccurrences;
     }

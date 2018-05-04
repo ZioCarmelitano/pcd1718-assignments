@@ -2,14 +2,11 @@ package pcd.ass02.ex1;
 
 import pcd.ass02.domain.Folder;
 import pcd.ass02.domain.SearchStatistics;
-import pcd.ass02.ex1.tasks.FolderSearchTask;
-import pcd.ass02.ex1.tasks.SearchResultAccumulatorTask;
+import pcd.ass02.ex1.tasks.ForkJoinOccurrencesCounter;
+import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 
 final class Launcher {
 
@@ -22,19 +19,15 @@ final class Launcher {
 
         final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
 
-        final SearchResultAccumulatorTask accumulator = new SearchResultAccumulatorTask(Launcher::accept);
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(accumulator);
+        final OccurrencesCounter counter = new ForkJoinOccurrencesCounter(Launcher::accept);
 
-        final ForkJoinPool pool = new ForkJoinPool();
-        final FolderSearchTask task = new FolderSearchTask(rootFolder, regex, accumulator::notify);
+        counter.start();
 
         final long startTime = System.currentTimeMillis();
-        final long totalOccurrences = pool.invoke(task);
+        final long totalOccurrences = counter.countOccurrences(rootFolder, regex);
         final long stopTime = System.currentTimeMillis();
 
-        accumulator.stop();
-        executor.shutdown();
+        counter.stop();
 
         System.out.println();
         System.out.println("Total Occurrences: " + totalOccurrences);

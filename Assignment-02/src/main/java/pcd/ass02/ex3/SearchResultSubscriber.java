@@ -29,6 +29,10 @@ abstract class SearchResultSubscriber implements Subscriber<SearchResult> {
         throw new OnErrorNotImplementedException(e);
     }
 
+    SearchResultAccumulator getAccumulator() {
+        return accumulator;
+    }
+
     protected abstract void onNext(SearchStatistics statistics);
 
     protected abstract void onComplete(long totalOccurrences);
