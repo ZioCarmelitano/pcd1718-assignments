@@ -15,11 +15,11 @@ abstract class AbstractMessageCodec<S, R> implements MessageCodec<S, R> {
 
         encodeToWire(jsonObject, s);
 
-        final Buffer encoded = jsonObject.toBuffer();
+        final String encoded = jsonObject.encode();
         final int length = encoded.length();
 
         buffer.appendInt(length);
-        buffer.appendBuffer(encoded);
+        buffer.appendString(encoded);
     }
 
     @Override
