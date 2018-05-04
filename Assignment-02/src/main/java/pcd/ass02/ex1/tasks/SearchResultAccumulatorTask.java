@@ -48,7 +48,7 @@ class SearchResultAccumulatorTask implements Runnable {
         listener.accept(accumulator.updateStatistics(result));
     }
 
-    void stop() {
+    public void stop() {
         running = false;
         resultQueue.add(Optional.empty());
     }

@@ -8,7 +8,7 @@ import pcd.ass02.util.DocumentHelper;
 
 import static pcd.ass02.ex2.util.MessageHelper.wrap;
 
-class DocumentSearchVerticle extends AbstractVerticle {
+public class DocumentSearchVerticle extends AbstractVerticle {
 
     private String regex;
     private EventBus eventBus;

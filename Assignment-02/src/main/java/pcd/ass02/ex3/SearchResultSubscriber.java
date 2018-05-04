@@ -6,7 +6,7 @@ import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchResultAccumulator;
 import pcd.ass02.domain.SearchStatistics;
 
-abstract class SearchResultSubscriber implements Subscriber<SearchResult> {
+public abstract class SearchResultSubscriber implements Subscriber<SearchResult> {
 
     private final SearchResultAccumulator accumulator;
 

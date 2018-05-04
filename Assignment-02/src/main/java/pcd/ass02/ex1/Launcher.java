@@ -7,8 +7,10 @@ import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
-final class Launcher {
+
+public final class Launcher {
 
     private static long filesWithOccurrencesCount = 0;
 
@@ -35,16 +37,16 @@ final class Launcher {
     }
 
     private static void accept(SearchStatistics statistics) {
-        final List<String> documentNames = statistics.getDocumentNames();
+        final Map<String, Long> documentResults = statistics.getDocumentResults();
         final double averageMatches = statistics.getAverageMatches();
         final double matchingRate = statistics.getMatchingRate();
 
-        if (documentNames.size() > filesWithOccurrencesCount) {
-            filesWithOccurrencesCount = documentNames.size();
-            System.out.println(documentNames);
+        if (documentResults.size() > filesWithOccurrencesCount) {
+            filesWithOccurrencesCount = documentResults.size();
+            System.out.println(documentResults);
             System.out.println("Matching rate: " + matchingRate);
             System.out.println("Average: " + averageMatches);
-            System.out.println("Files with occurrences: " + documentNames.size());
+            System.out.println("Files with occurrences: " + documentResults.size());
         }
     }
 

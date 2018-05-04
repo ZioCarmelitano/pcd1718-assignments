@@ -1,21 +1,21 @@
 package pcd.ass02.domain;
 
-import java.util.List;
+import java.util.Map;
 
 public class SearchStatistics {
 
-    private final List<String> documentNames;
+    private final Map<String, Long> documentResults;
     private final double matchingRate;
     private final double averageMatches;
 
-    public SearchStatistics(List<String> documentNames, double matchingRate, double averageMatches) {
-        this.documentNames = documentNames;
+    public SearchStatistics(Map<String, Long> documentResults, double matchingRate, double averageMatches) {
+        this.documentResults = documentResults;
         this.matchingRate = matchingRate;
         this.averageMatches = averageMatches;
     }
 
-    public List<String> getDocumentNames() {
-        return documentNames;
+    public Map<String, Long> getDocumentResults() {
+        return documentResults;
     }
 
     public double getMatchingRate() {
