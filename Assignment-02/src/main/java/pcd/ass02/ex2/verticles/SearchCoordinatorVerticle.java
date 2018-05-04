@@ -3,8 +3,8 @@ package pcd.ass02.ex2.verticles;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 
-import static pcd.ass02.ex2.util.MessageHelper.handler;
-import static pcd.ass02.ex2.verticles.Channels.*;
+import static pcd.ass02.ex2.util.MessageHelper.wrap;
+import static pcd.ass02.ex2.verticles.C.*;
 
 class SearchCoordinatorVerticle extends AbstractVerticle {
 
@@ -14,14 +14,14 @@ class SearchCoordinatorVerticle extends AbstractVerticle {
     @Override
     public void start() {
         eventBus = vertx.eventBus();
-        eventBus.consumer(coordinator.documentCount, handler(this::onDocumentCount));
-        eventBus.consumer(coordinator.documentAnalyzed, handler(this::onDocumentAnalyzed));
+        eventBus.consumer(C.coordinator.documentCount, wrap(this::onDocumentCount));
+        eventBus.consumer(C.coordinator.documentAnalyzed, wrap(this::onDocumentAnalyzed));
     }
 
     private void onDocumentAnalyzed(Object ignored) {
         documentCount--;
         if (documentCount == 0) {
-            eventBus.publish(coordinator.done, null);
+            eventBus.publish(C.coordinator.done, null);
         }
     }
 

@@ -6,26 +6,25 @@ import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchResultAccumulator;
 import pcd.ass02.domain.SearchStatistics;
 
-import static pcd.ass02.ex2.util.MessageHelper.handler;
-import static pcd.ass02.ex2.verticles.Channels.accumulator;
+import static pcd.ass02.ex2.util.MessageHelper.wrap;
 
 class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
-    private final SearchResultAccumulator delegate;
+    private final SearchResultAccumulator accmulator;
     private final Handler<? super SearchStatistics> resultHandler;
 
     SearchResultAccumulatorVerticle(SearchResultAccumulator accumulator, Handler<? super SearchStatistics> resultHandler) {
-        delegate = accumulator;
+        accmulator = accumulator;
         this.resultHandler = resultHandler;
     }
 
     @Override
     public void start() {
-        vertx.eventBus().consumer(accumulator, handler(this::onSearchResult));
+        vertx.eventBus().consumer(C.accumulator, wrap(this::onSearchResult));
     }
 
     private void onSearchResult(SearchResult result) {
-        resultHandler.handle(delegate.updateStatistics(result));
+        resultHandler.handle(accmulator.updateStatistics(result));
     }
 
 }

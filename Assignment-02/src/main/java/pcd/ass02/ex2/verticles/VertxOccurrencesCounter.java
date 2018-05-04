@@ -15,8 +15,6 @@ import pcd.ass02.interactors.AbstractOccurrencesCounter;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Stream;
 
-import static pcd.ass02.ex2.verticles.Channels.*;
-
 public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
 
     private static final int INSTANCES = 10;
@@ -51,7 +49,7 @@ public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
         vertx.deployVerticle(new SearchCoordinatorVerticle());
 
         semaphore = new Semaphore(0);
-        eventBus.consumer(coordinator.done,m -> semaphore.release());
+        eventBus.consumer(C.coordinator.done,m -> semaphore.release());
     }
 
     @Override
@@ -62,9 +60,9 @@ public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
     @Override
     protected long doCount(Folder rootFolder, String regex) {
         final long documentCount = getDocuments(rootFolder).count();
-        eventBus.publish(coordinator.documentCount, documentCount);
-        eventBus.publish(documentSearch.regex, regex);
-        eventBus.send(folderSearch, rootFolder);
+        eventBus.publish(C.coordinator.documentCount, documentCount);
+        eventBus.publish(C.documentSearch.regex, regex);
+        eventBus.send(C.folderSearch, rootFolder);
 
         semaphore.acquireUninterruptibly();
 

@@ -1,6 +1,6 @@
 package pcd.ass02.ex2.verticles;
 
-final class Channels {
+final class C {
 
     static final String accumulator = "accumulator";
 
@@ -26,7 +26,7 @@ final class Channels {
 
     static final String folderSearch = "folderSearch";
 
-    private Channels() {
+    private C() {
     }
 
 }
