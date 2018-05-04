@@ -3,7 +3,7 @@ package pcd.ass02.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class MatcherHelper {
+final class MatcherHelper {
 
     public static int countMatches(final String regex, final String input, final boolean disjoint) {
         final Pattern pattern = Pattern.compile(regex);
