@@ -1,8 +1,0 @@
-marble Exercise3
-{
-    operator Flowable.fromIterable(rootFolder.getSubFolders()): +--(F1)-(F2)-(F3)-(F4)--|
-    operator flatMap(folder->getDocuments(folder)): +--(D1)-(D1)-(D3)-(D4)-(D5)-(D6)-(D7)-(D8)-(D9)-(D10)-(D12)-(D13)--|
-    operator mergeWith(Flowable.fromIterable(rootFolder.getDocuments())): +--(D1)-(D1)-(D3)-(D4)-(D5)-(D6)-(D7)-(D8)-(D9)-(D10)-(D12)-(D13)-(D13)-(D14)--|
-    operator subscribeOn(Schedulers.computation()): +--(D1)-(D1)-(D3)-(D4)-(D5)-(D6)-(D7)-(D8)-(D9)-(D10)-(D12)-(D13)-(D13)-(D14)--|
-    operator map(toSearchResult(regex)): +--(SR1)-(SR1)-(SR3)-(SR4)-(SR5)-(SR6)-(SR7)-(SR8)-(SR9)-(SR10)-(SR12)-(SR13)-(SR13)-(SR14)--|
-}
