@@ -1,4 +1,4 @@
-package pcd.ass02;
+package pcd.ass02.benchmark;
 
 import org.reactivestreams.Subscription;
 import pcd.ass02.domain.Folder;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Benchmark {
+class Launcher {
 
     private static final int EXERCISE_NUMBER = 3;
     private static final int RUN_NUMBER = 100;
