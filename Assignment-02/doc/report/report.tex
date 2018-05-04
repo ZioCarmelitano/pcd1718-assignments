@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+﻿\documentclass[a4paper]{article}
 
 \usepackage{geometry}
 
@@ -357,6 +357,8 @@ Analogamente all'Esercizio 1 il problema di partenza \`e stato scomposto in tre 
 %
     \item \texttt{SearchResultAccumulatorVerticle}: aggregazione dei risultati e calcolo delle statistiche
 %
+    \item \texttt{SearchCoordinatorVerticle}: controllore del numero di documenti processati
+%
 \end{itemize}
 
 Si \`e scelto di mantenere un numero fisso di istanze per ogni tipologia di Verticle.
@@ -365,6 +367,8 @@ Nel caso del \texttt{SearchResultAccumulatorVerticle} l'istanza \`e unica, mentr
 
 La comunicazione tra i Verticle si basa sullo scambio di messaggi attraverso un canale condiviso (Event Bus): ogni tipologia di Verticle ascolta su un canale dedicato.
 
+Inizialmente viene mandato un messaggio al \texttt{SearchCoordinatorVerticle} con il numero totale di documenti da processare. 
+%
 La ricerca inizia inviando un messaggio contenente la radice dell'albero all'indirizzo dedicato alla ricerca all'interno di una cartella.
 %
 Il Verticle che riceve il messaggio (\texttt{FolderSearchVerticle}) visita tutte le sottocartelle e, per ognuna di esse, invia un messaggio allo stesso indirizzo.
@@ -373,9 +377,11 @@ In questo modo un altro \texttt{FolderSearchVerticle} provveder\`a alla ricerca 
 %
 Analogamente, per ogni documento, viene inviato un messaggio ad un \texttt{DocumentSearchVerticle} che provveder\`a alla ricerca delle occorrenze dell'espressione regolare fornita in input nel documento inviatogli.
 %
-Ogni \texttt{DocumentSearchVerticle}, dopo aver contato il numero di occorrenze il risultat, invia un messaggio al \texttt{SearchResultAccumulatorVerticle}.
+Ogni \texttt{DocumentSearchVerticle}, dopo aver contato il numero di occorrenze, invia un messaggio con il risultato al \texttt{SearchResultAccumulatorVerticle}. Quest'ultimo, dopo aver aggiornato le statistche, chiama una callback responsabile di aggiornare l'output.
 %
-Quest'ultimo, dopo aver aggiornato le statistche, chiama una callback responsabile di aggiornare l'output.
+Alla fine il \texttt{DocumentSearchVerticle} invia un messaggio al \texttt{SearchCoordinatorVerticle} per comunicargli che il calcolo delle occorrenze in quel documento è terminato. Con questa informazione il coordinatore è in grado di capire quanti documenti devono essere ancora processati.
+Quando tutti i documenti sono stati controllati informa il thread principale che il lavoro è concluso.
+%
 
 \begin{figure}[H]
 
