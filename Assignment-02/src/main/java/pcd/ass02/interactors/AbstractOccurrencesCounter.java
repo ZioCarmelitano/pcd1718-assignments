@@ -10,6 +10,7 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
     private enum State {
         CREATED,
         STARTED,
+        RESETTED,
         FINISHED,
         STOPPED
     }
@@ -38,13 +39,14 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
         checkNotStopped();
 
         accumulator.resetStatistics();
-
         onReset();
+
+        state = State.RESETTED;
     }
 
     @Override
     public final void stop() {
-        checkFinished();
+        checkStoppable();
         checkNotStopped();
 
         onStop();
@@ -54,7 +56,7 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
 
     @Override
     public final long countOccurrences(Folder rootFolder, String regex) {
-        checkStarted();
+        checkRunnable();
         final long totalOccurrences = doCount(rootFolder, regex);
         state = State.FINISHED;
         return totalOccurrences;
@@ -77,6 +79,14 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
 
     private void checkStarted() {
         checkState(state == State.STARTED, getClass().getSimpleName() + " not started");
+    }
+
+    private void checkRunnable() {
+        checkState(state == State.STARTED || state == State.RESETTED, getClass().getSimpleName() + " stopped");
+    }
+
+    private void checkStoppable() {
+        checkState(state == State.RESETTED || state == State.STOPPED, getClass().getSimpleName() + " stopped");
     }
 
     private void checkNotStopped() {

@@ -18,7 +18,7 @@ import java.util.Map;
 class Benchmark {
 
     private static final int EXERCISE_NUMBER = 3;
-    private static final int RUN_NUMBER = 10;
+    private static final int RUN_NUMBER = 100;
 
     private static File path;
     private static String regex;
@@ -39,19 +39,10 @@ class Benchmark {
         Map<Integer, List<Long>> executionTimes = new HashMap<>();
 
         /*Collect execution times*/
-        for (int j = 0; j < EXERCISE_NUMBER; j++) {
+        for (int j = 1; j <= EXERCISE_NUMBER; j++) {
             System.out.println("Searching with Exercise " + j);
-            List<Long> exerciseTimes = new ArrayList<>();
-            for (int i = 0; i < RUN_NUMBER; i++) {
-                System.out.println("Run number:" + i);
-                long result = 0;
-                /* Recalculate in case of negative result (exercise 2) */
-                while (result <= 0) {
-                    result = getSearchResult(j);
-                }
-                exerciseTimes.add(result);
-            }
-            executionTimes.put(j, exerciseTimes);
+            final OccurrencesCounter counter = getOccurrencesCounter(j);
+            executionTimes.put(j, getResults(counter, RUN_NUMBER));
         }
 
         /*Calculate execution statistics*/
@@ -70,7 +61,7 @@ class Benchmark {
                     .orElse(0L);
 
             /*Print statistics*/
-            System.out.println("\nExercise " + (exKey + 1) + ":"
+            System.out.println("\nExercise " + exKey + ":"
                     + "\n--------------------------------");
             System.out.println("Avg Execution Time: " + averageTime + " ms");
             System.out.println("Max Execution Time: " + maxTime + " ms");
@@ -79,78 +70,51 @@ class Benchmark {
 
     }
 
-    private static long getSearchResult(int exerciseNumber) {
+    private static OccurrencesCounter getOccurrencesCounter(int exerciseNumber) {
         switch (exerciseNumber) {
-            case 0:
-                return forkJoinSearch();
             case 1:
-                return vertxSearch();
+                return new ForkJoinOccurrencesCounter(searchStatistics -> {
+                });
             case 2:
-                return reactiveStreamSearch();
-            default:
-                return 0;
+                return new VertxOccurrencesCounter(s -> {
+                });
+            case 3:
+                return new RxJavaOccurrencesCounter(new SearchResultSubscriber() {
+                    @Override
+                    protected void onNext(SearchStatistics statistics) {
+                    }
+
+                    @Override
+                    protected void onComplete(long totalOccurrences) {
+                    }
+
+                    @Override
+                    public void onSubscribe(Subscription s) {
+                        s.request(Long.MAX_VALUE);
+                    }
+                });
+                default:
+                    throw new IllegalStateException("Illegal exercise number: " + exerciseNumber);
         }
     }
 
-
-    private static long forkJoinSearch() {
-        final OccurrencesCounter counter = new ForkJoinOccurrencesCounter(searchStatistics -> {
-        });
-
+    private static List<Long> getResults(OccurrencesCounter counter, int numberOfRuns) {
+        List<Long> executionTimes = new ArrayList<>();
         counter.start();
-
-        final long startTime = System.currentTimeMillis();
-        counter.countOccurrences(rootFolder, regex);
-        final long stopTime = System.currentTimeMillis();
-
+        for (int i = 0; i < numberOfRuns; i++) {
+            System.out.println("Run #" + i);
+            long result = 0;
+            /* Recalculate in case of negative result (exercise 2) */
+            while (result <= 0) {
+                final long startTime = System.currentTimeMillis();
+                counter.countOccurrences(rootFolder, regex);
+                result = System.currentTimeMillis() - startTime;
+            }
+            counter.reset();
+            executionTimes.add(result);
+        }
         counter.stop();
-
-        return stopTime - startTime;
+        return executionTimes;
     }
 
-
-    private static long vertxSearch() {
-        final OccurrencesCounter counter = new VertxOccurrencesCounter(s -> {
-        });
-
-        counter.start();
-
-        final long startTime = System.currentTimeMillis();
-        counter.countOccurrences(rootFolder, regex);
-        final long stopTime = System.currentTimeMillis();
-
-        counter.stop();
-
-        return stopTime - startTime;
-    }
-
-
-    private static long reactiveStreamSearch() {
-        final long[] executionTime = new long[1];
-        final OccurrencesCounter counter = new RxJavaOccurrencesCounter(new SearchResultSubscriber() {
-            private long startTime;
-
-            @Override
-            protected void onNext(SearchStatistics statistics) {
-            }
-
-            @Override
-            protected void onComplete(long totalOccurrences) {
-                final long endTime = System.currentTimeMillis();
-                executionTime[0] = endTime - startTime;
-            }
-
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(Long.MAX_VALUE);
-                startTime = System.currentTimeMillis();
-            }
-        });
-
-        counter.start();
-        counter.countOccurrences(rootFolder, regex);
-        counter.stop();
-
-        return executionTime[0];
-    }
 }
