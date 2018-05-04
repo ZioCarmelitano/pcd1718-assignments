@@ -110,8 +110,6 @@ class Benchmark {
 
 
     private static long vertxSearch() {
-        Long[] executionTime = new Long[1];
-
         final OccurrencesCounter counter = new VertxOccurrencesCounter(s -> {
         });
 
@@ -123,7 +121,7 @@ class Benchmark {
 
         counter.stop();
 
-        return executionTime[0];
+        return stopTime - startTime;
     }
 
 
