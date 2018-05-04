@@ -1,30 +1,30 @@
 package pcd.ass02.ex2.verticles.codecs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import pcd.ass02.domain.SearchStatistics;
 
-import java.util.List;
+import java.util.Map;
 
 public class SearchStatisticsMessageCodec extends AbstractMessageCodec<SearchStatistics, SearchStatistics> {
 
-    private static final TypeReference<List<String>> REFERENCE = new TypeReference<List<String>>() {
+    private static final TypeReference<Map<String, Long>> REFERENCE = new TypeReference<Map<String, Long>>() {
     };
 
     @Override
     protected void encodeToWire(JsonObject jsonObject, SearchStatistics statistics) {
-        jsonObject.put("documentNames", new JsonArray(statistics.getDocumentNames()));
+        jsonObject.put("documentResults", new JsonObject((Buffer) statistics.getDocumentResults()));
         jsonObject.put("matchingRate", statistics.getMatchingRate());
         jsonObject.put("averageMatches", statistics.getAverageMatches());
     }
 
     @Override
     protected SearchStatistics decodeFromWire(JsonObject jsonObject) {
-        final String documentNamesStr = jsonObject.getJsonArray("documentNames").encode();
+        final String documentNamesStr = jsonObject.getJsonArray("documentResults").encode();
 
-        final List<String> documentNames = Json.decodeValue(documentNamesStr, REFERENCE);
+        final Map<String, Long> documentNames = Json.decodeValue(documentNamesStr, REFERENCE);
         final double matchingRate = jsonObject.getDouble("matchingRate");
         final double averageMatches = jsonObject.getDouble("averageMatches");
 

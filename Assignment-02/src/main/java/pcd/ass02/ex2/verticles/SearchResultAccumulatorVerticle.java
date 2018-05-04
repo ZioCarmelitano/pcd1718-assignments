@@ -6,47 +6,25 @@ import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchResultAccumulator;
 import pcd.ass02.domain.SearchStatistics;
 
-public class SearchResultAccumulatorVerticle extends AbstractVerticle {
+import static pcd.ass02.ex2.util.MessageHelper.wrap;
 
-    private static final long COMPLETION_DELAY = 2_000;
-
-    private final Handler<? super SearchStatistics> handler;
-    private final Handler<? super Long> completionHandler;
+class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
     private final SearchResultAccumulator accumulator;
+    private final Handler<? super SearchStatistics> resultHandler;
 
-    private long timerID;
-
-    private long startTime;
-    private long endTime;
-
-    public SearchResultAccumulatorVerticle(Handler<? super SearchStatistics> resultHandler, Handler<? super Long> completionHandler) {
-        this.handler = resultHandler;
-        this.completionHandler = completionHandler;
-        accumulator = new SearchResultAccumulator();
+    SearchResultAccumulatorVerticle(SearchResultAccumulator accumulator, Handler<? super SearchStatistics> resultHandler) {
+        this.accumulator = accumulator;
+        this.resultHandler = resultHandler;
     }
 
     @Override
     public void start() {
-        vertx.eventBus().<SearchResult>consumer("accumulator", m -> onSearchResult(m.body()));
-
-        timerID = vertx.setTimer(COMPLETION_DELAY, this::handleCompletion);
-
-        startTime = System.currentTimeMillis();
+        vertx.eventBus().consumer(C.accumulator, wrap(this::onSearchResult));
     }
 
     private void onSearchResult(SearchResult result) {
-        handler.handle(accumulator.updateStatistics(result));
-
-        endTime = System.currentTimeMillis();
-
-        vertx.cancelTimer(timerID);
-        timerID = vertx.setTimer(COMPLETION_DELAY, this::handleCompletion);
-    }
-
-    private void handleCompletion(long tid) {
-        completionHandler.handle(accumulator.getTotalOccurrences());
-        System.out.println("Execution time: " + (endTime - startTime) + " ms");
+        resultHandler.handle(accumulator.updateStatistics(result));
     }
 
 }

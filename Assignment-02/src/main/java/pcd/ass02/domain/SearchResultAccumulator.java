@@ -1,7 +1,7 @@
 package pcd.ass02.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SearchResultAccumulator {
 
@@ -10,26 +10,33 @@ public class SearchResultAccumulator {
 
     private double averageMatches;
 
-    private final List<String> documentNames;
+    private final Map<String, Long> documentResults;
 
     public SearchResultAccumulator() {
-        documentNames = new ArrayList<>();
+        documentResults = new HashMap<>();
     }
 
     public SearchStatistics updateStatistics(SearchResult result) {
         fileCount++;
 
         final long occurrences = result.getOccurrences();
-        long filesWithOccurrences = documentNames.size();
+        long filesWithOccurrences = documentResults.size();
         if (occurrences > 0) {
             totalOccurrences += occurrences;
-            documentNames.add(result.getDocumentName());
+            documentResults.put(result.getDocumentName(), occurrences);
             filesWithOccurrences++;
             averageMatches = ((double) totalOccurrences) / ((double) filesWithOccurrences);
         }
         final double matchingRate = ((double) filesWithOccurrences) / ((double) fileCount);
 
-        return new SearchStatistics(documentNames, matchingRate, averageMatches);
+        return new SearchStatistics(documentResults, matchingRate, averageMatches);
+    }
+
+    public void resetStatistics() {
+        fileCount = 0;
+        totalOccurrences = 0;
+        averageMatches = 0.0;
+        documentResults.clear();
     }
 
     public long getTotalOccurrences() {

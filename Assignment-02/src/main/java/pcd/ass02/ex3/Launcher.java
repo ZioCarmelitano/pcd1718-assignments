@@ -1,17 +1,12 @@
 package pcd.ass02.ex3;
 
-import io.reactivex.Flowable;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import org.reactivestreams.Subscription;
-import pcd.ass02.domain.Document;
 import pcd.ass02.domain.Folder;
-import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchStatistics;
-import pcd.ass02.util.DocumentHelper;
+import pcd.ass02.interactors.OccurrencesCounter;
 
 import java.io.File;
-import java.util.List;
+import java.util.Map;
 
 final class Launcher {
 
@@ -20,56 +15,45 @@ final class Launcher {
         final String regex = args[1];
         final int maxDepth = Integer.parseInt(args[2]);
 
-        getDocuments(Folder.fromDirectory(path, maxDepth))
-                .subscribeOn(Schedulers.computation())
-                .map(toSearchResult(regex))
-                .blockingSubscribe(new SearchResultSubscriber() {
-                    private int filesWithOccurrencesCount;
-                    private long startTime;
+        final OccurrencesCounter counter = new RxJavaOccurrencesCounter(new SearchResultSubscriber() {
+            private long startTime;
+            private long filesWithOccurrencesCount;
 
-                    @Override
-                    public void onSubscribe(Subscription s) {
-                        startTime = System.currentTimeMillis();
-                        s.request(Long.MAX_VALUE);
-                    }
+            @Override
+            protected void onNext(SearchStatistics statistics) {
+                final Map<String, Long> documentResults = statistics.getDocumentResults();
+                final double averageMatches = statistics.getAverageMatches();
+                final double matchingRate = statistics.getMatchingRate();
 
-                    @Override
-                    public void onNext(SearchStatistics statistics) {
-                        final List<String> documentNames = statistics.getDocumentNames();
-                        final double averageMatches = statistics.getAverageMatches();
-                        final double matchingRate = statistics.getMatchingRate();
+                if (documentResults.size() > filesWithOccurrencesCount) {
+                    filesWithOccurrencesCount = documentResults.size();
+                    System.out.println(documentResults);
+                    System.out.println("Matching rate: " + matchingRate);
+                    System.out.println("Average: " + averageMatches);
+                    System.out.println("Files with occurrences: " + documentResults.size());
+                }
+            }
 
-                        if (documentNames.size() > filesWithOccurrencesCount) {
-                            filesWithOccurrencesCount = documentNames.size();
-                            System.out.println(documentNames);
-                            System.out.println("Matching rate: " + matchingRate);
-                            System.out.println("Average: " + averageMatches);
-                            System.out.println("Files with occurrences: " + documentNames.size());
-                        }
-                    }
+            @Override
+            protected void onComplete(long totalOccurrences) {
+                final long executionTime = System.currentTimeMillis() - startTime;
 
-                    @Override
-                    protected void onComplete(long totalOccurrences) {
-                        final long endTime = System.currentTimeMillis();
+                System.out.println();
+                System.out.println("Total occurrences: " + totalOccurrences);
+                System.out.println("Execution time: " + executionTime + "ms");
+            }
 
-                        System.out.println();
-                        System.out.println("Total occurrences: " + totalOccurrences);
-                        System.out.println("Execution time: " + (endTime - startTime) + "ms");
-                    }
-                });
-    }
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(Long.MAX_VALUE);
+                startTime = System.currentTimeMillis();
+            }
+        });
 
-    private static Function<? super Document, ? extends SearchResult> toSearchResult(String regex) {
-        return document -> {
-            final long occurrences = DocumentHelper.countOccurrences(document, regex);
-            return new SearchResult(document.getName(), occurrences);
-        };
-    }
-
-    private static Flowable<Document> getDocuments(Folder folder) {
-        return Flowable.fromIterable(folder.getSubFolders())
-                .flatMap(Launcher::getDocuments)
-                .mergeWith(Flowable.fromIterable(folder.getDocuments()));
+        final Folder rootFolder = Folder.fromDirectory(path, maxDepth);
+        counter.start();
+        counter.countOccurrences(rootFolder, regex);
+        counter.stop();
     }
 
     private Launcher() {

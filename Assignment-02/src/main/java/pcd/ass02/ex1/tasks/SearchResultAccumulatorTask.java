@@ -9,7 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
-public class SearchResultAccumulatorTask implements Runnable {
+class SearchResultAccumulatorTask implements Runnable {
 
     private final BlockingQueue<Optional<SearchResult>> resultQueue;
     private boolean running;
@@ -18,14 +18,13 @@ public class SearchResultAccumulatorTask implements Runnable {
 
     private final Consumer<? super SearchStatistics> listener;
 
-    public SearchResultAccumulatorTask(Consumer<? super SearchStatistics> listener) {
+    SearchResultAccumulatorTask(SearchResultAccumulator accumulator, Consumer<? super SearchStatistics> listener) {
         resultQueue = new LinkedBlockingQueue<>();
-        accumulator = new SearchResultAccumulator();
-        running = true;
+        this.accumulator = accumulator;
         this.listener = listener;
     }
 
-    public void notify(SearchResult result) {
+    void notify(SearchResult result) {
         if (!running) {
             throw new IllegalStateException();
         }
@@ -34,6 +33,7 @@ public class SearchResultAccumulatorTask implements Runnable {
 
     @Override
     public void run() {
+        running = true;
         try {
             while (running || !resultQueue.isEmpty()) {
                 resultQueue.take()

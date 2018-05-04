@@ -10,13 +10,13 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 import java.util.function.Consumer;
 
-public class FolderSearchTask extends RecursiveTask<Long> {
+class FolderSearchTask extends RecursiveTask<Long> {
 
     private final Folder folder;
     private final String regex;
     private final Consumer<? super SearchResult> callback;
 
-    public FolderSearchTask(Folder folder, String regex, Consumer<? super SearchResult> callback) {
+    FolderSearchTask(Folder folder, String regex, Consumer<? super SearchResult> callback) {
         this.folder = folder;
         this.regex = regex;
         this.callback = callback;

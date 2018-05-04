@@ -6,7 +6,7 @@ import pcd.ass02.domain.SearchResult;
 import pcd.ass02.domain.SearchResultAccumulator;
 import pcd.ass02.domain.SearchStatistics;
 
-abstract class SearchResultSubscriber implements Subscriber<SearchResult> {
+public abstract class SearchResultSubscriber implements Subscriber<SearchResult> {
 
     private final SearchResultAccumulator accumulator;
 
@@ -27,6 +27,10 @@ abstract class SearchResultSubscriber implements Subscriber<SearchResult> {
     @Override
     public void onError(Throwable e) {
         throw new OnErrorNotImplementedException(e);
+    }
+
+    SearchResultAccumulator getAccumulator() {
+        return accumulator;
     }
 
     protected abstract void onNext(SearchStatistics statistics);
