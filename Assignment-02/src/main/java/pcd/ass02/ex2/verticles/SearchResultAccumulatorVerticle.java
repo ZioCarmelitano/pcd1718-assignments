@@ -10,11 +10,11 @@ import static pcd.ass02.ex2.util.MessageHelper.wrap;
 
 class SearchResultAccumulatorVerticle extends AbstractVerticle {
 
-    private final SearchResultAccumulator accmulator;
+    private final SearchResultAccumulator accumulator;
     private final Handler<? super SearchStatistics> resultHandler;
 
     SearchResultAccumulatorVerticle(SearchResultAccumulator accumulator, Handler<? super SearchStatistics> resultHandler) {
-        accmulator = accumulator;
+        this.accumulator = accumulator;
         this.resultHandler = resultHandler;
     }
 
@@ -24,7 +24,7 @@ class SearchResultAccumulatorVerticle extends AbstractVerticle {
     }
 
     private void onSearchResult(SearchResult result) {
-        resultHandler.handle(accmulator.updateStatistics(result));
+        resultHandler.handle(accumulator.updateStatistics(result));
     }
 
 }

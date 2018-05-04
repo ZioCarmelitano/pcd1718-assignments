@@ -8,8 +8,7 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
 
     private enum State {
-        NOT_INITIALIZED,
-        INITIALIZED,
+        CREATED,
         STARTED,
         FINISHED,
         STOPPED
@@ -17,16 +16,16 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
 
     private State state;
 
-    private SearchResultAccumulator accumulator;
+    private final SearchResultAccumulator accumulator;
 
-    protected AbstractOccurrencesCounter() {
-        state = State.NOT_INITIALIZED;
+    protected AbstractOccurrencesCounter(SearchResultAccumulator accumulator) {
+        this.accumulator = accumulator;
+        this.state = State.CREATED;
     }
 
     @Override
     public final void start() {
         checkNotStopped();
-        checkInitialized();
 
         onStart();
 
@@ -72,15 +71,6 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
 
     protected abstract long doCount(Folder rootFolder, String regex);
 
-    protected final void setAccumulator(SearchResultAccumulator accumulator) {
-        checkNotInitialized();
-
-        if (accumulator != null) {
-            this.accumulator = accumulator;
-            state = State.INITIALIZED;
-        }
-    }
-
     protected final long getTotalOccurrences() {
         return accumulator.getTotalOccurrences();
     }
@@ -95,14 +85,6 @@ public abstract class AbstractOccurrencesCounter implements OccurrencesCounter {
 
     private void checkFinished() {
         checkState(state == State.FINISHED, getClass().getSimpleName() + " not finished");
-    }
-
-    private void checkInitialized() {
-        checkState(state == State.INITIALIZED, getClass().getSimpleName() + " not initialized");
-    }
-
-    private void checkNotInitialized() {
-        checkState(state == State.NOT_INITIALIZED, getClass().getSimpleName() + " already initialized");
     }
 
 }

@@ -12,7 +12,7 @@ while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in
         -d|--max-depth)
-            MAXDEPTH="$2"
+            MAX_DEPTH="$2"
             shift # past argument
             shift # past value
             ;;        -e|--exercise)
@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
             shift # past value
             ;;
         -p|--path)
-            BASEPATH="$2"
+            BASE_PATH="$2"
             shift # past argument
             shift # past value
             ;;
@@ -42,7 +42,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [ -z ${MAXDEPTH+x} ]; then
+if [ -z ${MAX_DEPTH+x} ]; then
     echo "option -d|--max-depth <max_depth> required" >& 2
     usage
     exit 1
@@ -52,7 +52,7 @@ if [ -z ${EXERCISE+x} ]; then
     usage
     exit 1
 fi
-if [ -z ${BASEPATH+x} ]; then
+if [ -z ${BASE_PATH+x} ]; then
     echo "option -p|--path <base_path> required" >& 2
     usage
     exit 1
@@ -63,4 +63,4 @@ if [ -z ${REGEX+x} ]; then
     exit 1
 fi
 
-java -cp build/libs/Assignment-02-1.0.jar pcd.ass02.$EXERCISE.Launcher $BASEPATH $REGEX $MAXDEPTH
+java -cp build/libs/Assignment-02-1.0.jar pcd.ass02.$EXERCISE.Launcher $BASE_PATH $REGEX $MAX_DEPTH

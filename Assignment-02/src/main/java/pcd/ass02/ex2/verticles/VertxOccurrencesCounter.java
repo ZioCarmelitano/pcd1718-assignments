@@ -17,24 +17,31 @@ import java.util.stream.Stream;
 
 public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
 
-    private static final int INSTANCES = 10;
     private static final int EVENT_LOOP_POOL_SIZE = 2;
-    private static final int WORKER_POOL_SIZE = 2 * INSTANCES;
+    private static final int DEFAULT_INSTANCES = VertxOptions.DEFAULT_WORKER_POOL_SIZE / 2;
 
     private final EventBus eventBus;
     private final Semaphore semaphore;
     private final Vertx vertx;
 
     public VertxOccurrencesCounter(Handler<? super SearchStatistics> resultHandler) {
-        final SearchResultAccumulator accumulator = new SearchResultAccumulator();
+        this(new SearchResultAccumulator(), DEFAULT_INSTANCES, resultHandler);
+    }
+
+    public VertxOccurrencesCounter(int instances, Handler<? super SearchStatistics> resultHandler) {
+        this(new SearchResultAccumulator(), instances, resultHandler);
+    }
+
+    private VertxOccurrencesCounter(SearchResultAccumulator accumulator, int instances, Handler<? super SearchStatistics> resultHandler) {
+        super(accumulator);
+
+        final int workerPoolSize = 2 * instances;
+
         this.vertx = Vertx.vertx(new VertxOptions()
-                .setWorkerPoolSize(WORKER_POOL_SIZE)
+                .setWorkerPoolSize(workerPoolSize)
                 .setEventLoopPoolSize(EVENT_LOOP_POOL_SIZE));
 
-        setAccumulator(accumulator);
-
         eventBus = vertx.eventBus();
-
         eventBus.registerDefaultCodec(Document.class, DocumentMessageCodec.getInstance());
         eventBus.registerDefaultCodec(Folder.class, FolderMessageCodec.getInstance());
         eventBus.registerDefaultCodec(SearchResult.class, SearchResultMessageCodec.getInstance());
@@ -42,7 +49,7 @@ public class VertxOccurrencesCounter extends AbstractOccurrencesCounter {
 
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
-                .setInstances(INSTANCES);
+                .setInstances(instances);
         vertx.deployVerticle(FolderSearchVerticle::new, options);
         vertx.deployVerticle(DocumentSearchVerticle::new, options);
         vertx.deployVerticle(new SearchResultAccumulatorVerticle(accumulator, resultHandler));

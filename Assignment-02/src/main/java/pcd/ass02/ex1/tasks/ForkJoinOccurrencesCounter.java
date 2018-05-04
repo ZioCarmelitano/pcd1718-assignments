@@ -20,11 +20,18 @@ public class ForkJoinOccurrencesCounter extends AbstractOccurrencesCounter {
     private final SearchResultAccumulatorTask accumulator;
 
     public ForkJoinOccurrencesCounter(Consumer<? super SearchStatistics> resultHandler) {
-        pool = new ForkJoinPool();
+        this(new SearchResultAccumulator(), new ForkJoinPool(), resultHandler);
+    }
+
+    public ForkJoinOccurrencesCounter(int parallelism, Consumer<? super SearchStatistics> resultHandler) {
+        this(new SearchResultAccumulator(), new ForkJoinPool(parallelism), resultHandler);
+    }
+
+    private ForkJoinOccurrencesCounter(SearchResultAccumulator accumulator, ForkJoinPool pool, Consumer<? super SearchStatistics> resultHandler) {
+        super(accumulator);
+        this.pool = pool;
         this.executor = Executors.newSingleThreadExecutor();
-        final SearchResultAccumulator accumulator = new SearchResultAccumulator();
         this.accumulator = new SearchResultAccumulatorTask(accumulator, resultHandler);
-        setAccumulator(accumulator);
     }
 
     @Override

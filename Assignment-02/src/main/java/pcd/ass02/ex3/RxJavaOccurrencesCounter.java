@@ -14,8 +14,8 @@ public class RxJavaOccurrencesCounter extends AbstractOccurrencesCounter {
     private final SearchResultSubscriber subscriber;
 
     public RxJavaOccurrencesCounter(SearchResultSubscriber subscriber) {
+        super(subscriber.getAccumulator());
         this.subscriber = subscriber;
-        setAccumulator(subscriber.getAccumulator());
     }
 
     @Override
