@@ -50,6 +50,11 @@ dependencies {
 
 task fatJar(type: Jar) {
     baseName = project.name
+    manifest {
+        attributes 'Implementation-Title': 'Regex Search Tool',
+                'Implementation-Version': 1.0,
+                'Main-Class': 'pcd.ass02.Main'
+    }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
