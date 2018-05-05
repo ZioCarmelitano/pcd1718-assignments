@@ -45,13 +45,13 @@ public class MainPresenter implements Initializable {
     private TableColumn<DocumentResult, String> documentNameColumn;
 
     @FXML
-    private TextField txtMatchingRate;
+    private Label txtMatchingRate;
 
     @FXML
-    private TextField txtAverageMatching;
+    private Label txtAverageMatching;
 
     @FXML
-    private TextField txtTotalOccurrences;
+    private Label txtTotalOccurrences;
 
     @FXML
     private Button searchButton;
