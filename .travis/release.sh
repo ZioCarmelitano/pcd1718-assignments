@@ -6,23 +6,21 @@ if [ "$#" != "1" ]; then
     exit 1
 fi
 
+cwd=`pwd`
 assignment=$1
-cwd=`git rev-parse --show-toplevel`
-releaseDir=$cwd/release/$assignment
+root=`git rev-parse --show-toplevel`
+releaseDir=$root/release
 
-# Make the release dir
-mkdir -p $releaseDir
-
-cd $cwd/$assignment
+cd $root/$assignment
 
 # Copy documentation
-mkdir -p $releaseDir/doc
-cp doc/report/report.pdf $releaseDir/doc
+mkdir -p $releaseDir/$assignment/doc
+cp doc/report/report.pdf $releaseDir/$assignment/doc
 
 # Copy sources, scripts and gradle-related files
-cp -R src *.sh *.bat gradle build.gradle gradle.properties settings.gradle gradlew* $releaseDir
+cp -R src gradle build.gradle gradle.properties settings.gradle gradlew* $releaseDir/$assignment || :
 
-cd $cwd/release
+cd $releaseDir
 
 # Make the zip
 zip -r $assignment.zip $assignment > /dev/null
