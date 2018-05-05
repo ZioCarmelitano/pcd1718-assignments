@@ -103,13 +103,9 @@ class Launcher {
         counter.start();
         for (int i = 0; i < numberOfRuns; i++) {
             System.out.println("Run #" + i);
-            long result = 0;
-            /* Recalculate in case of negative result (exercise 2) */
-            while (result <= 0) {
-                final long startTime = System.currentTimeMillis();
-                counter.countOccurrences(rootFolder, regex);
-                result = System.currentTimeMillis() - startTime;
-            }
+            final long startTime = System.currentTimeMillis();
+            counter.countOccurrences(rootFolder, regex);
+            long result = System.currentTimeMillis() - startTime;
             counter.reset();
             executionTimes.add(result);
         }
