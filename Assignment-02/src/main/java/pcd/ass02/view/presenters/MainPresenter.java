@@ -115,13 +115,7 @@ public class MainPresenter implements Initializable {
         final String regularExp = regex.getText();
         final Integer maxDepth = maxDepthField.getValue();
         searchButton.setDisable(true);
-        new Thread(new Task<Void>() {
-            @Override
-            protected Void call() {
-                performSearch(rootFolder, regularExp, maxDepth);
-                return null;
-            }
-        }).start();
+        new Thread(() -> performSearch(rootFolder, regularExp, maxDepth)).start();
 
         //Debug
         System.out.println("Max Depth selected: " + maxDepth);
