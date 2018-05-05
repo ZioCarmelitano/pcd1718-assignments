@@ -45,28 +45,28 @@ public class MainPresenter implements Initializable {
     private TableColumn<DocumentResult, String> documentNameColumn;
 
     @FXML
-    private TextField txtMatchingRate;
+    private Label matchingRate;
 
     @FXML
-    private TextField txtAverageMatching;
+    private Label averageMatches;
 
     @FXML
-    private TextField txtTotalOccurrences;
+    private Label totalOccurrences;
 
     @FXML
     private Button searchButton;
 
     private static ObservableList<DocumentResult> tableItems = FXCollections.observableArrayList();
 
+    private OccurrencesCounter counter;
+
     /* Spinner options */
     private static final int MIN_DEPTH_SELECTABLE = 1;
     private static final int MAX_DEPTH_SELECTABLE = 1000;
     private static final int DEFAULT_MAX_DEPTH = 1;
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         // TableView init
         table.setItems(tableItems);
         documentNameColumn.setCellValueFactory(
@@ -84,6 +84,29 @@ public class MainPresenter implements Initializable {
         // Button graphic setting
         FxWindowFactory.setSearchButtonGraphic(searchButton);
 
+        counter = new RxJavaOccurrencesCounter(new SearchResultSubscriber() {
+            @Override
+            protected void onNext(SearchStatistics statistics) {
+                final Map<String, Long> documentResults = statistics.getDocumentResults();
+                final double averageMatches = statistics.getAverageMatches();
+                final double matchingRate = statistics.getMatchingRate();
+
+                updateTable(documentResults);
+                updateStatisticsField(averageMatches, matchingRate, documentResults.size());
+            }
+
+            @Override
+            protected void onComplete(long totalOccurrences) {
+                searchButton.setDisable(false);
+            }
+
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(Long.MAX_VALUE);
+            }
+        });
+
+        counter.start();
     }
 
     @FXML
@@ -104,51 +127,17 @@ public class MainPresenter implements Initializable {
         System.out.println("Max Depth selected: " + maxDepth);
     }
 
-    private void performSearch(String path, String regularExp, Integer maxDepth) {
-        final OccurrencesCounter counter = new RxJavaOccurrencesCounter(new SearchResultSubscriber() {
-            private long startTime;
-            private long filesWithOccurrencesCount;
-
-            @Override
-            protected void onNext(SearchStatistics statistics) {
-                final Map<String, Long> documentResults = statistics.getDocumentResults();
-                final double averageMatches = statistics.getAverageMatches();
-                final double matchingRate = statistics.getMatchingRate();
-
-                if (documentResults.size() > filesWithOccurrencesCount) {
-                    filesWithOccurrencesCount = documentResults.size();
-                    updateTable(documentResults);
-                    updateStatisticsField(averageMatches, matchingRate, documentResults.size());
-                }
-            }
-
-            @Override
-            protected void onComplete(long totalOccurrences) {
-                Platform.runLater(() -> searchButton.setDisable(false));
-                final long endTime = System.currentTimeMillis();
-                System.out.println();
-                System.out.println("Total occurrences: " + totalOccurrences);
-                System.out.println("Execution time: " + (endTime - startTime) + "ms");
-            }
-
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(Long.MAX_VALUE);
-                startTime = System.currentTimeMillis();
-            }
-        });
-
+    private void performSearch(String path, String regex, Integer maxDepth) {
         final Folder rootFolder = Folder.fromDirectory(new File(path), maxDepth);
-        counter.start();
-        counter.countOccurrences(rootFolder, regularExp);
-        counter.stop();
+        counter.countOccurrences(rootFolder, regex);
+        counter.reset();
     }
 
     private void updateStatisticsField(double averageMatches, double matchingRate, int filesWithOccurrences) {
         Platform.runLater(() -> {
-            txtAverageMatching.setText(String.valueOf(Math.round(averageMatches)));
-            txtMatchingRate.setText(Math.round(matchingRate * 100) + "%");
-            txtTotalOccurrences.setText(String.valueOf(filesWithOccurrences));
+            this.averageMatches.setText(String.format("%.2f", averageMatches));
+            this.matchingRate.setText(String.format("%.2f", matchingRate * 100) + "%");
+            totalOccurrences.setText(String.valueOf(filesWithOccurrences));
         });
     }
 
@@ -160,10 +149,8 @@ public class MainPresenter implements Initializable {
 
     @FXML
     void browse() {
-        final DirectoryChooser directoryChooser =
-                new DirectoryChooser();
-        final File selectedDirectory =
-                directoryChooser.showDialog(path.getScene().getWindow());
+        final DirectoryChooser chooser = new DirectoryChooser();
+        final File selectedDirectory = chooser.showDialog(path.getScene().getWindow());
         if (selectedDirectory != null) {
             path.setText(selectedDirectory.getAbsolutePath());
         }
