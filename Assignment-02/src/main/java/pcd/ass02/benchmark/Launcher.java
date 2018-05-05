@@ -42,7 +42,7 @@ class Launcher {
         for (int j = 1; j <= EXERCISE_NUMBER; j++) {
             System.out.println("Searching with Exercise " + j);
             final OccurrencesCounter counter = getOccurrencesCounter(j);
-            executionTimes.put(j, getResults(counter, RUN_NUMBER));
+            executionTimes.put(j, getExecutionTimes(counter, RUN_NUMBER));
         }
 
         /*Calculate execution statistics*/
@@ -93,25 +93,21 @@ class Launcher {
                         s.request(Long.MAX_VALUE);
                     }
                 });
-                default:
-                    throw new IllegalStateException("Illegal exercise number: " + exerciseNumber);
+            default:
+                throw new IllegalStateException("Illegal exercise number: " + exerciseNumber);
         }
     }
 
-    private static List<Long> getResults(OccurrencesCounter counter, int numberOfRuns) {
+    private static List<Long> getExecutionTimes(OccurrencesCounter counter, int numberOfRuns) {
         List<Long> executionTimes = new ArrayList<>();
         counter.start();
         for (int i = 0; i < numberOfRuns; i++) {
-            System.out.println("Run #" + i);
-            long result = 0;
-            /* Recalculate in case of negative result (exercise 2) */
-            while (result <= 0) {
-                final long startTime = System.currentTimeMillis();
-                counter.countOccurrences(rootFolder, regex);
-                result = System.currentTimeMillis() - startTime;
-            }
+            System.out.println("Run #" + (i + 1));
+            final long startTime = System.currentTimeMillis();
+            counter.countOccurrences(rootFolder, regex);
+            final long executionTime = System.currentTimeMillis() - startTime;
             counter.reset();
-            executionTimes.add(result);
+            executionTimes.add(executionTime);
         }
         counter.stop();
         return executionTimes;
