@@ -1,23 +1,60 @@
 group 'pcd'
 version '1.0'
 
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
 apply plugin: 'java'
 
-sourceCompatibility = 1.8
+sourceCompatibility = jdkVersion
 
 repositories {
     mavenCentral()
 }
 
+apply plugin: 'javafx-gradle-plugin'
+
+
+jfx {
+    // minimal requirement for jfxJar-task
+    mainClass = 'pcd.ass02.Main'
+
+    // minimal requirement for jfxNative-task
+    vendor = 'PCD'
+}
+
 ext {
     vertxVersion = '3.5.1'
-    rxJavaVersion = '2.1.12'
+    rxJava2Version = '2.1.12'
     junit4Version = '4.12'
+    jacksonVersion = '2.9.5'
+    guavaVersion = '25.0-jre'
 }
 
 dependencies {
     compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
-    compile group: 'io.reactivex.rxjava2', name: 'rxjava', 'version': rxJavaVersion
+    compile group: 'io.reactivex.rxjava2', name: 'rxjava', 'version': rxJava2Version
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion
+
+    compile group: 'com.google.guava', name: 'guava', version: guavaVersion
 
     testCompile group: 'junit', name: 'junit', version: junit4Version
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name
+    manifest {
+        attributes 'Main-Class': 'pcd.ass02.Main'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
 }

@@ -1,35 +1,34 @@
 package pcd.ass02.ex2.verticles;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.eventbus.EventBus;
 import pcd.ass02.domain.Document;
-import pcd.ass02.ex1.OccurrencesCounter;
+import pcd.ass02.domain.SearchResult;
+import pcd.ass02.util.DocumentHelper;
 
-class DocumentSearchVerticle extends AbstractVerticle {
+import static pcd.ass02.ex2.util.MessageHelper.wrap;
 
-    private final Document document;
-    private final String regex;
+public class DocumentSearchVerticle extends AbstractVerticle {
 
-    public DocumentSearchVerticle(Document document, String regex) {
-        this.document = document;
-        this.regex = regex;
-    }
+    private String regex;
+    private EventBus eventBus;
 
     @Override
     public void start() {
-        vertx.<Long>executeBlocking(future -> {
-            long occurrences = OccurrencesCounter.countOccurrences(document, regex);
-            future.complete(occurrences);
-        }, ar -> {
-            if (ar.succeeded()) {
-                final long occurrences = ar.result();
-                vertx.eventBus().publish("accumulator",
-                        new JsonObject()
-                                .put("occurrences", occurrences)
-                                .put("documentName", document.getName()));
-            } else {
-                System.err.println("Oops, something went wrong: " + ar.cause().getMessage());
-            }
-        });
+        eventBus = vertx.eventBus();
+        eventBus.consumer(C.documentSearch.regex, wrap(this::onRegex));
+        eventBus.consumer(C.documentSearch.analyze, wrap(this::onDocument));
     }
+
+    private void onRegex(String regex) {
+        this.regex = regex;
+    }
+
+    private void onDocument(Document document) {
+        final long occurrences = DocumentHelper.countOccurrences(document, regex);
+        final SearchResult result = new SearchResult(document.getName(), occurrences);
+        eventBus.publish(C.accumulator, result);
+        eventBus.publish(C.coordinator.documentAnalyzed, null);
+    }
+
 }
