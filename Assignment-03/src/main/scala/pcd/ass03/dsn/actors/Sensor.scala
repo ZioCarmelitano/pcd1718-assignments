@@ -1,32 +1,43 @@
 package pcd.ass03.dsn.actors
 
-import akka.actor.{Actor, ActorLogging, ActorSelection, Props}
+import java.io.File
 
-import scala.util.Random
+import akka.actor.{Actor, ActorLogging, ActorSelection, Cancellable, Props}
+import com.typesafe.config.{Config, ConfigFactory}
+import pcd.ass03.dsn.actors.DirectoryFacilitator.Register
+import pcd.ass03.dsn.actors.Sensor.{Quantity, SendQuantity}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration.Zero
 import scala.concurrent.duration._
+import scala.util.Random
 
 class Sensor extends Actor with ActorLogging {
 
-  import Sensor.{Quantity, SendQuantity, Fail}
-  import DirectoryFacilitator.{PingRequest, PingResponse, Register}
-
-  private[this] val samplingFrequency = Random.nextInt(10) seconds
-  private[this] val stopDelay = Random.nextInt(10) minutes
   private[this] var facilitator: ActorSelection = _
+  private[this] var samplingCancellable: Cancellable = _
 
   override def preStart(): Unit = {
     facilitator = context.system.actorSelection(DirectoryFacilitator.Path)
     facilitator ! Register(self)
-    context.system.scheduler.schedule(samplingFrequency, samplingFrequency, self, SendQuantity)
+    val samplingFrequency = (1 + Random.nextInt(10)).seconds
+    samplingCancellable = context.system.scheduler.schedule(
+      Zero,
+      samplingFrequency,
+      self,
+      SendQuantity)
+    log.info(s"Started sampling at frequency of $samplingFrequency")
   }
 
+  override def postStop(): Unit = samplingCancellable.cancel()
+
   override def receive: Receive = {
-    case PingRequest => sender ! PingResponse
     case SendQuantity => facilitator ! nextQuantity
-    case Fail => context.system.stop(self)
+      log.info(s"Sent quantity!")
   }
 
   private def nextQuantity: Quantity = Quantity(Random.nextInt(100))
+
 }
 
 object Sensor {
@@ -37,6 +48,6 @@ object Sensor {
 
   private final case object SendQuantity
 
-  final case object Fail
+  val Config: Config = ConfigFactory.parseFile(new File("src/main/resources/akka/Sensor.conf"))
 
 }

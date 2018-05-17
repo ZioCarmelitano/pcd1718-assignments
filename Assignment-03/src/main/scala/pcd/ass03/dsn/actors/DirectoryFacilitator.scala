@@ -1,30 +1,28 @@
 package pcd.ass03.dsn.actors
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern._
+import java.io.File
+
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
+import akka.pattern.ask
 import akka.util.Timeout
+import com.typesafe.config.{Config, ConfigFactory}
+import pcd.ass03.dsn.actors.DirectoryFacilitator._
 
 import scala.concurrent.duration._
 
 class DirectoryFacilitator extends Actor with ActorLogging {
 
-  import DirectoryFacilitator.Implicits._
-  import DirectoryFacilitator._
+  import DirectoryFacilitator.Implicits.Timeout
 
   private[this] val actors = scala.collection.mutable.ListBuffer[ActorRef]()
 
-  override def preStart(): Unit = {
-    context.system.scheduler.schedule(Frequency, Frequency, self, RequestPing)
-  }
-
   override def receive: Receive = {
-    case Register(actor: ActorRef) => actors += actor
-    case RequestPing => actors.foreach { actor =>
-      (actor ? PingRequest)
-        .mapTo[PingResponse]
-        .failed
-        .onComplete(x => actors -= actor)
-    }
+    case Register(actor) => actors += actor
+      context watch actor
+      log.info(s"Actor ${actor.path.name} has been added to the registered actors")
+    case Terminated(actor) => actors -= actor
+      context unwatch actor
+      log.info(s"Actor ${actor.path.name} has been removed to the registered actors")
     case x: Any => actors.foreach {
       _ ? x
     }
@@ -33,22 +31,16 @@ class DirectoryFacilitator extends Actor with ActorLogging {
 }
 
 object DirectoryFacilitator {
+
   def props(): Props = Props(new DirectoryFacilitator)
 
   final case class Register(actor: ActorRef)
 
-  final case object PingRequest
-
-  final case class PingResponse()
-
-  private final case object RequestPing
-
+  val Config: Config = ConfigFactory.parseFile(new File("src/main/resources/akka/DirectoryFacilitator.conf"))
   val Path = "akka.tcp://DirectoryFacilitator@127.0.0.1:2552/user/DirectoryFacilitator"
 
-  private val Frequency = 1 second
-
   object Implicits {
-    implicit val Timeout: Timeout = Timeout(1 second)
+    implicit val Timeout: Timeout = 1 second
   }
 
 }
