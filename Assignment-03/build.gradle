@@ -1,0 +1,22 @@
+group 'pcd'
+version '0.1'
+
+apply plugin: 'scala'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    akkaVersion = '2.5.12'
+    junit4Version = '4.12'
+}
+
+dependencies {
+    compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
+    compile group: 'com.typesafe.akka', name: 'akka-remote_2.12', version: akkaVersion
+
+    testCompile group: 'junit', name: 'junit', version: junit4Version
+}
