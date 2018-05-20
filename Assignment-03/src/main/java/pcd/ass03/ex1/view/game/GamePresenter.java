@@ -1,13 +1,20 @@
 package pcd.ass03.ex1.view.game;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import pcd.ass03.ex1.actors.GuiUpdater;
+import pcd.ass03.ex1.actors.msg.ResumeMsg;
+import pcd.ass03.ex1.actors.msg.StartMsg;
+import pcd.ass03.ex1.actors.msg.StopMsg;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.interactors.BoardUpdater;
+import pcd.ass03.ex1.actors.msg.PauseMsg;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -36,50 +43,52 @@ public class GamePresenter implements Initializable{
     @FXML
     private Button buttonStop;
 
-    private GameUpdater gameUpdater;
-
     private Board board;
 
-    private BoardUpdater updater;
+    private ActorRef guiUpdater;
+
+    private boolean isNotPaused;
 
     @FXML
     void playOrResume(ActionEvent event) {
-        if(gameUpdater == null){
+        if(guiUpdater == null){
             launchGUIUpdater(event);
-        } else if(gameUpdater.isPaused() && gameUpdater.isUpdating()) {
-            gameUpdater.resumeGame();
-        }else if(!gameUpdater.isPaused() && gameUpdater.isUpdating()){
-            gameUpdater.pauseGame();
+        } else if(isPaused()) {
+            resumeGame();
+            guiUpdater.tell(new ResumeMsg(),ActorRef.noSender());
+        }else if(!isPaused()){
+            pauseGame();
+            guiUpdater.tell(new PauseMsg(), ActorRef.noSender());    
         }
         switchButtonGraphic();
     }
 
     private void switchButtonGraphic() {
-        if(gameUpdater.isPaused()){
+        if(isPaused()){
             defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart,
                     BTN_START_HEIGHT, BTN_START_WIDTH);
-        } else if (!gameUpdater.isPaused() && gameUpdater.isUpdating()){
+        } else if (!isPaused()){
             defaultInstance().buildGameButton(PAUSE_ICON_PATH, buttonStart,
                     BTN_PAUSE_HEIGHT, BTN_PAUSE_WIDTH);
         }
     }
 
     private void launchGUIUpdater(ActionEvent event) {
-        if(gameUpdater == null) {
-            Canvas boardView = (Canvas) getStage(event)
-                    .getScene().lookup("#" + getBoardPanelId());
-            gameUpdater = new GameUpdater(board, updater, boardView);
+        if (guiUpdater == null) {
+            Canvas boardView = (Canvas) getStage(event).getScene().lookup("#" + getBoardPanelId());
+
+            ActorSystem system = ActorSystem.create("MySystem");
+            guiUpdater = system.actorOf(GuiUpdater.props(boardView, getWorkersNumber()));
         }
-        new Thread(gameUpdater).start();
+        guiUpdater.tell(new StartMsg(board), ActorRef.noSender());
     }
 
     @FXML
     void stop(ActionEvent event){
-        if(gameUpdater == null){
-            showDialog("Game isn't started",
-                    "Please start the game before press STOP", Alert.AlertType.ERROR);
-        } else{
-            gameUpdater.stopGame();
+        if(guiUpdater == null){
+            showDialog("Game isn't started",  "Please start the game before press STOP", Alert.AlertType.ERROR);
+        } else {
+            guiUpdater.tell(new StopMsg(), ActorRef.noSender());
             buttonStart.setDisable(true);
             buttonStop.setDisable(true);
         }
@@ -87,7 +96,7 @@ public class GamePresenter implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        buildBoardUpdater();
+        isNotPaused = true;
         buildGameBoard();
         defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart, BTN_START_HEIGHT, BTN_START_WIDTH);
         defaultInstance().buildGameButton(STOP_ICON_PATH, buttonStop, BTN_STOP_HEIGHT, BTN_STOP_WIDTH);
@@ -97,10 +106,15 @@ public class GamePresenter implements Initializable{
         board = getBoardConfiguration();
     }
 
-    private void buildBoardUpdater() {
-        int numWorkers = getWorkersNumber();
-        updater = BoardUpdater.create(numWorkers);
-        updater.start();
+    public boolean isPaused(){
+        return !this.isNotPaused;
     }
 
+    public void pauseGame() {
+        isNotPaused = false;
+    }
+
+    public void resumeGame(){
+        isNotPaused = true;
+    }
 }
