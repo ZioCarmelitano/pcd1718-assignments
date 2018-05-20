@@ -58,7 +58,7 @@ public class GamePresenter implements Initializable{
             guiUpdater.tell(new ResumeMsg(),ActorRef.noSender());
         }else if(!isPaused()){
             pauseGame();
-            guiUpdater.tell(new PauseMsg(), ActorRef.noSender());
+            guiUpdater.tell(new PauseMsg(), ActorRef.noSender());    
         }
         switchButtonGraphic();
     }
