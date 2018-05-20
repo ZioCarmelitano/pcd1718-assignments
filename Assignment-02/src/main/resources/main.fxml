@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="465.0"
-            prefWidth="600.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="pcd.ass02.view.presenters.MainPresenter">
     <top>
         <GridPane prefHeight="151.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -30,7 +30,7 @@
                       GridPane.rowIndex="1">
                     <children>
                         <Button mnemonicParsing="false" onAction="#browse" text="Browse..."/>
-                        <TextField fx:id="path" editable="false" prefHeight="25.0" prefWidth="227.0"/>
+                        <TextField fx:id="path" editable="false"/>
                     </children>
                 </HBox>
                 <Spinner fx:id="maxDepthField" prefHeight="25.0" prefWidth="98.0" GridPane.columnIndex="1"
@@ -50,34 +50,25 @@
                         <Font name="System Bold" size="17.0"/>
                     </font>
                 </Button>
-                <TableView fx:id="table" prefHeight="190.0" prefWidth="600.0">
+                <TableView fx:id="table" prefHeight="235.0" prefWidth="600.0">
                     <columns>
                         <TableColumn fx:id="documentNameColumn" prefWidth="300.0" text="Document name"/>
                         <TableColumn fx:id="occurrencesColumn" prefWidth="300.0" text="Occurrences"/>
                     </columns>
                 </TableView>
-                <GridPane prefHeight="123.0" prefWidth="600.0">
+                <GridPane>
                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
                     </columnConstraints>
                     <children>
-                        <Label contentDisplay="CENTER" prefHeight="17.0" prefWidth="275.0" text="Matching Rate"
-                               translateX="30.0"/>
-                        <Label contentDisplay="CENTER" prefHeight="17.0" prefWidth="275.0" text="Average Matching"
-                               translateX="30.0" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtMatchingRate" alignment="CENTER" editable="false" prefWidth="286.0"
-                                   GridPane.columnIndex="1"/>
-                        <TextField fx:id="txtAverageMatching" alignment="CENTER" editable="false"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="127.0"
-                               text="Files with occurrences" translateX="25.0" GridPane.rowIndex="2">
-                            <GridPane.margin>
-                                <Insets/>
-                            </GridPane.margin>
-                        </Label>
-                        <TextField fx:id="txtTotalOccurrences" alignment="CENTER" GridPane.columnIndex="1"
-                                   GridPane.rowIndex="2"/>
+                        <Label contentDisplay="CENTER" text="Matching Rate" translateX="30.0"/>
+                        <Label contentDisplay="CENTER" text="Average Matches" translateX="30.0" GridPane.rowIndex="1"/>
+                        <Label contentDisplay="CENTER" text="Files with occurrences"
+                               translateX="30.0" GridPane.rowIndex="2"/>
+                        <Label fx:id="matchingRate" GridPane.columnIndex="1"/>
+                        <Label fx:id="averageMatches" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label fx:id="totalOccurrences" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                     </children>
                     <padding>
                         <Insets bottom="10.0" top="10.0"/>
@@ -85,7 +76,7 @@
                     <rowConstraints>
                         <RowConstraints/>
                         <RowConstraints/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                        <RowConstraints/>
                     </rowConstraints>
                 </GridPane>
             </children>
