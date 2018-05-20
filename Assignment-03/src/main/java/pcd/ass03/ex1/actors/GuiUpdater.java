@@ -10,7 +10,7 @@ import pcd.ass03.ex1.view.game.RenderingService;
 import java.time.Duration;
 
 public class GuiUpdater extends AbstractLoggingActor {
-    private static final int UPDATE_INTERVAL = 1000;
+    private static final int UPDATE_INTERVAL = 50;
     private ActorRef boardUpdater;
     private final int numberOfWorkers;
     private Board currentBoard;
@@ -62,6 +62,6 @@ public class GuiUpdater extends AbstractLoggingActor {
 
     @Override
     public Receive createReceive() {
-        return this.paused;
+        return this.running;
     }
 }
