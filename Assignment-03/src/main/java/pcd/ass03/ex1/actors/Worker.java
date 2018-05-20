@@ -33,20 +33,20 @@ public class Worker extends AbstractLoggingActor {
             }).build(), false);
 
         }).match(StopMsg.class, msg -> {
-            System.out.println("Stopped");
+            log().info(getSelf().path().name()+ " stopped");
             context().stop(getSelf());
         }).build();
     }
 
     private void updateBoard(int fromRow, int toRow, Board oldBoard, Board newBoard) {
         // Update the given portion of the board
-        log().debug("Worker from row {} to row {} started", fromRow, toRow);
+        log().info(getSelf().path().name()+ "Worker from row {} to row {} started", fromRow, toRow);
         for (int x = fromRow; x < toRow; x++) {
             for (int y = 0; y < oldBoard.getWidth(); y++) {
                newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
             }
         }
-        log().debug("Worker from row {} to row {} finished", fromRow, toRow);
+        log().info(getSelf().path().name()+ "Worker from row {} to row {} finished", fromRow, toRow);
     }
 
 }

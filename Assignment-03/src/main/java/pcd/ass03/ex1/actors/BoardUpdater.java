@@ -3,6 +3,7 @@ package pcd.ass03.ex1.actors;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import io.aeron.driver.Sender;
 import pcd.ass03.ex1.actors.msg.*;
 import pcd.ass03.ex1.domain.Board;
 
@@ -38,11 +39,12 @@ public class BoardUpdater extends AbstractLoggingActor {
             log().debug("Start update");
             prepareWorkers(oldBoard, newBoard);
 
+            ActorRef sender = getSender();
             getContext().become(receiveBuilder().match(FinishedUpdateMsg.class, finishMsg -> {
                 this.finishUpdate++;
                 if (this.finishUpdate == this.numberOfWorkers) {
                     this.finishUpdate = 0;
-                    getSender().tell(new NewBoardMsg(newBoard), getSelf());
+                    sender.tell(new NewBoardMsg(newBoard), getSelf());
                     getContext().unbecome();
                 }
             }).build(), false);
