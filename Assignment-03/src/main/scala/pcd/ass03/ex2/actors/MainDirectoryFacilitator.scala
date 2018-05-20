@@ -1,4 +1,4 @@
-package pcd.ass03.dsn.actors
+package pcd.ass03.ex2.actors
 
 import akka.actor.ActorSystem
 
