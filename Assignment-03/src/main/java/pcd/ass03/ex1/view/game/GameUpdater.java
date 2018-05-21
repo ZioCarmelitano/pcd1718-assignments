@@ -53,17 +53,17 @@ class GameUpdater extends Task<Void> {
     }
 
     public void stopGame() {
-        if(isRunning.get()) {
+        if (isRunning.get()) {
             isRunning.set(false);
             boardUpdater.stop();
         }
     }
 
-    public boolean isUpdating(){
+    public boolean isUpdating() {
         return this.isRunning.get();
     }
 
-    public boolean isPaused(){
+    public boolean isPaused() {
         return !this.isNotPaused.get();
     }
 
@@ -71,7 +71,7 @@ class GameUpdater extends Task<Void> {
         isNotPaused.set(false);
     }
 
-    public void resumeGame(){
+    public void resumeGame() {
         isNotPaused.set(true);
         semaphore.release();
     }
@@ -79,11 +79,11 @@ class GameUpdater extends Task<Void> {
     @Override
     protected Void call() {
         // Game loop
-        while(isRunning.get()){
+        while (isRunning.get()) {
             if (isNotPaused.get()) {
                 board = boardUpdater.update(board);
                 RenderingService.renderBoard(boardView, board);
-            }else{
+            } else {
                 semaphore.acquireUninterruptibly();
             }
             SystemClock.sleep(UPDATE_INTERVAL);

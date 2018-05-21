@@ -18,7 +18,7 @@ class Gui extends Actor with ActorLogging {
   def receivingTokens(numberOfActors: Int): Receive = {
     case Token(actor, quantity) => tokens = tokens + (actor -> Some(quantity))
       if (tokens forall { case (_, q) => q.isDefined }) {
-        //
+        context become default
       }
   }
 
@@ -27,9 +27,9 @@ class Gui extends Actor with ActorLogging {
       actors foreach {
         _ ! SnapshotRequest
       }
-      tokens = actors
+      tokens = actors.toStream
         .map {
-          x => x -> None
+          _ -> None
         }
         .toMap
       context become receivingTokens(actors.size)

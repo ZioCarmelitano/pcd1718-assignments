@@ -1,8 +1,8 @@
 package pcd.ass03.ex1.interactors.impl;
 
-import pcd.ass03.ex1.util.Preconditions;
 import pcd.ass03.ex1.interactors.BoardUpdater;
 import pcd.ass03.ex1.interactors.BoardUpdaterFactory;
+import pcd.ass03.ex1.util.Preconditions;
 
 import java.util.concurrent.ThreadFactory;
 

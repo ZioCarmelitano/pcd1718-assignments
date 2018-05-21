@@ -98,7 +98,7 @@ public class ThreadFactoryBuilder {
         this.uncaughtExceptionHandler = uncaughtExceptionHandler;
         return this;
     }
-    
+
     public ThreadFactory build() {
         final AtomicLong threadCounter = new AtomicLong();
 
