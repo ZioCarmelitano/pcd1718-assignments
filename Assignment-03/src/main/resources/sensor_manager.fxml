@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="479.0" prefWidth="664.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <bottom>
+      <ButtonBar prefHeight="74.0" prefWidth="629.0">
+        <buttons>
+          <Button alignment="CENTER" mnemonicParsing="false" text="Fail" translateX="-400.0" />
+            <Button mnemonicParsing="false" text="Snapshot" translateX="-100.0" />
+        </buttons>
+      </ButtonBar>
+   </bottom>
+   <center>
+      <TableView prefHeight="336.0" prefWidth="629.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn prefWidth="300.0" text="Name" />
+          <TableColumn prefWidth="150.0" text="Value" />
+            <TableColumn prefWidth="210.0" text="Reachability" />
+        </columns>
+      </TableView>
+   </center>
+   <top>
+      <Label alignment="CENTER" prefHeight="94.0" prefWidth="315.0" text="SENSOR MANAGER" BorderPane.alignment="CENTER">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+   </top>
+</BorderPane>

@@ -38,7 +38,8 @@ final class Benchmark {
     private static final int MAX_NUMBER_OF_WORKERS = 10;
 
     private static final int SIZE = 5_000;
-    private static final ActorSystem system = ActorSystem.create("MySystem");;
+
+    private static final ActorSystem system = ActorSystem.create("MySystem");
 
     public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
