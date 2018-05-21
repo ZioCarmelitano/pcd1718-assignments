@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import static pcd.ass03.ex1.util.Preconditions.checkState;
 import static pcd.ass03.ex1.view.utils.ScrollManager.*;
 
 /**

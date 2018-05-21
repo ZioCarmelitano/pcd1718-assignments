@@ -13,7 +13,6 @@ import pcd.ass03.ex1.actors.msg.ResumeMsg;
 import pcd.ass03.ex1.actors.msg.StartMsg;
 import pcd.ass03.ex1.actors.msg.StopMsg;
 import pcd.ass03.ex1.domain.Board;
-import pcd.ass03.ex1.interactors.BoardUpdater;
 import pcd.ass03.ex1.actors.msg.PauseMsg;
 
 import java.net.URL;

@@ -9,14 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass03.ex1.actors.BenchmarkActor;
 import pcd.ass03.ex1.actors.msg.StartMsg;
-import pcd.ass03.ex1.actors.msg.StopMsg;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.Boards;
 import pcd.ass03.ex1.util.LoggingUtils;
-import pcd.ass03.ex1.util.concurrent.ThreadFactoryBuilder;
 import pcd.ass03.ex1.util.time.Stopwatch;
 import pcd.ass03.ex1.util.time.TimeUtils;
-import pcd.ass03.ex1.interactors.BoardUpdater;
 
 import java.lang.invoke.MethodHandles;
 import java.util.AbstractMap.SimpleImmutableEntry;
@@ -60,6 +57,8 @@ final class Benchmark {
                 results.put(numberOfWorkers, updateTime);
                 }
         }
+
+        system.terminate();
 
         final Map<Integer, Long> minSpeeds = results.asMap().entrySet().stream()
                 .map(e -> new SimpleImmutableEntry<>(
@@ -122,12 +121,6 @@ final class Benchmark {
     private static LongStream getSpeeds(final Entry<? extends Integer, ? extends Collection<? extends Long>> e) {
         return e.getValue().stream()
                 .mapToLong(Number::longValue);
-    }
-
-    private static long timeIt(final Stopwatch stopwatch, final Runnable action) {
-        stopwatch.start();
-        action.run();
-        return stopwatch.stopAndReset();
     }
 
     static {
