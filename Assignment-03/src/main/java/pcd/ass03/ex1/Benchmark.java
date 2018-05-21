@@ -1,10 +1,15 @@
 package pcd.ass03.ex1;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pcd.ass03.ex1.actors.BenchmarkActor;
+import pcd.ass03.ex1.actors.msg.StartMsg;
+import pcd.ass03.ex1.actors.msg.StopMsg;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.Boards;
 import pcd.ass03.ex1.util.LoggingUtils;
@@ -33,6 +38,7 @@ final class Benchmark {
     private static final int MAX_NUMBER_OF_WORKERS = 10;
 
     private static final int SIZE = 5_000;
+    private static final ActorSystem system = ActorSystem.create("MySystem");;
 
     public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
@@ -43,16 +49,23 @@ final class Benchmark {
         for (int i = 1; i <= MAX_ITERATIONS; i++) {
             System.out.println("Iteration #" + i);
             for (int numberOfWorkers = 1; numberOfWorkers <= MAX_NUMBER_OF_WORKERS; numberOfWorkers++) {
-                final BoardUpdater updater = BoardUpdater.create(numberOfWorkers, new ThreadFactoryBuilder()
-                        .setPriority(Thread.MAX_PRIORITY)
-                        .build());
-                updater.start();
+                final ActorRef benchmark = system.actorOf(BenchmarkActor.props(numberOfWorkers), i + "BenchmarkActor" + numberOfWorkers);
 
-                final long updateTime = timeIt(stopwatch, () -> updater.update(board));
+//                final BoardUpdater updater = BoardUpdater.create(numberOfWorkers, new ThreadFactoryBuilder()
+//                        .setPriority(Thread.MAX_PRIORITY)
+//                        .build());
+//                updater.start();
+                long updateTime = System.currentTimeMillis();
+                benchmark.tell(new StartMsg(board), ActorRef.noSender());
+                while (!benchmark.isTerminated()) {}
+                updateTime = System.currentTimeMillis() - updateTime;
+
+//                final long updateTime = timeIt(stopwatch, () -> updater.update(board));
 
                 // logger.info("{} {}x{} updated with {} worker{} in {} ms", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 results.put(numberOfWorkers, updateTime);
-                updater.stop();
+
+//                updater.stop();
             }
         }
 
