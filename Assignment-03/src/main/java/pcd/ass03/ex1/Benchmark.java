@@ -51,22 +51,13 @@ final class Benchmark {
             for (int numberOfWorkers = 1; numberOfWorkers <= MAX_NUMBER_OF_WORKERS; numberOfWorkers++) {
                 final ActorRef benchmark = system.actorOf(BenchmarkActor.props(numberOfWorkers), i + "BenchmarkActor" + numberOfWorkers);
 
-//                final BoardUpdater updater = BoardUpdater.create(numberOfWorkers, new ThreadFactoryBuilder()
-//                        .setPriority(Thread.MAX_PRIORITY)
-//                        .build());
-//                updater.start();
-                long updateTime = System.currentTimeMillis();
+                long startTime = System.currentTimeMillis();
                 benchmark.tell(new StartMsg(board), ActorRef.noSender());
                 while (!benchmark.isTerminated()) {}
-                updateTime = System.currentTimeMillis() - updateTime;
+                long updateTime = System.currentTimeMillis() - startTime;
 
-//                final long updateTime = timeIt(stopwatch, () -> updater.update(board));
-
-                // logger.info("{} {}x{} updated with {} worker{} in {} ms", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 results.put(numberOfWorkers, updateTime);
-
-//                updater.stop();
-            }
+                }
         }
 
         final Map<Integer, Long> minSpeeds = results.asMap().entrySet().stream()

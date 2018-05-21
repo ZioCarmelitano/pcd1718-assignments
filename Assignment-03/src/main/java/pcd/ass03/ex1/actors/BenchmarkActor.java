@@ -28,14 +28,14 @@ public class BenchmarkActor extends AbstractLoggingActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(StopMsg.class, stopMsg -> {
-            log().info(getSelf().path().name() + " StartMsg");
+            log().info(getSelf().path().name() + " StopMsg");
             boardUpdater.tell(new StopMsg(), getSelf());
             context().stop(getSelf());
         }).match(StartMsg.class, startMsg -> {
             log().info(getSelf().path().name() + " StartMsg");
             this.boardUpdater.tell(startMsg, getSelf());
         }).match(NewBoardMsg.class, newBoardMsg -> {
-            log().info(getSelf().path().name() + " StartMsg");
+            log().info(getSelf().path().name() + " newBoardMsg");
             getSelf().tell(new StopMsg(), getSelf());
         }).build();
     }
