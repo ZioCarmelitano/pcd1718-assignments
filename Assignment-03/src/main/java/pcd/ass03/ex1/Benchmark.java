@@ -1,15 +1,18 @@
 package pcd.ass03.ex1;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pcd.ass03.ex1.actors.BenchmarkActor;
+import pcd.ass03.ex1.actors.msg.StartMsg;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.Boards;
 import pcd.ass03.ex1.interactors.BoardUpdater;
 import pcd.ass03.ex1.util.LoggingUtils;
-import pcd.ass03.ex1.util.concurrent.ThreadFactoryBuilder;
 import pcd.ass03.ex1.util.time.Stopwatch;
 import pcd.ass03.ex1.util.time.TimeUtils;
 
@@ -34,6 +37,8 @@ final class Benchmark {
 
     private static final int SIZE = 5_000;
 
+    private static final ActorSystem system = ActorSystem.create("MySystem");
+
     public static void main(final String... args) {
         final Stopwatch stopwatch = Stopwatch.stopwatch(TimeUnit.MILLISECONDS);
         final Board board = Boards.gosperGliderGun(SIZE, SIZE);
@@ -43,18 +48,18 @@ final class Benchmark {
         for (int i = 1; i <= MAX_ITERATIONS; i++) {
             System.out.println("Iteration #" + i);
             for (int numberOfWorkers = 1; numberOfWorkers <= MAX_NUMBER_OF_WORKERS; numberOfWorkers++) {
-                final BoardUpdater updater = BoardUpdater.create(numberOfWorkers, new ThreadFactoryBuilder()
-                        .setPriority(Thread.MAX_PRIORITY)
-                        .build());
-                updater.start();
+                final ActorRef benchmark = system.actorOf(BenchmarkActor.props(numberOfWorkers), i + "BenchmarkActor" + numberOfWorkers);
 
-                final long updateTime = timeIt(stopwatch, () -> updater.update(board));
+                long startTime = System.currentTimeMillis();
+                benchmark.tell(new StartMsg(board), ActorRef.noSender());
+                while (!benchmark.isTerminated()) {}
+                long updateTime = System.currentTimeMillis() - startTime;
 
-                // logger.info("{} {}x{} updated with {} worker{} in {} ms", board.getClass().getSimpleName(), size, size, numberOfWorkers, numberOfWorkers > 1 ? "s" : "", updateTime);
                 results.put(numberOfWorkers, updateTime);
-                updater.stop();
-            }
+                }
         }
+
+        system.terminate();
 
         final Map<Integer, Long> minSpeeds = results.asMap().entrySet().stream()
                 .map(e -> new SimpleImmutableEntry<>(
@@ -117,12 +122,6 @@ final class Benchmark {
     private static LongStream getSpeeds(final Entry<? extends Integer, ? extends Collection<? extends Long>> e) {
         return e.getValue().stream()
                 .mapToLong(Number::longValue);
-    }
-
-    private static long timeIt(final Stopwatch stopwatch, final Runnable action) {
-        stopwatch.start();
-        action.run();
-        return stopwatch.stopAndReset();
     }
 
     static {

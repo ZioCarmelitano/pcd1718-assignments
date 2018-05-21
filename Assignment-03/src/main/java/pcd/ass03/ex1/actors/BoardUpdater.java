@@ -35,7 +35,7 @@ public class BoardUpdater extends AbstractLoggingActor {
             // Create the new board
             final Board newBoard = Board.board(oldBoard.getWidth(), oldBoard.getHeight());
             // Prepare workers
-            log().debug("Start update");
+            log().debug(getSelf().path().name() + " --> Start update");
             prepareWorkers(oldBoard, newBoard);
 
             ActorRef sender = getSender();
@@ -48,7 +48,7 @@ public class BoardUpdater extends AbstractLoggingActor {
                 }
             }).build(), false);
         }).match(StopMsg.class, msg -> {
-            System.out.println("Stopped");
+            log().debug(getSelf().path().name() + " --> Stop update");
             for (ActorRef w : workers) {
                 w.tell(msg, getSelf());
             }
