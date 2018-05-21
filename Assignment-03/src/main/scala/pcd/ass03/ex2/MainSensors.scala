@@ -1,6 +1,7 @@
-package pcd.ass03.ex2.actors
+package pcd.ass03.ex2
 
 import akka.actor.{ActorSystem, PoisonPill}
+import pcd.ass03.ex2.actors.Sensor
 
 import scala.io.StdIn
 
