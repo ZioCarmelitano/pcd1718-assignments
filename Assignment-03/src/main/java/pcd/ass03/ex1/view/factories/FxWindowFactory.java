@@ -10,7 +10,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.image.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -24,21 +25,22 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import static pcd.ass03.ex1.view.utils.ScrollManager.*;
+import static pcd.ass03.ex1.view.utils.ScrollManager.setScrollHorizontalProperty;
+import static pcd.ass03.ex1.view.utils.ScrollManager.setScrollVerticalProperty;
 
 /**
  * Utility class to create JavaFx windows using pattern Static Factory.
  */
-public final class FxWindowFactory implements WindowFactory{
+public final class FxWindowFactory implements WindowFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String APP_TITLE = "Game Of Life";
-    private static final String APP_ICON_PATH = "/game_of_life_icon.png";
-    private static final String GAME_FXML_PATH = "/game_of_life.fxml";
-    private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
-    private static final String GAME_CSS_PATH = "/game_of_life_style.css";
-    private static final String SETTINGS_CSS_PATH = "/initial_settings_style.css";
+    private static final String APP_ICON_PATH = "/ex1/game_of_life_icon.png";
+    private static final String GAME_FXML_PATH = "/ex1/game_of_life.fxml";
+    private static final String SETTINGS_FXML_PATH = "/ex1/initial_settings.fxml";
+    private static final String GAME_CSS_PATH = "/ex1/game_of_life_style.css";
+    private static final String SETTINGS_CSS_PATH = "/ex1/initial_settings_style.css";
 
     private static final String PANEL_CONTAINER_ID = "panelContainer";
     private static final String BOARD_PANEL_ID = "canvas";
@@ -52,10 +54,8 @@ public final class FxWindowFactory implements WindowFactory{
     }
 
     /**
-     *
+     * @param <T> type of the presenter
      * @return reference to view presenter.
-     * @param <T>
-     *            type of the presenter
      */
     public static <T> T getPresenter() {
         return loader == null ? null : loader.getController();
@@ -65,33 +65,29 @@ public final class FxWindowFactory implements WindowFactory{
      * Load a new window. If it is contained in a menu, the method return the
      * root of the new scene.
      *
-     * @param fxmlPath
-     *            path of the GUI structure file FXML.
-     *
-     *
+     * @param fxmlPath path of the GUI structure file FXML.
      * @return root.
      */
     private static BorderPane openWindow(final String fxmlPath, final String cssPath, final boolean resizable) throws IOException {
-            loader = new FXMLLoader(
-                    FxWindowFactory.class.getResource(fxmlPath));
-            final BorderPane root = loader.load();
-            final Stage stage = new Stage();
-            stage.setResizable(resizable);
-            final Scene scene = new Scene(root);
-            scene.getStylesheets().add(FxWindowFactory.class
-                    .getResource(cssPath).toExternalForm());
-            stage.setTitle(APP_TITLE);
-            stage.getIcons().add(new Image(APP_ICON_PATH));
-            stage.setScene(scene);
-            stage.show();
+        loader = new FXMLLoader(
+                FxWindowFactory.class.getResource(fxmlPath));
+        final BorderPane root = loader.load();
+        final Stage stage = new Stage();
+        stage.setResizable(resizable);
+        final Scene scene = new Scene(root);
+        scene.getStylesheets().add(FxWindowFactory.class
+                .getResource(cssPath).toExternalForm());
+        stage.setTitle(APP_TITLE);
+        stage.getIcons().add(new Image(APP_ICON_PATH));
+        stage.setScene(scene);
+        stage.show();
         return root;
     }
 
     /**
      * Close a JavaFx window.
      *
-     * @param sceneToClose
-     *            link to the window to close.
+     * @param sceneToClose link to the window to close.
      */
     private static void closeWindow(final Scene sceneToClose) {
         final Stage sceneStage = (Stage) sceneToClose.getWindow();
@@ -101,11 +97,8 @@ public final class FxWindowFactory implements WindowFactory{
     /**
      * Replace a old window with a new one.
      *
-     * @param fxmlPath
-     *            path of the GUI structure file FXML to open.
-     *
-     * @param sceneToClose
-     *            link to the window to close.
+     * @param fxmlPath     path of the GUI structure file FXML to open.
+     * @param sceneToClose link to the window to close.
      */
     public static void replaceWindow(final String fxmlPath, final Scene sceneToClose) throws IOException {
         FxWindowFactory.openWindow(fxmlPath, GAME_CSS_PATH, true);
@@ -115,12 +108,9 @@ public final class FxWindowFactory implements WindowFactory{
     /**
      * Show a simple info dialog with a optional image.
      *
-     * @param title
-     *            header of the show dialog.
-     * @param message
-     *            content of the dialog.
-     * @param alertType
-     *            to select the type of dialog.
+     * @param title     header of the show dialog.
+     * @param message   content of the dialog.
+     * @param alertType to select the type of dialog.
      */
     public static void showDialog(final String title, final String message,
                                   final AlertType alertType) {
@@ -135,13 +125,9 @@ public final class FxWindowFactory implements WindowFactory{
 
 
     /**
-     *
-     * @param title
-     *            of dialog window.
-     * @param message
-     *            to user.
-     * @param inputText
-     *            to show in input text field.
+     * @param title     of dialog window.
+     * @param message   to user.
+     * @param inputText to show in input text field.
      * @return input string written by user.
      */
     public static String createInputDialog(final String title, final String message, final String inputText) {
@@ -186,7 +172,7 @@ public final class FxWindowFactory implements WindowFactory{
         return scrollPane;
     }
 
-     private void handleWindowClosing(BorderPane gamePane) {
+    private void handleWindowClosing(BorderPane gamePane) {
         getStage(gamePane).setOnCloseRequest((event) -> {
             try {
                 openStartWindow();
@@ -203,14 +189,14 @@ public final class FxWindowFactory implements WindowFactory{
     }
 
     private Canvas createCanvas(int width, int height) {
-       return new Canvas(width, height);
+        return new Canvas(width, height);
     }
 
     private static final class Holder {
         static final FxWindowFactory INSTANCE = new FxWindowFactory();
     }
 
-    public static Stage getStage(Node node){
+    public static Stage getStage(Node node) {
         final Window window = node.getScene().getWindow();
         Preconditions.checkState(window instanceof Stage, "window (%s) is not an instance of %s", window.getClass().getName(), Stage.class.getName());
         return (Stage) window;

@@ -5,9 +5,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-import static pcd.ass03.ex1.view.factories.FxWindowFactory.*;
+import static pcd.ass03.ex1.view.factories.FxWindowFactory.defaultInstance;
 
-public final class Launcher extends Application{
+public final class Launcher extends Application {
 
     public static void main(final String... args) {
         launch(args);

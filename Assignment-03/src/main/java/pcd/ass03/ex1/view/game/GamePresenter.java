@@ -9,23 +9,24 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import pcd.ass03.ex1.actors.GuiUpdater;
+import pcd.ass03.ex1.actors.msg.PauseMsg;
 import pcd.ass03.ex1.actors.msg.ResumeMsg;
 import pcd.ass03.ex1.actors.msg.StartMsg;
 import pcd.ass03.ex1.actors.msg.StopMsg;
 import pcd.ass03.ex1.domain.Board;
-import pcd.ass03.ex1.actors.msg.PauseMsg;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import static pcd.ass03.ex1.view.factories.FxWindowFactory.*;
-import static pcd.ass03.ex1.view.settings.SettingsPresenter.*;
+import static pcd.ass03.ex1.view.settings.SettingsPresenter.getBoardConfiguration;
+import static pcd.ass03.ex1.view.settings.SettingsPresenter.getWorkersNumber;
 
-public class GamePresenter implements Initializable{
+public class GamePresenter implements Initializable {
 
-    private static final String PLAY_ICON_PATH = "/play.png";
-    private static final String STOP_ICON_PATH = "/stop.png";
-    private static final String PAUSE_ICON_PATH = "/pause.png";
+    private static final String PLAY_ICON_PATH = "/ex1/play.png";
+    private static final String STOP_ICON_PATH = "/ex1/stop.png";
+    private static final String PAUSE_ICON_PATH = "/ex1/pause.png";
 
     private static final int BTN_START_HEIGHT = 30;
     private static final int BTN_START_WIDTH = 30;
@@ -50,12 +51,12 @@ public class GamePresenter implements Initializable{
 
     @FXML
     void playOrResume(ActionEvent event) {
-        if(guiUpdater == null){
+        if (guiUpdater == null) {
             launchGUIUpdater(event);
-        } else if(isPaused()) {
+        } else if (isPaused()) {
             resumeGame();
-            guiUpdater.tell(new ResumeMsg(),ActorRef.noSender());
-        }else if(!isPaused()){
+            guiUpdater.tell(new ResumeMsg(), ActorRef.noSender());
+        } else if (!isPaused()) {
             pauseGame();
             guiUpdater.tell(new PauseMsg(), ActorRef.noSender());
         }
@@ -63,10 +64,10 @@ public class GamePresenter implements Initializable{
     }
 
     private void switchButtonGraphic() {
-        if(isPaused()){
+        if (isPaused()) {
             defaultInstance().buildGameButton(PLAY_ICON_PATH, buttonStart,
                     BTN_START_HEIGHT, BTN_START_WIDTH);
-        } else if (!isPaused()){
+        } else if (!isPaused()) {
             defaultInstance().buildGameButton(PAUSE_ICON_PATH, buttonStart,
                     BTN_PAUSE_HEIGHT, BTN_PAUSE_WIDTH);
         }
@@ -83,9 +84,9 @@ public class GamePresenter implements Initializable{
     }
 
     @FXML
-    void stop(ActionEvent event){
-        if(guiUpdater == null){
-            showDialog("Game isn't started",  "Please start the game before press STOP", Alert.AlertType.ERROR);
+    void stop(ActionEvent event) {
+        if (guiUpdater == null) {
+            showDialog("Game isn't started", "Please start the game before press STOP", Alert.AlertType.ERROR);
         } else {
             guiUpdater.tell(new StopMsg(), ActorRef.noSender());
             buttonStart.setDisable(true);
@@ -105,7 +106,7 @@ public class GamePresenter implements Initializable{
         board = getBoardConfiguration();
     }
 
-    public boolean isPaused(){
+    public boolean isPaused() {
         return !this.isNotPaused;
     }
 
@@ -113,7 +114,8 @@ public class GamePresenter implements Initializable{
         isNotPaused = false;
     }
 
-    public void resumeGame(){
+    public void resumeGame() {
         isNotPaused = true;
     }
+
 }
