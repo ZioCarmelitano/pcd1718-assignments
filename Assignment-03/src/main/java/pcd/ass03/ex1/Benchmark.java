@@ -11,7 +11,6 @@ import pcd.ass03.ex1.actors.BenchmarkActor;
 import pcd.ass03.ex1.actors.msg.StartMsg;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.Boards;
-import pcd.ass03.ex1.interactors.BoardUpdater;
 import pcd.ass03.ex1.util.LoggingUtils;
 import pcd.ass03.ex1.util.time.Stopwatch;
 import pcd.ass03.ex1.util.time.TimeUtils;
