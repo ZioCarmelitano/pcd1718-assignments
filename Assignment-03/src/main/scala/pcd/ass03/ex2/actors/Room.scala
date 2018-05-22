@@ -18,6 +18,7 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
   private[this] val default: Receive = {
     case Join =>
       broadcast(Joined(sender))
+      sender ! Commands
       users = users :+ sender
       context watch sender
       log.info(s"User ${sender.path.name} has joined the chat")
@@ -84,13 +85,17 @@ object Room {
   final case object ExitCS
   final case class CommandNotUnderstood(command: String)
 
+  private val commandMap = Map(":enter-cs" -> EnterCS, ":exit-cs" -> ExitCS)
+  private val commands = Commands(commandMap.keySet)
+
+  final case class Commands(commands: Set[String])
+
   final case class CriticalSection(user: ActorRef)
   final case object NoCriticalSection
 
   def createMessage(content: String)(implicit user: ActorRef): Any = content match {
-    case ":enter-cs" => EnterCS
-    case ":exit-cs" => ExitCS
-    case command: String if command.startsWith(":") => CommandNotUnderstood(command)
+    case command if commandMap contains command => commandMap(command)
+    case command if command.startsWith(":") => CommandNotUnderstood(command)
     case c => Message(c, user)
   }
 

@@ -14,12 +14,13 @@ class User extends Actor with ActorLogging {
   override def receive: Receive = {
     case Joined(user: ActorRef) => log.info(s"User ${user.path.name} has joined the room")
     case Left(user: ActorRef) => log.info(s"User ${user.path.name} has left the room")
+    case Commands(commands) => log.info(s"Commands are: $commands")
     case Message(content, user) => log.info(s"${user.path.name} said: $content")
     case CommandNotUnderstood(command) => log.error(s"$command is not a valid command")
     case EnterCS => log.info("Entered in critical section")
     case ExitCS => log.info("Exited from critical section")
     case CriticalSection(user) => log.warning(s"Could not send message, critical section is held by ${user.path.name}")
-    case NoCriticalSection => log.error("The room is not a")
+    case NoCriticalSection => log.error("The room is not in a critical section state")
     case Send(content) => room ! Room.createMessage(content)
   }
 
