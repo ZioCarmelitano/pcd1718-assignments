@@ -24,9 +24,9 @@ import static pcd.ass03.ex1.view.settings.SettingsPresenter.getWorkersNumber;
 
 public class GamePresenter implements Initializable {
 
-    private static final String PLAY_ICON_PATH = "/play.png";
-    private static final String STOP_ICON_PATH = "/stop.png";
-    private static final String PAUSE_ICON_PATH = "/pause.png";
+    private static final String PLAY_ICON_PATH = "/ex1/play.png";
+    private static final String STOP_ICON_PATH = "/ex1/stop.png";
+    private static final String PAUSE_ICON_PATH = "/ex1/pause.png";
 
     private static final int BTN_START_HEIGHT = 30;
     private static final int BTN_START_WIDTH = 30;

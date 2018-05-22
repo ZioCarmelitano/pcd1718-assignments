@@ -13,50 +13,37 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
 
   private[this] var users = List[ActorRef]()
 
+  override def receive: Receive = noCriticalSection
+
   private[this] val default: Receive = {
-    case Join => add(sender)
+    case Join =>
+      broadcast(Joined(sender))
+      users = users :+ sender
+      context watch sender
+      log.info(s"User ${sender.path.name} has joined the chat")
     case Leave => remove(sender)
     case Terminated(actor) => remove(actor)
     case cnu: CommandNotUnderstood => sender ! cnu
   }
 
   private[this] val noCriticalSection: Receive = default orElse {
-    case EnterCS => enterCS(sender)
+    case EnterCS =>
+      val cancellable = context.system.scheduler.scheduleOnce(timeout, self, ExitCS)
+      context become criticalSection(CriticalSection(sender), cancellable)
+      broadcast(EnterCS)
+      log.info(s"User ${sender.path.name} has started the critical section")
     case ExitCS => sender ! NoCriticalSection
     case message: Message => broadcast(message)
   }
 
   private[this] def criticalSection(cs: CriticalSection, cancellable: Cancellable): Receive = default orElse {
-    case ExitCS if sender == cs.user =>
+    case ExitCS if sender == cs.user || sender == self =>
       cancellable.cancel()
-      exitCS()
+      context become noCriticalSection
+      broadcast(ExitCS)
+      log.info("Exited from critical section")
     case message: Message if sender == cs.user => broadcast(message)
-    case TimeoutExpired =>
-      log.info(s"Timeout of $timeout expired")
-      exitCS()
     case Message(_, _) | EnterCS | ExitCS => sender ! cs
-  }
-
-  private[this] def enterCS(user: ActorRef): Unit = {
-    val cancellable = context.system.scheduler.scheduleOnce(timeout, self, TimeoutExpired)
-    context become criticalSection(CriticalSection(user), cancellable)
-    log.info(s"User ${user.path.name} entered in critical section")
-    broadcast(EnterCS)
-  }
-
-  private[this] def exitCS(): Unit = {
-    context become noCriticalSection
-    log.info("Exited from critical section")
-    broadcast(ExitCS)
-  }
-
-  override def receive: Receive = noCriticalSection
-
-  private[this] def add(user: ActorRef): Unit = {
-    broadcast(Joined(sender))
-    users = users :+ sender
-    context watch sender
-    log.info(s"User ${user.path.name} has joined the chat")
   }
 
   private[this] def remove(user: ActorRef): Unit = {
@@ -65,6 +52,7 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
     }
     context unwatch user
     broadcast(Left(user))
+    log.info(s"User ${user.path.name} has left the chat")
   }
 
   private[this] def broadcast(message: Any): Unit = {
@@ -88,21 +76,16 @@ object Room {
 
   final case object Join
   final case object Leave
-
   final case class Joined(user: ActorRef)
   final case class Left(user: ActorRef)
 
-  final case class Message private(content: String, user: ActorRef)
-
+  final case class Message(content: String, user: ActorRef)
   final case object EnterCS
   final case object ExitCS
   final case class CommandNotUnderstood(command: String)
 
   final case class CriticalSection(user: ActorRef)
-
   final case object NoCriticalSection
-
-  private final case object TimeoutExpired
 
   def createMessage(content: String)(implicit user: ActorRef): Any = content match {
     case ":enter-cs" => EnterCS

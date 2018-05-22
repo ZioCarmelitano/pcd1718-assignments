@@ -36,11 +36,11 @@ public final class FxWindowFactory implements WindowFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String APP_TITLE = "Game Of Life";
-    private static final String APP_ICON_PATH = "/game_of_life_icon.png";
-    private static final String GAME_FXML_PATH = "/game_of_life.fxml";
-    private static final String SETTINGS_FXML_PATH = "/initial_settings.fxml";
-    private static final String GAME_CSS_PATH = "/game_of_life_style.css";
-    private static final String SETTINGS_CSS_PATH = "/initial_settings_style.css";
+    private static final String APP_ICON_PATH = "/ex1/game_of_life_icon.png";
+    private static final String GAME_FXML_PATH = "/ex1/game_of_life.fxml";
+    private static final String SETTINGS_FXML_PATH = "/ex1/initial_settings.fxml";
+    private static final String GAME_CSS_PATH = "/ex1/game_of_life_style.css";
+    private static final String SETTINGS_CSS_PATH = "/ex1/initial_settings_style.css";
 
     private static final String PANEL_CONTAINER_ID = "panelContainer";
     private static final String BOARD_PANEL_ID = "canvas";
