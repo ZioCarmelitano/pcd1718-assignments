@@ -11,13 +11,13 @@ import scalafx.scene.text.Font
 
 class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox) {
 
-  def send() {
+  def send(): Unit = {
     println("Sent message: " + messageField.text.value)
     user ! Send(messageField.text.value)
     addMessage(Pos.CENTER_RIGHT, "Me", messageField.text.value)
   }
 
-  def receive(content: String, senderName: String) = {
+  def receive(content: String, senderName: String): Unit = {
     if (senderName != username) {
       println("Received message: " + content + "\nfrom " + senderName)
       Platform.runLater {

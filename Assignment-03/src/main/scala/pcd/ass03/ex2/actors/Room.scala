@@ -28,23 +28,23 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
   }
 
   private[this] val noCriticalSection: Receive = default orElse {
-    case EnterCS =>
-      val cancellable = context.system.scheduler.scheduleOnce(timeout, self, ExitCS)
+    case EnterCriticalSection =>
+      val cancellable = context.system.scheduler.scheduleOnce(timeout, self, ExitCriticalSection)
       context become criticalSection(CriticalSection(sender), cancellable)
-      broadcast(EnterCS)
+      broadcast(EnterCriticalSection)
       log.info(s"User ${sender.path.name} has started the critical section")
-    case ExitCS => sender ! NoCriticalSection
+    case ExitCriticalSection => sender ! NoCriticalSection
     case message: Message => broadcast(message)
   }
 
   private[this] def criticalSection(cs: CriticalSection, cancellable: Cancellable): Receive = default orElse {
-    case ExitCS if sender == cs.user || sender == self =>
+    case ExitCriticalSection if sender == cs.user || sender == self =>
       cancellable.cancel()
       context become noCriticalSection
-      broadcast(ExitCS)
+      broadcast(ExitCriticalSection)
       log.info("Exited from critical section")
     case message: Message if sender == cs.user => broadcast(message)
-    case Message(_, _) | EnterCS | ExitCS => sender ! cs
+    case Message(_, _) | EnterCriticalSection | ExitCriticalSection => sender ! cs
   }
 
   private[this] def remove(user: ActorRef): Unit = {
@@ -81,11 +81,11 @@ object Room {
   final case class Left(user: ActorRef)
 
   final case class Message(content: String, user: ActorRef)
-  final case object EnterCS
-  final case object ExitCS
+  final case object EnterCriticalSection
+  final case object ExitCriticalSection
   final case class CommandNotUnderstood(command: String)
 
-  private val commandMap = Map(":enter-cs" -> EnterCS, ":exit-cs" -> ExitCS)
+  private val commandMap = Map(":enter-cs" -> EnterCriticalSection, ":exit-cs" -> ExitCriticalSection)
   private val commands = Commands(commandMap.keySet)
 
   final case class Commands(commands: Set[String])
