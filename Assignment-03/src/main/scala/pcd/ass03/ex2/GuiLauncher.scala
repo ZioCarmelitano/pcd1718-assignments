@@ -21,4 +21,3 @@ object GuiLauncher extends JFXApp{
   val system = ActorSystem("User", User.Config)
   val user: ActorRef = system.actorOf(User(view.presenter), username)
 }
-
