@@ -7,7 +7,7 @@ import scala.io.StdIn
 object MainRoom extends App {
   val system = ActorSystem("Room", Room.Config)
   try {
-    val room = system.actorOf(Room(30 seconds), "Room")
+    system.actorOf(Room(30 seconds), "Room")
     println("Press ENTER to terminate")
     StdIn.readLine
   } finally {
