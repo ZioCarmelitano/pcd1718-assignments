@@ -1,5 +1,6 @@
 package pcd.ass03.ex2.view
 
+import pcd.ass03.ex2.Launcher.system
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -16,11 +17,17 @@ class DistributedChatView extends PrimaryStage{
 
   private val messageField: TextField = new TextField{
     prefWidth = 450
-    onAction = (_) => presenter send()
+    onAction = (_) => {
+      presenter send()
+      text = ""
+    }
   }
 
   private val sendMessage: Button = new Button{
-    onAction = (_) => presenter send()
+    onAction = (_) => {
+      presenter send()
+      messageField.text = ""
+    }
     graphic = new ImageView {image = new Image(this, sendLogoPath)
       fitWidth = 20.0
       fitHeight = 20.0
@@ -49,7 +56,7 @@ class DistributedChatView extends PrimaryStage{
     add(sendMessage, 1, 0)
   }
 
-  private val presenter = new ChatPresenter(messageField, sendMessage, chatBox)
+  private val _presenter = new ChatPresenter(messageField, sendMessage, chatBox)
 
   title = appTitle
 
@@ -62,7 +69,10 @@ class DistributedChatView extends PrimaryStage{
       center = chatBoxContainer
       bottom = commandContainer
     }
+    onCloseRequest = _ => system.terminate()
   }
 
   this getIcons() add new Image(appLogoPath)
+
+  def presenter = _presenter
 }

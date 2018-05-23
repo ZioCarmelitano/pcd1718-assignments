@@ -17,7 +17,7 @@ public class Worker extends AbstractLoggingActor {
         return receiveBuilder().match(StartUpdateMsg.class, msg -> {
             int from = msg.getFromRow();
             int maxTo = msg.getToRow();
-            int rowForPartialWorker = (maxTo - from)/PARTIAL_WORKERS;
+            int rowForPartialWorker = (maxTo - from) / PARTIAL_WORKERS;
 
             getSelf().tell(new StartPartialUpdateMsg(from, from + rowForPartialWorker, msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
 
@@ -33,7 +33,7 @@ public class Worker extends AbstractLoggingActor {
             }).build(), false);
 
         }).match(StopMsg.class, msg -> {
-            log().info(getSelf().path().name()+ " stopped");
+            log().info(getSelf().path().name() + " stopped");
             context().stop(getSelf());
         }).build();
     }
@@ -43,10 +43,10 @@ public class Worker extends AbstractLoggingActor {
         log().info(getSelf().path().name()+ " from row {} to row {} started", fromRow, toRow);
         for (int x = fromRow; x < toRow; x++) {
             for (int y = 0; y < oldBoard.getWidth(); y++) {
-               newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
+                newBoard.setCell(x, y, CellUtils.update(oldBoard, x, y));
             }
         }
-        log().info(getSelf().path().name()+ " from row {} to row {} finished", fromRow, toRow);
+        log().info(getSelf().path().name() + "Worker from row {} to row {} finished", fromRow, toRow);
     }
 
 }

@@ -11,5 +11,7 @@ public class StartMsg implements Serializable {
         this.board = board;
     }
 
-    public Board getBoard() { return this.board; }
+    public Board getBoard() {
+        return this.board;
+    }
 }

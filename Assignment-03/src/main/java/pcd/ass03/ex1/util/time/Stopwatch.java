@@ -5,8 +5,6 @@ import pcd.ass03.ex1.util.time.impl.StopwatchFactoryImpl;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.requireNonNull;
-
 public interface Stopwatch {
 
     static Stopwatch stopwatch(final TimeUnit timeUnit) {

@@ -3,7 +3,6 @@ package pcd.ass03.ex1.actors;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import io.aeron.driver.Sender;
 import pcd.ass03.ex1.actors.msg.*;
 import pcd.ass03.ex1.domain.Board;
 
@@ -26,7 +25,7 @@ public class BoardUpdater extends AbstractLoggingActor {
 
     @Override
     public void preStart() throws Exception {
-        workers = IntStream.range(0,numberOfWorkers).mapToObj(i -> getContext().actorOf(Props.create(Worker.class), "Worker" + i)).collect(Collectors.toList());
+        workers = IntStream.range(0, numberOfWorkers).mapToObj(i -> getContext().actorOf(Props.create(Worker.class), "Worker" + i)).collect(Collectors.toList());
     }
 
     @Override

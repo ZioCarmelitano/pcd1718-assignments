@@ -7,6 +7,7 @@ import javafx.scene.canvas.Canvas;
 import pcd.ass03.ex1.actors.msg.*;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.view.game.RenderingService;
+
 import java.time.Duration;
 
 public class GuiUpdater extends AbstractLoggingActor {
@@ -33,7 +34,7 @@ public class GuiUpdater extends AbstractLoggingActor {
             log().info("GuiUpdater NewBoardMsg");
             currentBoard = newBoardMsg.getNewBoard();
             RenderingService.renderBoard(boardView, newBoardMsg.getNewBoard());
-            getContext().getSystem().scheduler().scheduleOnce(Duration.ofMillis(UPDATE_INTERVAL), getSelf(), new StartMsg(currentBoard), getContext().getSystem().dispatcher(),getSelf());
+            getContext().getSystem().scheduler().scheduleOnce(Duration.ofMillis(UPDATE_INTERVAL), getSelf(), new StartMsg(currentBoard), getContext().getSystem().dispatcher(), getSelf());
         }).match(PauseMsg.class, pauseMsg -> {
             log().info("GuiUpdater PauseMsg");
             getContext().become(paused);

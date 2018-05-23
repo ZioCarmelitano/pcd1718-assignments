@@ -14,23 +14,23 @@ public final class ScrollManager {
     private static Double scrollHorizontalOldValue;
 
     private static Integer startY = 0;
-    private static Integer endY ;
+    private static Integer endY;
     private static Integer startX = 0;
     private static Integer endX;
 
-    public static int getStartY(){
+    public static int getStartY() {
         return startY;
     }
 
-    public static int getEndY(){
+    public static int getEndY() {
         return endY;
     }
 
-    public static int getStartX(){
+    public static int getStartX() {
         return startX;
     }
 
-    public static int getEndX(){
+    public static int getEndX() {
         return endX;
     }
 
@@ -87,7 +87,7 @@ public final class ScrollManager {
         return canvas.getWidth() > getPanelScene(canvas).getWidth();
     }
 
-    private static Scene getPanelScene(Node component){
+    private static Scene getPanelScene(Node component) {
         return component.getScene();
     }
 }
