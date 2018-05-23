@@ -1,11 +1,11 @@
 import akka.actor.ActorSystem
-import pcd.ass03.ex2.actors.User
-import pcd.ass03.ex2.actors.User.Send
+import pcd.ass03.ex2.actors.{User, VisibleUser}
+import pcd.ass03.ex2.actors.VisibleUser.Send
 
 import scala.io.StdIn
 
 object MainUser extends App {
-  val system = ActorSystem("User", User.Config)
+  val system = ActorSystem("User", VisibleUser.Config)
   try {
     val user = system.actorOf(User())
 
