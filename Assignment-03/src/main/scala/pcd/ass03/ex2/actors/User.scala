@@ -6,8 +6,9 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
 import pcd.ass03.ex2.actors.User.Send
+import pcd.ass03.ex2.view.ChatPresenter
 
-class User extends Actor with ActorLogging {
+class User(presenter: ChatPresenter) extends Actor with ActorLogging {
 
   private[this] lazy val room = context.actorSelection(Room.Path)
 
@@ -15,7 +16,9 @@ class User extends Actor with ActorLogging {
     case Joined(user: ActorRef) => log.info(s"User ${user.path.name} has joined the room")
     case Left(user: ActorRef) => log.info(s"User ${user.path.name} has left the room")
     case Commands(commands) => log.info(s"Commands are: $commands")
-    case Message(content, user) => log.info(s"${user.path.name} said: $content")
+    case Message(content, user) =>
+      log.info(s"${user.path.name} said: $content")
+      presenter.receive(content, user.path.name)
     case CommandNotUnderstood(command) => log.error(s"$command is not a valid command")
     case EnterCS => log.info("Entered in critical section")
     case ExitCS => log.info("Exited from critical section")
@@ -31,9 +34,9 @@ class User extends Actor with ActorLogging {
 
 object User {
 
-  def apply(): Props = props()
+  def apply(chatPresenter: ChatPresenter): Props = props(chatPresenter)
 
-  def props(): Props = Props(new User)
+  def props(chatPresenter: ChatPresenter): Props = Props(new User(chatPresenter))
 
   final case class Send(content: String)
 

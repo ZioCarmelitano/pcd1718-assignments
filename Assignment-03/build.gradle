@@ -24,7 +24,7 @@ apply plugin: 'javafx-gradle-plugin'
 
 jfx {
     // minimal requirement for jfxJar-task
-    mainClass = 'pcd.ass01.Launcher'
+    mainClass = 'pcd.ass03.ex2.GuiLauncher'
 
     // minimal requirement for jfxNative-task
     vendor = 'MMN'
@@ -39,6 +39,15 @@ ext {
     junit4Version = '4.12'
 }
 
+configurations {
+    scalaCompilerPlugin
+}
+
+ext {
+    scalaBinaryVersion = "2.11"
+    scalaMinorVersion = "7"
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -50,6 +59,13 @@ dependencies {
 
     compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
     compile group: 'com.typesafe.akka', name: 'akka-remote_2.12', version: akkaVersion
+
+    compile 'org.scalafx:scalafx_2.11.0-SNAPSHOT:8.0.0-R4'
+    // https://mvnrepository.com/artifact/org.scalafx/scalafxml-core-sfx8
+    compile group: 'org.scalafx', name: 'scalafxml-core-sfx8_2.12', version: '0.4'
+    // https://mvnrepository.com/artifact/org.scalafx/scalafxml-core-macros-sfx8
+    compile group: 'org.scalafx', name: 'scalafxml-core-macros-sfx8_2.10', version: '0.2.2'
+    scalaCompilerPlugin "org.scalamacros:paradise_$scalaBinaryVersion.$scalaMinorVersion:2.1.0"
 
     testCompile group: 'junit', name: 'junit', version: junit4Version
 }
