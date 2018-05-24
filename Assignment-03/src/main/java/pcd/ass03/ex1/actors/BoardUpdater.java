@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class BoardUpdater extends AbstractLoggingActor {
+
+    public static final int DEFAULT_PARTITIONS = 5;
     private final int numberOfWorkers;
     private List<ActorRef> workers;
     private int finishUpdate;
@@ -25,7 +27,9 @@ public class BoardUpdater extends AbstractLoggingActor {
 
     @Override
     public void preStart() throws Exception {
-        workers = IntStream.range(0, numberOfWorkers).mapToObj(i -> getContext().actorOf(Props.create(Worker.class), "Worker" + i)).collect(Collectors.toList());
+        workers = IntStream.range(0, numberOfWorkers)
+                .mapToObj(i -> getContext().actorOf(Worker.props(DEFAULT_PARTITIONS), "Worker" + i))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -67,4 +71,5 @@ public class BoardUpdater extends AbstractLoggingActor {
         }
         workers.get(0).tell(new StartUpdateMsg(fromRow, fromRow + (height - fromRow), oldBoard, newBoard), getSelf());
     }
+
 }

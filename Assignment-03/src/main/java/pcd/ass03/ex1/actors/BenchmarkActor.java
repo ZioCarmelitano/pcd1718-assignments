@@ -1,6 +1,5 @@
 package pcd.ass03.ex1.actors;
 
-import akka.actor.AbstractActor;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -9,6 +8,7 @@ import pcd.ass03.ex1.actors.msg.StartMsg;
 import pcd.ass03.ex1.actors.msg.StopMsg;
 
 public class BenchmarkActor extends AbstractLoggingActor {
+
     private final int numberOfWorkers;
     private ActorRef boardUpdater;
 
@@ -22,7 +22,7 @@ public class BenchmarkActor extends AbstractLoggingActor {
 
     @Override
     public void preStart() throws Exception {
-            boardUpdater = getContext().actorOf(BoardUpdater.props(numberOfWorkers), "boardUpdater");
+        boardUpdater = getContext().actorOf(BoardUpdater.props(numberOfWorkers), "boardUpdater");
     }
 
     @Override
@@ -39,4 +39,5 @@ public class BenchmarkActor extends AbstractLoggingActor {
             getSelf().tell(new StopMsg(), getSelf());
         }).build();
     }
+
 }

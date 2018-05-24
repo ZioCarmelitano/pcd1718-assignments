@@ -11,7 +11,9 @@ import pcd.ass03.ex1.view.game.RenderingService;
 import java.time.Duration;
 
 public class GuiUpdater extends AbstractLoggingActor {
+
     private static final int UPDATE_INTERVAL = 50;
+
     private ActorRef boardUpdater;
     private final int numberOfWorkers;
     private Board currentBoard;
@@ -34,7 +36,11 @@ public class GuiUpdater extends AbstractLoggingActor {
             log().info("GuiUpdater NewBoardMsg");
             currentBoard = newBoardMsg.getNewBoard();
             RenderingService.renderBoard(boardView, newBoardMsg.getNewBoard());
-            getContext().getSystem().scheduler().scheduleOnce(Duration.ofMillis(UPDATE_INTERVAL), getSelf(), new StartMsg(currentBoard), getContext().getSystem().dispatcher(), getSelf());
+            getContext().getSystem().scheduler().scheduleOnce(
+                    Duration.ofMillis(UPDATE_INTERVAL),
+                    getSelf(), new StartMsg(currentBoard),
+                    getContext().getSystem().dispatcher(),
+                    getSelf());
         }).match(PauseMsg.class, pauseMsg -> {
             log().info("GuiUpdater PauseMsg");
             getContext().become(paused);
@@ -65,4 +71,5 @@ public class GuiUpdater extends AbstractLoggingActor {
     public Receive createReceive() {
         return this.running;
     }
+
 }

@@ -6,10 +6,12 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props, Terminated
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.FiniteDuration
 
 class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLogging {
+
+  implicit private[this] lazy val dispatcher: ExecutionContextExecutor = context.system.dispatcher
 
   private[this] var users = List[ActorRef]()
 
