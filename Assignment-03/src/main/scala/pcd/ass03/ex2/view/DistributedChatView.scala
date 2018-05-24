@@ -17,11 +17,17 @@ class DistributedChatView extends PrimaryStage{
 
   private val messageField: TextField = new TextField{
     prefWidth = 450
-    onAction = (_) => presenter send()
+    onAction = (_) => {
+      presenter send()
+      text = ""
+    }
   }
 
   private val sendMessage: Button = new Button{
-    onAction = (_) => presenter send()
+    onAction = (_) => {
+      presenter send()
+      messageField.text = ""
+    }
     graphic = new ImageView {image = new Image(this, sendLogoPath)
       fitWidth = 20.0
       fitHeight = 20.0

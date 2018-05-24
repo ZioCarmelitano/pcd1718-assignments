@@ -13,7 +13,6 @@ class ChatPresenter(messageField: TextField,
                     sendMessage: Button,
                     chatBox: VBox) {
 
-
   def send() {
     println("Sent message: " + messageField.text.value)
     user ! Send(messageField.text.value)
@@ -40,6 +39,7 @@ class ChatPresenter(messageField: TextField,
     }
     messageLabel setAlignment position
     senderLabel setAlignment position
+
     chatBox.children addAll(senderLabel, messageLabel)
   }
 }
