@@ -34,7 +34,7 @@ public class BoardUpdater extends AbstractLoggingActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StartMsg.class, msg -> {
+        return receiveBuilder().match(Start.class, msg -> {
             Board oldBoard = msg.getBoard();
             // Create the new board
             final Board newBoard = Board.board(oldBoard.getWidth(), oldBoard.getHeight());
@@ -43,15 +43,15 @@ public class BoardUpdater extends AbstractLoggingActor {
             prepareWorkers(oldBoard, newBoard);
 
             ActorRef sender = getSender();
-            getContext().become(receiveBuilder().match(FinishedUpdateMsg.class, finishMsg -> {
+            getContext().become(receiveBuilder().match(FinishedUpdate.class, finishMsg -> {
                 this.finishUpdate++;
                 if (this.finishUpdate == this.numberOfWorkers) {
                     this.finishUpdate = 0;
-                    sender.tell(new NewBoardMsg(newBoard), getSelf());
+                    sender.tell(new NewBoard(newBoard), getSelf());
                     getContext().unbecome();
                 }
             }).build(), false);
-        }).match(StopMsg.class, msg -> {
+        }).match(Stop.class, msg -> {
             log().debug(getSelf().path().name() + " --> Stop update");
             for (ActorRef w : workers) {
                 w.tell(msg, getSelf());
@@ -65,11 +65,11 @@ public class BoardUpdater extends AbstractLoggingActor {
         final int offset = height / workers.size();
         int fromRow = 0, toRow = offset;
         for (int i = 1; i < workers.size(); i++) {
-            workers.get(i).tell(new StartUpdateMsg(fromRow, toRow, oldBoard, newBoard), getSelf());
+            workers.get(i).tell(new StartUpdate(fromRow, toRow, oldBoard, newBoard), getSelf());
             fromRow += offset;
             toRow += offset;
         }
-        workers.get(0).tell(new StartUpdateMsg(fromRow, fromRow + (height - fromRow), oldBoard, newBoard), getSelf());
+        workers.get(0).tell(new StartUpdate(fromRow, fromRow + (height - fromRow), oldBoard, newBoard), getSelf());
     }
 
 }

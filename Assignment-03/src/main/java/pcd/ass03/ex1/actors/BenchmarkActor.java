@@ -3,9 +3,9 @@ package pcd.ass03.ex1.actors;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import pcd.ass03.ex1.actors.msg.NewBoardMsg;
-import pcd.ass03.ex1.actors.msg.StartMsg;
-import pcd.ass03.ex1.actors.msg.StopMsg;
+import pcd.ass03.ex1.actors.msg.NewBoard;
+import pcd.ass03.ex1.actors.msg.Start;
+import pcd.ass03.ex1.actors.msg.Stop;
 
 public class BenchmarkActor extends AbstractLoggingActor {
 
@@ -27,16 +27,16 @@ public class BenchmarkActor extends AbstractLoggingActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StopMsg.class, stopMsg -> {
-            log().info(getSelf().path().name() + " StopMsg");
-            boardUpdater.tell(new StopMsg(), getSelf());
+        return receiveBuilder().match(Stop.class, stopMsg -> {
+            log().info(getSelf().path().name() + " Stop");
+            boardUpdater.tell(new Stop(), getSelf());
             context().stop(getSelf());
-        }).match(StartMsg.class, startMsg -> {
-            log().info(getSelf().path().name() + " StartMsg");
+        }).match(Start.class, startMsg -> {
+            log().info(getSelf().path().name() + " Start");
             this.boardUpdater.tell(startMsg, getSelf());
-        }).match(NewBoardMsg.class, newBoardMsg -> {
-            log().info(getSelf().path().name() + " newBoardMsg");
-            getSelf().tell(new StopMsg(), getSelf());
+        }).match(NewBoard.class, newBoard -> {
+            log().info(getSelf().path().name() + " newBoard");
+            getSelf().tell(new Stop(), getSelf());
         }).build();
     }
 

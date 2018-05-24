@@ -2,10 +2,10 @@ package pcd.ass03.ex1.actors;
 
 import akka.actor.AbstractLoggingActor;
 import akka.actor.Props;
-import pcd.ass03.ex1.actors.msg.FinishedUpdateMsg;
-import pcd.ass03.ex1.actors.msg.StartPartialUpdateMsg;
-import pcd.ass03.ex1.actors.msg.StartUpdateMsg;
-import pcd.ass03.ex1.actors.msg.StopMsg;
+import pcd.ass03.ex1.actors.msg.FinishedUpdate;
+import pcd.ass03.ex1.actors.msg.StartPartialUpdate;
+import pcd.ass03.ex1.actors.msg.StartUpdate;
+import pcd.ass03.ex1.actors.msg.Stop;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.CellUtils;
 
@@ -23,25 +23,25 @@ public class Worker extends AbstractLoggingActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StartUpdateMsg.class, msg -> {
+        return receiveBuilder().match(StartUpdate.class, msg -> {
             int from = msg.getFromRow();
             int maxTo = msg.getToRow();
             int rowForPartialWorker = (maxTo - from) / numberOfPartitions;
 
-            getSelf().tell(new StartPartialUpdateMsg(from, from + rowForPartialWorker, msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
+            getSelf().tell(new StartPartialUpdate(from, from + rowForPartialWorker, msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
 
-            getContext().become(receiveBuilder().match(StartPartialUpdateMsg.class, partialMsg -> {
+            getContext().become(receiveBuilder().match(StartPartialUpdate.class, partialMsg -> {
                 if ((rowForPartialWorker + partialMsg.getToRow()) >= maxTo) {
                     this.updateBoard(partialMsg.getFromRow(), maxTo, partialMsg.getOldBoard(), partialMsg.getNewBoard());
-                    getSender().tell(new FinishedUpdateMsg(), getSelf());
+                    getSender().tell(new FinishedUpdate(), getSelf());
                     getContext().unbecome();
                 } else {
                     this.updateBoard(partialMsg.getFromRow(), partialMsg.getToRow(), partialMsg.getOldBoard(), partialMsg.getNewBoard());
-                    getSelf().tell(new StartPartialUpdateMsg(partialMsg.getToRow(), rowForPartialWorker + partialMsg.getToRow(), msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
+                    getSelf().tell(new StartPartialUpdate(partialMsg.getToRow(), rowForPartialWorker + partialMsg.getToRow(), msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
                 }
             }).build(), false);
 
-        }).match(StopMsg.class, msg -> {
+        }).match(Stop.class, msg -> {
             log().info(getSelf().path().name() + " stopped");
             context().stop(getSelf());
         }).build();

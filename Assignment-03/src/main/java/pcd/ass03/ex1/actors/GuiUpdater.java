@@ -24,36 +24,36 @@ public class GuiUpdater extends AbstractLoggingActor {
     public GuiUpdater(Canvas boardView, int numberOfWorkers) {
         this.numberOfWorkers = numberOfWorkers;
 
-        this.running = receiveBuilder().match(StopMsg.class, stopMsg -> {
-            log().info("GuiUpdater StopMsg");
-            boardUpdater.tell(new StopMsg(), getSelf());
+        this.running = receiveBuilder().match(Stop.class, stopMsg -> {
+            log().info("GuiUpdater Stop");
+            boardUpdater.tell(new Stop(), getSelf());
             context().stop(getSelf());
-        }).match(StartMsg.class, startMsg -> {
-            log().info("GuiUpdater StartMsg");
+        }).match(Start.class, startMsg -> {
+            log().info("GuiUpdater Start");
             currentBoard = startMsg.getBoard();
-            boardUpdater.tell(new StartMsg(currentBoard), getSelf());
-        }).match(NewBoardMsg.class, newBoardMsg -> {
-            log().info("GuiUpdater NewBoardMsg");
-            currentBoard = newBoardMsg.getNewBoard();
-            RenderingService.renderBoard(boardView, newBoardMsg.getNewBoard());
+            boardUpdater.tell(new Start(currentBoard), getSelf());
+        }).match(NewBoard.class, newBoard -> {
+            log().info("GuiUpdater NewBoard");
+            currentBoard = newBoard.getNewBoard();
+            RenderingService.renderBoard(boardView, newBoard.getNewBoard());
             getContext().getSystem().scheduler().scheduleOnce(
                     Duration.ofMillis(UPDATE_INTERVAL),
-                    getSelf(), new StartMsg(currentBoard),
+                    getSelf(), new Start(currentBoard),
                     getContext().getSystem().dispatcher(),
                     getSelf());
-        }).match(PauseMsg.class, pauseMsg -> {
-            log().info("GuiUpdater PauseMsg");
+        }).match(Pause.class, pause -> {
+            log().info("GuiUpdater Pause");
             getContext().become(paused);
         }).build();
 
-        this.paused = receiveBuilder().match(StopMsg.class, stopMsg -> {
-            log().info("GuiUpdater StopMsg");
-            boardUpdater.tell(new StopMsg(), getSelf());
+        this.paused = receiveBuilder().match(Stop.class, stopMsg -> {
+            log().info("GuiUpdater Stop");
+            boardUpdater.tell(new Stop(), getSelf());
             context().stop(getSelf());
-        }).match(ResumeMsg.class, resumeMsg -> {
-            log().info("GuiUpdater ResumeMsg");
+        }).match(Resume.class, resume -> {
+            log().info("GuiUpdater Resume");
             getContext().become(running);
-            boardUpdater.tell(new StartMsg(currentBoard), getSelf());
+            boardUpdater.tell(new Start(currentBoard), getSelf());
         }).build();
 
     }
