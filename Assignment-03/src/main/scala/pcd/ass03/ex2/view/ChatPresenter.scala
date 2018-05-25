@@ -1,7 +1,7 @@
 package pcd.ass03.ex2.view
 
+import akka.actor.{ActorPath, ActorRef}
 import javafx.geometry.Pos
-import pcd.ass03.ex2.Launcher.{user, username}
 import pcd.ass03.ex2.actors.VisibleUser.Send
 import scalafx.application.Platform
 import scalafx.scene.control.{Button, Label, TextField}
@@ -13,17 +13,19 @@ class ChatPresenter(messageField: TextField,
                     sendMessage: Button,
                     chatBox: VBox) {
 
+  private var _user = ActorRef.noSender
+
   def send() {
     println("Sent message: " + messageField.text.value)
-    user ! Send(messageField.text.value)
+    _user ! Send(messageField.text.value)
     addMessage(Pos.CENTER_RIGHT, "Me", messageField.text.value)
   }
 
-  def receive(content: String, senderName: String) = {
-    if (senderName != username) {
-      println("Received message: " + content + "\nfrom " + senderName)
+  def receive(content: String, senderPath: ActorPath) = {
+    if (senderPath != _user.path) {
+      println("Received message: " + content + "\nfrom " + senderPath)
       Platform.runLater {
-        addMessage(Pos.CENTER_LEFT, senderName, content)
+        addMessage(Pos.CENTER_LEFT, senderPath.name, content)
       }
     }
   }
@@ -42,4 +44,6 @@ class ChatPresenter(messageField: TextField,
 
     chatBox.children addAll(senderLabel, messageLabel)
   }
+
+  def user_(value: ActorRef): Unit = _user = value
 }

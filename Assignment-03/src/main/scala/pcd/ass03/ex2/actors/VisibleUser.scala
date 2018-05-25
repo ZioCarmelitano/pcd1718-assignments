@@ -16,10 +16,10 @@ class VisibleUser(presenter: ChatPresenter) extends Actor with ActorLogging {
     case Joined(user: ActorRef) => log.info(s"User ${user.path.name} has joined the room")
     case Left(user: ActorRef) => log.info(s"User ${user.path.name} has left the room")
     case Commands(commands) => log.info(s"Commands are: $commands")
-    case Message(content, user) => {
-      log.info(s"${user.path.name} said: $content")
-      presenter.receive(content, user.path.name)
-    }
+    case Message(content, user) =>
+      log.info(s"${user.path} said: $content")
+      presenter.receive(content, user.path)
+
     case CommandNotUnderstood(command) => log.error(s"$command is not a valid command")
     case EnterCS => log.info("Entered in critical section")
     case ExitCS => log.info("Exited from critical section")

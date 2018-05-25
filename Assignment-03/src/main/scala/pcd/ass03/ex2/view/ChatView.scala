@@ -1,6 +1,8 @@
 package pcd.ass03.ex2.view
 
-import pcd.ass03.ex2.Launcher.system
+import akka.actor.{ActorRef, ActorSystem}
+import pcd.ass03.ex2.actors.VisibleUser
+import pcd.ass03.ex2.view.ImagePaths.{appLogoPath, sendLogoPath}
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -9,11 +11,14 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
-class DistributedChatView extends PrimaryStage{
+object ImagePaths {
+  val sendLogoPath = "/send_button_logo.png"
+  val appLogoPath = "/distributed_chat_logo.png"
+}
+
+class ChatView(username: String) extends PrimaryStage{
 
   private val appTitle = "Distributed Chat"
-  private val appLogoPath = "/distributed_chat_logo.png"
-  private val sendLogoPath = "/send_button_logo.png"
 
   private val messageField: TextField = new TextField{
     prefWidth = 450
@@ -75,4 +80,11 @@ class DistributedChatView extends PrimaryStage{
   this getIcons() add new Image(appLogoPath)
 
   def presenter = _presenter
+
+  /* User Actor creation */
+  val system = ActorSystem("User", VisibleUser.Config)
+  val user: ActorRef = system.actorOf(VisibleUser(presenter), username)
+  presenter.user_(user)
 }
+
+
