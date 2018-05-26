@@ -4,10 +4,10 @@ import pcd.ass03.ex1.domain.Board;
 
 import java.io.Serializable;
 
-public class StartMsg implements Serializable {
+public class Start implements Serializable {
     private final Board board;
 
-    public StartMsg(Board board) {
+    public Start(Board board) {
         this.board = board;
     }
 

@@ -6,10 +6,12 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props, Terminated
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLogging {
+
+  private[this] implicit lazy val dispatcher: ExecutionContext = context.system.dispatcher
 
   private[this] var users = List[ActorRef]()
 
@@ -18,33 +20,34 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
   private[this] val default: Receive = {
     case Join =>
       broadcast(Joined(sender))
-      sender ! Commands
+      sender ! commands
       users = users :+ sender
       context watch sender
       log.info(s"User ${sender.path.name} has joined the chat")
     case Leave => remove(sender)
     case Terminated(actor) => remove(actor)
+    case Help => sender ! commands
     case cnu: CommandNotUnderstood => sender ! cnu
   }
 
   private[this] val noCriticalSection: Receive = default orElse {
-    case EnterCS =>
-      val cancellable = context.system.scheduler.scheduleOnce(timeout, self, ExitCS)
+    case EnterCriticalSection =>
+      val cancellable = context.system.scheduler.scheduleOnce(timeout, self, ExitCriticalSection)
       context become criticalSection(CriticalSection(sender), cancellable)
-      broadcast(EnterCS)
+      broadcast(EnterCriticalSection)
       log.info(s"User ${sender.path.name} has started the critical section")
-    case ExitCS => sender ! NoCriticalSection
+    case ExitCriticalSection => sender ! NoCriticalSection
     case message: Message => broadcast(message)
   }
 
   private[this] def criticalSection(cs: CriticalSection, cancellable: Cancellable): Receive = default orElse {
-    case ExitCS if sender == cs.user || sender == self =>
+    case ExitCriticalSection if sender == cs.user || sender == self =>
       cancellable.cancel()
       context become noCriticalSection
-      broadcast(ExitCS)
+      broadcast(ExitCriticalSection)
       log.info("Exited from critical section")
     case message: Message if sender == cs.user => broadcast(message)
-    case Message(_, _) | EnterCS | ExitCS => sender ! cs
+    case Message(_, _) | EnterCriticalSection | ExitCriticalSection => sender ! cs
   }
 
   private[this] def remove(user: ActorRef): Unit = {
@@ -57,9 +60,13 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
   }
 
   private[this] def broadcast(message: Any): Unit = {
-    users foreach {
-      _ ! message
-    }
+    users.toStream
+      .filterNot {
+        _ == sender
+      }
+      .foreach {
+        _ ! message
+      }
     log.debug(s"$message sent to users")
   }
 
@@ -76,21 +83,30 @@ object Room {
   val Path = "akka.tcp://Room@127.0.0.1:2552/user/Room"
 
   final case object Join
+
   final case object Leave
+
   final case class Joined(user: ActorRef)
+
   final case class Left(user: ActorRef)
 
   final case class Message(content: String, user: ActorRef)
-  final case object EnterCS
-  final case object ExitCS
-  final case class CommandNotUnderstood(command: String)
 
-  private val commandMap = Map(":enter-cs" -> EnterCS, ":exit-cs" -> ExitCS)
-  private val commands = Commands(commandMap.keySet)
+  final case object EnterCriticalSection
+
+  final case object ExitCriticalSection
+
+  final case object Help
+
+  final case class CommandNotUnderstood(command: String)
 
   final case class Commands(commands: Set[String])
 
+  private val commandMap = Map(":enter-cs" -> EnterCriticalSection, ":exit-cs" -> ExitCriticalSection, ":help" -> Help)
+  private val commands = Commands(commandMap.keySet)
+
   final case class CriticalSection(user: ActorRef)
+
   final case object NoCriticalSection
 
   def createMessage(content: String)(implicit user: ActorRef): Any = content match {

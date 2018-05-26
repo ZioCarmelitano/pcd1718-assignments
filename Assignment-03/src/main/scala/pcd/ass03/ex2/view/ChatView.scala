@@ -1,6 +1,7 @@
 package pcd.ass03.ex2.view
 
-import pcd.ass03.ex2.Launcher.system
+import pcd.ass03.ex2.GuiLauncher.system
+import pcd.ass03.ex2.view.ChatView._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -9,29 +10,20 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
-class DistributedChatView extends PrimaryStage{
+class ChatView extends PrimaryStage {
 
-  private val appTitle = "Distributed Chat"
-  private val appLogoPath = "/distributed_chat_logo.png"
-  private val sendLogoPath = "/send_button_logo.png"
-
-  private val messageField: TextField = new TextField{
+  private val messageField: TextField = new TextField {
     prefWidth = 450
-    onAction = (_) => {
-      presenter send()
-      text = ""
-    }
+    onAction = _ => presenter send
   }
 
-  private val sendMessage: Button = new Button{
-    onAction = (_) => {
-      presenter send()
-      messageField.text = ""
-    }
-    graphic = new ImageView {image = new Image(this, sendLogoPath)
+  private val sendMessage: Button = new Button {
+    graphic = new ImageView {
+      image = new Image(this, sendLogoPath)
       fitWidth = 20.0
       fitHeight = 20.0
     }
+    onAction = _ => presenter send
   }
 
   private val chatBox = new VBox()
@@ -42,8 +34,8 @@ class DistributedChatView extends PrimaryStage{
     content = chatBox
   }
 
-  private val titleLabelContainer: BorderPane = new BorderPane{
-    center = new Label(appTitle){
+  private val titleLabelContainer: BorderPane = new BorderPane {
+    center = new Label(appTitle) {
       font = Font(20)
     }
     prefHeight = 30
@@ -63,7 +55,7 @@ class DistributedChatView extends PrimaryStage{
   private val VIEW_WIDTH = 500
   private val VIEW_HEIGHT = 500
 
-  scene = new Scene(VIEW_WIDTH,VIEW_HEIGHT){
+  scene = new Scene(VIEW_WIDTH, VIEW_HEIGHT) {
     content = new BorderPane {
       top = titleLabelContainer
       center = chatBoxContainer
@@ -75,4 +67,10 @@ class DistributedChatView extends PrimaryStage{
   this getIcons() add new Image(appLogoPath)
 
   def presenter = _presenter
+}
+
+object ChatView {
+  private val appTitle = "Distributed Chat"
+  private val appLogoPath = "/ex2/logo.png"
+  private val sendLogoPath = "/ex2/send_button_logo.png"
 }
