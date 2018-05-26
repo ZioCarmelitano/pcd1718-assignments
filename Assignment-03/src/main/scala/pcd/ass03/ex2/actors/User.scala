@@ -18,10 +18,14 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
     case Commands(commands) => log.info(s"Commands are: $commands")
     case Message(content, user) =>
       log.info(s"${user.path.name} said: $content")
-      presenter.receive(content, user.path.name)
+      presenter.receive(content, user.path)
     case CommandNotUnderstood(command) => log.error(s"$command is not a valid command")
-    case EnterCriticalSection => log.info("Entered in critical section")
-    case ExitCriticalSection => log.info("Exited from critical section")
+    case EnterCriticalSection =>
+      log.info("Entered in critical section")
+      presenter.receiveInfo("Entered in critical section")
+    case ExitCriticalSection =>
+      log.info("Exited from critical section")
+      presenter.receiveInfo("Exited from critical section")
     case CriticalSection(user) => log.warning(s"Could not send message, critical section is held by ${user.path.name}")
     case NoCriticalSection => log.error("The room is not in a critical section state")
     case Send(content) => room ! Room.createMessage(content)

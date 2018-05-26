@@ -1,7 +1,8 @@
 package pcd.ass03.ex2.view
 
-import pcd.ass03.ex2.GuiLauncher.system
 import pcd.ass03.ex2.view.ChatView._
+import akka.actor.{ActorRef, ActorSystem}
+import pcd.ass03.ex2.actors.User
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -10,11 +11,14 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
-class ChatView extends PrimaryStage {
 
-  private val messageField: TextField = new TextField {
+class ChatView(username: String) extends PrimaryStage{
+
+  private val appTitle = username + " Chat Room"
+
+  private val messageField: TextField = new TextField{
     prefWidth = 450
-    onAction = _ => presenter send
+    onAction = _ => presenter send()
   }
 
   private val sendMessage: Button = new Button {
@@ -23,7 +27,7 @@ class ChatView extends PrimaryStage {
       fitWidth = 20.0
       fitHeight = 20.0
     }
-    onAction = _ => presenter send
+    onAction = _ => presenter send()
   }
 
   private val chatBox = new VBox()
@@ -67,10 +71,16 @@ class ChatView extends PrimaryStage {
   this getIcons() add new Image(appLogoPath)
 
   def presenter = _presenter
+
+  /* User Actor creation */
+  val system = ActorSystem("User", User.Config)
+  val user: ActorRef = system.actorOf(User(presenter), username)
+  presenter.user_(user)
 }
 
 object ChatView {
+  val appLogoPath = "/ex2/logo.png"
   private val appTitle = "Distributed Chat"
-  private val appLogoPath = "/ex2/logo.png"
   private val sendLogoPath = "/ex2/send_button_logo.png"
 }
+
