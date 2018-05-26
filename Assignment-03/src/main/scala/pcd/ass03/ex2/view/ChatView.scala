@@ -6,19 +6,22 @@ import pcd.ass03.ex2.actors.User
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, Label, ScrollPane, TextField}
+import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
 
-class ChatView(username: String) extends PrimaryStage{
+class ChatView(username: String) extends PrimaryStage {
 
   private val appTitle = username + " Chat Room"
 
-  private val messageField: TextField = new TextField{
+  private val messageField: TextField = new TextField {
     prefWidth = 450
-    onAction = _ => presenter send()
+    onAction = _ => {
+      presenter send()
+      text = ""
+    }
   }
 
   private val sendMessage: Button = new Button {
@@ -27,7 +30,10 @@ class ChatView(username: String) extends PrimaryStage{
       fitWidth = 20.0
       fitHeight = 20.0
     }
-    onAction = _ => presenter send()
+    onAction = _ => {
+      presenter send()
+      messageField.clear()
+    }
   }
 
   private val chatBox = new VBox()
@@ -76,11 +82,11 @@ class ChatView(username: String) extends PrimaryStage{
   val system = ActorSystem("User", User.Config)
   val user: ActorRef = system.actorOf(User(presenter), username)
   presenter.user_(user)
+
 }
 
 object ChatView {
   val appLogoPath = "/ex2/logo.png"
-  private val appTitle = "Distributed Chat"
   private val sendLogoPath = "/ex2/send_button_logo.png"
 }
 

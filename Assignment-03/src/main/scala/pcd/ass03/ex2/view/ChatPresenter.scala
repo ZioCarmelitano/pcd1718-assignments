@@ -2,12 +2,21 @@ package pcd.ass03.ex2.view
 
 import akka.actor.{ActorPath, ActorRef}
 import javafx.geometry.Pos
+import pcd.ass03.ex2.actors.Room.LockCheck
 import pcd.ass03.ex2.actors.User.Send
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
+import akka.pattern.ask
+import akka.util.Timeout
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType
+
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 
 class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox) {
@@ -15,37 +24,47 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   private var _user = ActorRef.noSender
 
   def send() {
-    println("Sent message: " + messageField.text.value)
-    _user ! Send(messageField.text.value)
-    addMessage(Pos.CENTER_RIGHT, _user.path.name, messageField.text.value)
+    val content = messageField.text.value
+    implicit val timeout: Timeout = Timeout(2 seconds)
+    val future = _user ? LockCheck
+
+    def send_(lock: Boolean): Unit = lock match {
+      case false =>
+        Platform.runLater(() => addMessage(Pos.CENTER_RIGHT, _user.path.name, content))
+        _user ! Send(content)
+      case _ => _user ! Send(content)
+    }
+
+    future.onComplete {
+      case Success(lock) => send_(lock.asInstanceOf[Boolean])
+      case Failure(t) => Platform.runLater{
+        AlertDialogUtils errorDialog("Error in sending message...",
+          "An error has occurred:", t.getMessage)
+      }
+    }
   }
 
   def receive(content: String, senderPath: ActorPath) = {
-    if (senderPath != _user.path) {
-      println("Received message: " + content + "\nfrom " + senderPath)
-      Platform.runLater {
-        addMessage(Pos.CENTER_LEFT, senderPath.name, content)
-      }
+    println("Received message: " + content + "\nfrom " + senderPath)
+    Platform.runLater {
+      addMessage(Pos.CENTER_LEFT, senderPath.name, content)
     }
   }
 
   def receiveInfo(info: String): Unit = {
     Platform.runLater {
-      addMessage(Pos.CENTER_RIGHT, "", info)
+      addInfoMessage(info)
     }
   }
 
   def addMessage(position: Pos, sender: String, text: String): Unit = text match {
-    case ":enter-cs" => addInfoMessage(sender, " entered in critical section!")
-    case ":exit-cs" => addInfoMessage(sender, " exited from critical section")
+    case ":enter-cs" => addInfoMessage(sender + " entered in critical section!")
+    case ":exit-cs" => addInfoMessage(sender + " exited from critical section")
     case _ => addUserMessage(position, sender, text)
   }
 
   private def addUserMessage(position: Pos, sender: String, text: String) = {
-    val senderLabel = new Label(sender) {
-      font = Font(13)
-      prefWidth = 490
-    }
+    val senderLabel = createInfoLabel(sender)
     val messageLabel = new Label(text) {
       font = Font(20)
       prefWidth = 490
@@ -55,16 +74,31 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
     chatBox.children addAll(senderLabel, messageLabel)
   }
 
-  private def addInfoMessage(sender: String, info: String) = {
-    val senderLabel = new Label(sender + info) {
-      font = Font(13)
-      prefWidth = 490
-      margin = Insets(3)
-    }
+  private def addInfoMessage(info: String): Unit = {
+    val senderLabel = createInfoLabel(info)
     senderLabel setAlignment Pos.CENTER_RIGHT
     chatBox.children add senderLabel
   }
 
+  private def createInfoLabel(info: String) = {
+    new Label(info) {
+      font = Font(13)
+      prefWidth = 490
+      margin = Insets(6, 0, 1, 0)
+    }
+  }
 
   def user_(value: ActorRef): Unit = _user = value
+
+  object AlertDialogUtils {
+    def errorDialog(dialogTitle: String, header: String, content: String): Unit = {
+      val alert = new Alert(AlertType.ERROR)
+      alert setTitle dialogTitle
+      alert setHeaderText header
+      alert setContentText content
+      alert showAndWait
+    }
+  }
 }
+
+

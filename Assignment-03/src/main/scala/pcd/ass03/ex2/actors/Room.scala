@@ -96,6 +96,8 @@ object Room {
 
   final case object ExitCriticalSection
 
+  final case object LockCheck
+
   final case object Help
 
   final case class CommandNotUnderstood(command: String)
