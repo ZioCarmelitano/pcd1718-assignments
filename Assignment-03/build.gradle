@@ -24,7 +24,7 @@ apply plugin: 'javafx-gradle-plugin'
 
 jfx {
     // minimal requirement for jfxJar-task
-    mainClass = 'pcd.ass01.Launcher'
+    mainClass = 'pcd.ass03.ex2.GuiLauncher'
 
     // minimal requirement for jfxNative-task
     vendor = 'MMN'

@@ -4,11 +4,11 @@ import pcd.ass03.ex1.domain.Board;
 
 import java.io.Serializable;
 
-public class NewBoardMsg implements Serializable {
+public class NewBoard implements Serializable {
     private final Board newBoard;
 
 
-    public NewBoardMsg(Board newBoard) {
+    public NewBoard(Board newBoard) {
         this.newBoard = newBoard;
     }
 
