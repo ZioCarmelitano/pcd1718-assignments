@@ -18,7 +18,7 @@ object ImagePaths {
 
 class ChatView(username: String) extends PrimaryStage{
 
-  private val appTitle = "Distributed Chat"
+  private val appTitle = username + " Chat Room"
 
   private val messageField: TextField = new TextField{
     prefWidth = 450

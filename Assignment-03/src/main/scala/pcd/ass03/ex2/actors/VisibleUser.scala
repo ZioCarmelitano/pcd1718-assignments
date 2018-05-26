@@ -19,9 +19,10 @@ class VisibleUser(presenter: ChatPresenter) extends Actor with ActorLogging {
     case Message(content, user) =>
       log.info(s"${user.path} said: $content")
       presenter.receive(content, user.path)
-
     case CommandNotUnderstood(command) => log.error(s"$command is not a valid command")
-    case EnterCS => log.info("Entered in critical section")
+    case EnterCS =>
+      log.info("Entered in critical section")
+      presenter.receiveInfo("Entered in critical section")
     case ExitCS => log.info("Exited from critical section")
     case CriticalSection(user) => log.warning(s"Could not send message, critical section is held by ${user.path.name}")
     case NoCriticalSection => log.error("The room is not in a critical section state")
