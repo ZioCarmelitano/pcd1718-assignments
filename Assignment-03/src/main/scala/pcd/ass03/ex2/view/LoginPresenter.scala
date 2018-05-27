@@ -44,5 +44,3 @@ object LoginValidator{
 
   final case class IllegalCharsException(error: String) extends Exception(error)
 }
-
-

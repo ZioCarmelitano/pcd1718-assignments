@@ -11,6 +11,7 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
+
 /* It defines the structure of the chat view. */
 class ChatView(username: String) extends PrimaryStage {
 
