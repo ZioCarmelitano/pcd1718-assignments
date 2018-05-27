@@ -7,6 +7,7 @@ import pcd.ass03.ex1.actors.msg.*;
 import pcd.ass03.ex1.domain.Board;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,7 +16,6 @@ public class BoardUpdater extends AbstractLoggingActor {
     public static final int DEFAULT_PARTITIONS = 5;
     private final int numberOfWorkers;
     private List<ActorRef> workers;
-    private int finishUpdate;
 
     public BoardUpdater(int numberOfWorkers) {
         this.numberOfWorkers = numberOfWorkers;
@@ -43,10 +43,11 @@ public class BoardUpdater extends AbstractLoggingActor {
             prepareWorkers(oldBoard, newBoard);
 
             ActorRef sender = getSender();
+
+            final AtomicInteger finishUpdate = new AtomicInteger();
             getContext().become(receiveBuilder().match(FinishedUpdate.class, finishMsg -> {
-                this.finishUpdate++;
-                if (this.finishUpdate == this.numberOfWorkers) {
-                    this.finishUpdate = 0;
+                if (finishUpdate.incrementAndGet() == this.numberOfWorkers) {
+                    finishUpdate.set(0);
                     sender.tell(new NewBoard(newBoard), getSelf());
                     getContext().unbecome();
                 }

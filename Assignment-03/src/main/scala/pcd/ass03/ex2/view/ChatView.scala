@@ -93,4 +93,3 @@ object ChatView {
   val appLogoPath = "/ex2/logo.png"
   private val sendLogoPath = "/ex2/send_button_logo.png"
 }
-

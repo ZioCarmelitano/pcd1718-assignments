@@ -4,9 +4,9 @@ import java.util.regex.Pattern
 
 import akka.actor.ActorSystem
 import pcd.ass03.ex2.actors.{Room, User}
+import scalafx.application.Platform
 import pcd.ass03.ex2.view.DialogUtils.errorDialog
 import pcd.ass03.ex2.view.LoginValidator.validateInput
-import scalafx.application.Platform
 import scalafx.scene.control.TextField
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,7 +18,7 @@ import scala.util.{Failure, Success, Try}
 class LoginPresenter(usernameField: TextField) {
 
   def login(): Unit = {
-    def validateAndLogin(username: String): Unit = validateInput(username) match {
+    def validateAndLogin(username: String): Unit = Try(validateInput(username)) match {
       case Success(_) => checkRoomAndLogin(username)
       case Failure(t) => errorDialog(dialogTitle = "Input Error",
         header = "An error occurred in username validation",
@@ -44,7 +44,7 @@ object LoginValidator {
 
   def validateInput(username: String): Try[Unit] = username match {
     case specialCharsCheck(_) => Success()
-    case _ => Failure(IllegalCharsException("The input contains a special char not permitted (e.g. whitespace)"))
+    case _ => throw IllegalCharsException("The input contains a special char not permitted (e.g. whitespace)")
   }
 
   private def notContainSpecialChars(s: String): Boolean = {
@@ -59,5 +59,4 @@ object LoginValidator {
   }
 
   final case class IllegalCharsException(error: String) extends Exception(error)
-
 }
