@@ -26,20 +26,19 @@ class LoginPresenter(usernameField: TextField) {
 object LoginValidator{
 
   def validateInput(username: String): Try[Unit] = username match {
-    case containsSpecialChars(_) =>
-      Failure(IllegalCharsException("The input contains a special char not permitted (e.g. whitespace)"))
-    case _  => Success()
+    case specialCharsCheck(_) => Success()
+    case _  => Failure(IllegalCharsException("The input contains a special char not permitted (e.g. whitespace)"))
   }
 
-  private def containsSpecialChars(s: String): Boolean ={
-    val pattern = Pattern compile "\\s|#"
+  private def notContainSpecialChars(s: String): Boolean ={
+    val pattern = Pattern compile "[\\w]+"
     val matcher = pattern.matcher(s)
-    matcher find
+    matcher matches
   }
 
   /* Extractor object used to enable pattern matching */
-  private object containsSpecialChars {
-    def unapply(str: String): Option[Unit] = if (containsSpecialChars(str)) Some() else None
+  private object specialCharsCheck {
+    def unapply(str: String): Option[Unit] = if (notContainSpecialChars(str)) Some() else None
   }
 
   final case class IllegalCharsException(error: String) extends Exception(error)

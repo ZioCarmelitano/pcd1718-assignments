@@ -2,8 +2,7 @@ package pcd.ass03.ex2.view
 
 import akka.actor.{ActorPath, ActorRef}
 import javafx.geometry.Pos
-import pcd.ass03.ex2.actors.Room.LockCheck
-import pcd.ass03.ex2.actors.User.Send
+import pcd.ass03.ex2.actors.User.{LockCheck, Send}
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, Label, TextField}
@@ -11,6 +10,7 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import akka.pattern.ask
 import akka.util.Timeout
+
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
