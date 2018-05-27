@@ -2,7 +2,7 @@ package pcd.ass03.ex1.actors;
 
 import akka.actor.AbstractLoggingActor;
 import akka.actor.Props;
-import pcd.ass03.ex1.actors.msg.FinishedUpdate;
+import pcd.ass03.ex1.actors.msg.FinishedPartialUpdate;
 import pcd.ass03.ex1.actors.msg.StartPartialUpdate;
 import pcd.ass03.ex1.actors.msg.StartUpdate;
 import pcd.ass03.ex1.actors.msg.Stop;
@@ -33,7 +33,7 @@ public class Worker extends AbstractLoggingActor {
             getContext().become(receiveBuilder().match(StartPartialUpdate.class, partialMsg -> {
                 if ((rowForPartialWorker + partialMsg.getToRow()) >= maxTo) {
                     this.updateBoard(partialMsg.getFromRow(), maxTo, partialMsg.getOldBoard(), partialMsg.getNewBoard());
-                    getSender().tell(new FinishedUpdate(), getSelf());
+                    getSender().tell(new FinishedPartialUpdate(), getSelf());
                     getContext().unbecome();
                 } else {
                     this.updateBoard(partialMsg.getFromRow(), partialMsg.getToRow(), partialMsg.getOldBoard(), partialMsg.getNewBoard());
