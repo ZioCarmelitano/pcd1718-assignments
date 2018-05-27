@@ -12,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 /* It handles the event actions triggered by LoginView components */
 class LoginPresenter(usernameField: TextField) {
 
-  def login() = {
+  def login(): Unit = {
     def login_(username: String): Unit = validateInput(username) match {
       case Success(_) => new ChatView(username) show
       case Failure(t) => errorDialog("Input Error",

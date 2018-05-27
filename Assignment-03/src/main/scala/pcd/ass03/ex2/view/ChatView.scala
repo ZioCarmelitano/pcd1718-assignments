@@ -79,7 +79,7 @@ class ChatView(username: String) extends PrimaryStage {
   this getIcons() add new Image(appLogoPath)
 
   /* Simple getter to retrieve the presenter */
-  def presenter = _presenter
+  def presenter: ChatPresenter = _presenter
 
   /* User Actor creation */
   val system = ActorSystem("User", User.Config)

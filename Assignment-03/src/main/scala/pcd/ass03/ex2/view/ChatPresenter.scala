@@ -25,11 +25,11 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
     implicit val timeout: Timeout = Timeout(2 seconds)
     val future = _user ? LockCheck
 
-    def send_(lock: Boolean): Unit = lock match {
-      case false =>
-        Platform.runLater(() => addMessage(Pos.CENTER_RIGHT, _user.path.name, content))
-        _user ! Send(content)
-      case _ => _user ! Send(content)
+    def send_(lock: Boolean): Unit = if (lock) {
+      _user ! Send(content)
+    } else {
+      Platform.runLater(() => addMessage(Pos.CENTER_RIGHT, _user.path.name, content))
+      _user ! Send(content)
     }
 
     future.onComplete {
@@ -41,7 +41,7 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
     }
   }
 
-  def receive(content: String, senderPath: ActorPath) = {
+  def receive(content: String, senderPath: ActorPath): Unit = {
     println("Received message: " + content + "\nfrom " + senderPath)
     Platform.runLater {
       addMessage(Pos.CENTER_LEFT, senderPath.name, content)
