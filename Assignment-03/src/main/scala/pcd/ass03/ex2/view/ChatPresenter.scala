@@ -86,4 +86,3 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   def user_(value: ActorRef): Unit = _user = value
 }
 
-
