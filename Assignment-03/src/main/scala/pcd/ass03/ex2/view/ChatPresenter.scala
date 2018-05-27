@@ -11,9 +11,6 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
 import akka.pattern.ask
 import akka.util.Timeout
-import javafx.scene.control.Alert
-import javafx.scene.control.Alert.AlertType
-
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
@@ -38,7 +35,7 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
     future.onComplete {
       case Success(lock) => send_(lock.asInstanceOf[Boolean])
       case Failure(t) => Platform.runLater{
-        AlertDialogUtils errorDialog("Error in sending message...",
+        DialogUtils errorDialog("Error in sending message...",
           "An error has occurred:", t.getMessage)
       }
     }
@@ -66,7 +63,7 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   private def addUserMessage(position: Pos, sender: String, text: String) = {
     val senderLabel = createInfoLabel(sender)
     val messageLabel = new Label(text) {
-      font = Font(20)
+      font = Font(size = 20)
       prefWidth = 490
     }
     messageLabel setAlignment position
@@ -80,25 +77,14 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
     chatBox.children add senderLabel
   }
 
-  private def createInfoLabel(info: String) = {
-    new Label(info) {
-      font = Font(13)
-      prefWidth = 490
-      margin = Insets(6, 0, 1, 0)
-    }
+  private def createInfoLabel(info: String) = new Label(info) {
+    font = Font(size = 13)
+    prefWidth = 490
+    margin = Insets(top = 6, right = 0, bottom  = 1,  left = 0)
   }
 
   def user_(value: ActorRef): Unit = _user = value
 
-  object AlertDialogUtils {
-    def errorDialog(dialogTitle: String, header: String, content: String): Unit = {
-      val alert = new Alert(AlertType.ERROR)
-      alert setTitle dialogTitle
-      alert setHeaderText header
-      alert setContentText content
-      alert showAndWait
-    }
-  }
 }
 
 

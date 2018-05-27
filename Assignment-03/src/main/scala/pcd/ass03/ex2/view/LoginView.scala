@@ -14,7 +14,7 @@ class LoginView extends PrimaryStage{
   private val usernameLabel = new Label("Username")
   private val userField: TextField = new TextField{
     prefWidth = 200
-    margin = Insets(10)
+    margin = Insets(topRightBottomLeft = 10)
   }
   private val loginButton: Button = new Button("Login")
 
@@ -24,10 +24,7 @@ class LoginView extends PrimaryStage{
   title = "Chat Login"
 
   /* Login scene creation */
-  private val LOGIN_WIDTH = 280
-  private val LOGIN_HEIGHT = 100
-
-  scene = new Scene(LOGIN_WIDTH,LOGIN_HEIGHT){
+  scene = new Scene(width = 280, height = 100){
     private val pane: BorderPane = new BorderPane {
       top = new BorderPane{
         center = usernameLabel

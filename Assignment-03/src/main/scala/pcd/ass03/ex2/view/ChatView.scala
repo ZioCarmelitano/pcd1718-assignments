@@ -11,11 +11,12 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
-
+/* It defines the structure of the chat view. */
 class ChatView(username: String) extends PrimaryStage {
 
   private val appTitle = username + " Chat Room"
 
+  /* GUI Components creation */
   private val messageField: TextField = new TextField {
     prefWidth = 450
     onAction = _ => {
@@ -46,26 +47,25 @@ class ChatView(username: String) extends PrimaryStage {
 
   private val titleLabelContainer: BorderPane = new BorderPane {
     center = new Label(appTitle) {
-      font = Font(20)
+      font = Font(size = 20)
     }
     prefHeight = 30
     prefWidth = 500
   }
 
   private val commandContainer: GridPane = new GridPane {
-    padding = Insets(5)
-    add(messageField, 0, 0)
-    add(sendMessage, 1, 0)
+    padding = Insets(topRightBottomLeft = 5)
+    add(messageField, columnIndex = 0, rowIndex = 0)
+    add(sendMessage, columnIndex = 1, rowIndex = 0)
   }
 
+  /* Creation of the associated presenter */
   private val _presenter = new ChatPresenter(messageField, sendMessage, chatBox)
 
   title = appTitle
 
-  private val VIEW_WIDTH = 500
-  private val VIEW_HEIGHT = 500
-
-  scene = new Scene(VIEW_WIDTH, VIEW_HEIGHT) {
+  /* Scene graph creation */
+  scene = new Scene(width = 500, height = 500) {
     content = new BorderPane {
       top = titleLabelContainer
       center = chatBoxContainer
@@ -74,8 +74,10 @@ class ChatView(username: String) extends PrimaryStage {
     onCloseRequest = _ => system.terminate()
   }
 
+  /* Setting of the app logo */
   this getIcons() add new Image(appLogoPath)
 
+  /* Simple getter to retrieve the presenter */
   def presenter = _presenter
 
   /* User Actor creation */
@@ -85,6 +87,7 @@ class ChatView(username: String) extends PrimaryStage {
 
 }
 
+/* Companion object that contains file paths used by ChatView class */
 object ChatView {
   val appLogoPath = "/ex2/logo.png"
   private val sendLogoPath = "/ex2/send_button_logo.png"
