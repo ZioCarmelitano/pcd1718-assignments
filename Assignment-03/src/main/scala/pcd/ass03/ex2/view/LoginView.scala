@@ -8,29 +8,29 @@ import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.image.Image
 import scalafx.scene.layout.BorderPane
 
-class LoginView extends PrimaryStage{
+class LoginView extends PrimaryStage {
 
   /* GUI components creation */
   private val usernameLabel = new Label("Username")
-  private val userField: TextField = new TextField{
+  private val userField: TextField = new TextField {
     prefWidth = 200
     margin = Insets(topRightBottomLeft = 10)
   }
   private val loginButton: Button = new Button("Login")
 
   /* Login presenter creation */
-  private val loginPresenter:LoginPresenter = new LoginPresenter(userField)
+  private val loginPresenter: LoginPresenter = new LoginPresenter(userField)
 
   title = "Chat Login"
 
   /* Login scene creation */
-  scene = new Scene(width = 280, height = 100){
+  scene = new Scene(width = 280, height = 100) {
     private val pane: BorderPane = new BorderPane {
-      top = new BorderPane{
+      top = new BorderPane {
         center = usernameLabel
       }
       center = userField
-      bottom = new BorderPane{
+      bottom = new BorderPane {
         center = loginButton
       }
     }

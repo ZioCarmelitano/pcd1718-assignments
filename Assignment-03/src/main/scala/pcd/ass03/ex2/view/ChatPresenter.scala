@@ -1,6 +1,8 @@
 package pcd.ass03.ex2.view
 
 import akka.actor.{ActorPath, ActorRef}
+import akka.pattern.ask
+import akka.util.Timeout
 import javafx.geometry.Pos
 import pcd.ass03.ex2.actors.User.{LockCheck, Send}
 import scalafx.application.Platform
@@ -8,11 +10,8 @@ import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
-import akka.pattern.ask
-import akka.util.Timeout
-
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 
@@ -25,23 +24,21 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
     implicit val timeout: Timeout = Timeout(2 seconds)
     val future = _user ? LockCheck
 
-    def send_(lock: Boolean): Unit = lock match {
-      case false =>
-        Platform.runLater(() => addMessage(Pos.CENTER_RIGHT, _user.path.name, content))
-        _user ! Send(content)
-      case _ => _user ! Send(content)
+    def send_(lock: Boolean): Unit = {
+      if (!lock) Platform.runLater(() => addMessage(Pos.CENTER_RIGHT, _user.path.name, content))
+      _user ! Send(content)
     }
 
     future.onComplete {
       case Success(lock) => send_(lock.asInstanceOf[Boolean])
-      case Failure(t) => Platform.runLater{
+      case Failure(t) => Platform runLater {
         DialogUtils errorDialog("Error in sending message...",
           "An error has occurred:", t.getMessage)
       }
     }
   }
 
-  def receive(content: String, senderPath: ActorPath) = {
+  def receive(content: String, senderPath: ActorPath): Unit = {
     println("Received message: " + content + "\nfrom " + senderPath)
     Platform.runLater {
       addMessage(Pos.CENTER_LEFT, senderPath.name, content)
@@ -80,7 +77,7 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   private def createInfoLabel(info: String) = new Label(info) {
     font = Font(size = 13)
     prefWidth = 490
-    margin = Insets(top = 6, right = 0, bottom  = 1,  left = 0)
+    margin = Insets(top = 6, right = 0, bottom = 1, left = 0)
   }
 
   def user_(value: ActorRef): Unit = _user = value
