@@ -1,6 +1,6 @@
 package pcd.ass03.ex2.view
 
-import java.util.regex.{Matcher, Pattern}
+import java.util.regex.Pattern
 
 import pcd.ass03.ex2.view.DialogUtils.errorDialog
 import pcd.ass03.ex2.view.LoginValidator.validateInput
