@@ -5,7 +5,7 @@ import java.io.File
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
-import pcd.ass03.ex2.actors.User.Send
+import pcd.ass03.ex2.actors.User.{LockCheck, Send}
 import pcd.ass03.ex2.view.ChatPresenter
 
 class User(presenter: ChatPresenter) extends Actor with ActorLogging {
@@ -64,6 +64,8 @@ object User {
   def props(chatPresenter: ChatPresenter): Props = Props(new User(chatPresenter))
 
   final case class Send(content: String)
+
+  final case object LockCheck
 
   val Config: Config = ConfigFactory.parseFile(new File("src/main/resources/ex2/akka/user.conf"))
 
