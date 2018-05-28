@@ -4,9 +4,9 @@ import java.util.regex.Pattern
 
 import akka.actor.ActorSystem
 import pcd.ass03.ex2.actors.{Room, User}
-import scalafx.application.Platform
 import pcd.ass03.ex2.view.DialogUtils.errorDialog
 import pcd.ass03.ex2.view.LoginValidator.validateInput
+import scalafx.application.Platform
 import scalafx.scene.control.TextField
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,9 +42,14 @@ class LoginPresenter(usernameField: TextField) {
 
 object LoginValidator {
 
+  val MaxUsernameLength = 20
+
   def validateInput(username: String): Try[Unit] = username match {
-    case specialCharsCheck(_) => Success()
-    case _ => throw IllegalCharsException("The input contains a special char not permitted (e.g. whitespace)")
+    case containsSpecialChars() => throw IllegalCharsException("The input contains a special char not permitted" +
+      " (e.g. whitespace)")
+    case CharsLimitExceeded() => throw CharsLimitException("You have exceeded the char limit (" +
+      MaxUsernameLength + ") for the username")
+    case _ => Success()
   }
 
   private def notContainSpecialChars(s: String): Boolean = {
@@ -53,10 +58,18 @@ object LoginValidator {
     matcher matches
   }
 
-  /* Extractor object used to enable pattern matching */
-  private object specialCharsCheck {
-    def unapply(str: String): Option[Unit] = if (notContainSpecialChars(str)) Some() else None
+  /* Extractor objects used to enable pattern matching */
+  private object containsSpecialChars {
+    def unapply(str: String): Boolean = !notContainSpecialChars(str)
   }
 
+  private object CharsLimitExceeded {
+    def unapply(str: String): Boolean = str.length > MaxUsernameLength
+  }
+
+  /* Custom exception used to launch error in login validation */
   final case class IllegalCharsException(error: String) extends Exception(error)
+
+  final case class CharsLimitException(error: String) extends Exception(error)
+
 }
