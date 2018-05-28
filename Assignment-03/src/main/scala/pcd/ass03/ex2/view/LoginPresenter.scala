@@ -43,7 +43,8 @@ class LoginPresenter(usernameField: TextField) {
 object LoginValidator {
 
   def validateInput(username: String): Try[Unit] = username match {
-    case specialCharsCheck(_) => Success()
+    case specialCharsCheck() => Success()
+    case noInput() => throw NoInputException("Please insert your username")
     case _ => throw IllegalCharsException("The input contains a special char not permitted (e.g. whitespace)")
   }
 
@@ -55,8 +56,13 @@ object LoginValidator {
 
   /* Extractor object used to enable pattern matching */
   private object specialCharsCheck {
-    def unapply(str: String): Option[Unit] = if (notContainSpecialChars(str)) Some() else None
+    def unapply(str: String): Boolean = notContainSpecialChars(str)
+  }
+
+  private object noInput {
+    def unapply(str: String): Boolean = str.isEmpty
   }
 
   final case class IllegalCharsException(error: String) extends Exception(error)
+  final case class NoInputException(error: String) extends Exception(error)
 }
