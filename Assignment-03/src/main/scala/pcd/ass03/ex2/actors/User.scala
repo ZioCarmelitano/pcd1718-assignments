@@ -8,6 +8,7 @@ import pcd.ass03.ex2.actors.Room._
 import pcd.ass03.ex2.actors.User.{LockCheck, Send}
 import pcd.ass03.ex2.view.ChatPresenter
 
+
 class User(presenter: ChatPresenter) extends Actor with ActorLogging {
 
   private[this] lazy val room = context.actorSelection(Room.Path)

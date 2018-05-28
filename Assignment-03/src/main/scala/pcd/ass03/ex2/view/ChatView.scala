@@ -1,8 +1,8 @@
 package pcd.ass03.ex2.view
 
-import pcd.ass03.ex2.view.ChatView._
 import akka.actor.{ActorRef, ActorSystem}
 import pcd.ass03.ex2.actors.User
+import pcd.ass03.ex2.view.ChatView._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -34,7 +34,7 @@ class ChatView(username: String) extends PrimaryStage {
     }
     onAction = _ => {
       presenter send()
-      messageField.clear()
+      messageField clear()
     }
   }
 
@@ -79,7 +79,7 @@ class ChatView(username: String) extends PrimaryStage {
   this getIcons() add new Image(appLogoPath)
 
   /* Simple getter to retrieve the presenter */
-  def presenter = _presenter
+  def presenter: ChatPresenter = _presenter
 
   /* User Actor creation */
   val system = ActorSystem("User", User.Config)
