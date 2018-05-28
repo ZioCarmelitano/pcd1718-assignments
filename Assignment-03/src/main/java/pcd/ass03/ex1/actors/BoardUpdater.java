@@ -26,7 +26,7 @@ public class BoardUpdater extends AbstractLoggingActor {
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() {
         workers = IntStream.range(0, numberOfWorkers)
                 .mapToObj(i -> getContext().actorOf(Worker.props(DEFAULT_PARTITIONS), "Worker" + i))
                 .collect(Collectors.toList());
@@ -45,7 +45,7 @@ public class BoardUpdater extends AbstractLoggingActor {
             ActorRef sender = getSender();
 
             final AtomicInteger finishUpdate = new AtomicInteger();
-            getContext().become(receiveBuilder().match(FinishedUpdate.class, finishMsg -> {
+            getContext().become(receiveBuilder().match(FinishedUpdate.class, finish -> {
                 if (finishUpdate.incrementAndGet() == this.numberOfWorkers) {
                     finishUpdate.set(0);
                     sender.tell(new NewBoard(newBoard), getSelf());

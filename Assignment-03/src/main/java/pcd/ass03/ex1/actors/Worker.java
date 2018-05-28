@@ -1,13 +1,15 @@
 package pcd.ass03.ex1.actors;
 
 import akka.actor.AbstractLoggingActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
-import pcd.ass03.ex1.actors.msg.FinishedPartialUpdate;
 import pcd.ass03.ex1.actors.msg.StartPartialUpdate;
 import pcd.ass03.ex1.actors.msg.StartUpdate;
 import pcd.ass03.ex1.actors.msg.Stop;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.CellUtils;
+
+import static pcd.ass03.ex1.actors.msg.FinishedUpdate.FinishedUpdate;
 
 public class Worker extends AbstractLoggingActor {
 
@@ -28,16 +30,18 @@ public class Worker extends AbstractLoggingActor {
             int maxTo = msg.getToRow();
             int rowForPartialWorker = (maxTo - from) / numberOfPartitions;
 
+            final ActorRef sender = getSender();
+
             getSelf().tell(new StartPartialUpdate(from, from + rowForPartialWorker, msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
 
-            getContext().become(receiveBuilder().match(StartPartialUpdate.class, partialMsg -> {
-                if ((rowForPartialWorker + partialMsg.getToRow()) >= maxTo) {
-                    this.updateBoard(partialMsg.getFromRow(), maxTo, partialMsg.getOldBoard(), partialMsg.getNewBoard());
-                    getSender().tell(new FinishedPartialUpdate(), getSelf());
+            getContext().become(receiveBuilder().match(StartPartialUpdate.class, partial -> {
+                if ((rowForPartialWorker + partial.getToRow()) >= maxTo) {
+                    this.updateBoard(partial.getFromRow(), maxTo, partial.getOldBoard(), partial.getNewBoard());
+                    sender.tell(FinishedUpdate, getSelf());
                     getContext().unbecome();
                 } else {
-                    this.updateBoard(partialMsg.getFromRow(), partialMsg.getToRow(), partialMsg.getOldBoard(), partialMsg.getNewBoard());
-                    getSelf().tell(new StartPartialUpdate(partialMsg.getToRow(), rowForPartialWorker + partialMsg.getToRow(), msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
+                    this.updateBoard(partial.getFromRow(), partial.getToRow(), partial.getOldBoard(), partial.getNewBoard());
+                    getSelf().tell(new StartPartialUpdate(partial.getToRow(), rowForPartialWorker + partial.getToRow(), msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
                 }
             }).build(), false);
 

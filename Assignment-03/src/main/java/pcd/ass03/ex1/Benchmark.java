@@ -51,8 +51,7 @@ final class Benchmark {
 
                 long startTime = System.currentTimeMillis();
                 benchmark.tell(new Start(board), ActorRef.noSender());
-                while (!benchmark.isTerminated()) {
-                }
+                while (!benchmark.isTerminated()) ;
                 long updateTime = System.currentTimeMillis() - startTime;
 
                 results.put(numberOfWorkers, updateTime);
