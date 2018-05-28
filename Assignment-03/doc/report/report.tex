@@ -264,15 +264,15 @@ Il messagio \texttt{NewBoard}, inviato dal \texttt{BoardUpdater}, informa il \te
 
 \subsubsection{Interfaccia utente}\label{interfaccia-utente}
 
-L’interfaccia utente è stata realizzata con Java FX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \textit{start} e \textit{stop}. Lo \textit{start} permette l’avvio e la pausa del gioco, mentre lo \textit{stop} la terminazione.\\
+L’interfaccia utente è stata realizzata con JavaFX ed è costituita da due schermate: nella prima si permette all’utente di settare le dimensioni della scacchiera di gioco (altezza e larghezza) ed il numero di \texttt{Worker}. Nella seconda si visualizza la scacchiera e sono presenti due pulsanti \textit{start} e \textit{stop}. Lo \textit{start} permette l’avvio e la pausa del gioco, mentre lo \textit{stop} la terminazione.\\
 Utilizzando il pattern Factory sono stati incapsulate in una apposita classe le funzioni per la costruzione delle finestre grafiche. Le callback di queste finestre sono definite da opportuni \texttt{Presenter} che incapsulano la logica di controllo dei componenti (form, pulsanti, ...) di cui sono costituite.\\
-La computazione relativa alla coordinazione dell’aggiornamento matriciale e grafico della scacchiera è effettuata dall'attore \texttt{GuiUpdater} e questo permette di mantenere l’interfaccia grafica (gestita dal Java FX Application Thread) reattiva ed in grado di intercettare l’input dell’utente.\\
+La computazione relativa alla coordinazione dell’aggiornamento matriciale e grafico della scacchiera è effettuata dall'attore \texttt{GuiUpdater} e questo permette di mantenere l’interfaccia grafica (gestita dal JavaFX Application Thread) reattiva ed in grado di intercettare l’input dell’utente.\\
 Il messaggio \texttt{Start}, inviato dal \texttt{GuiUpdater} al \texttt{BoardUpdater}, si occupa di avviare l'aggiornamento della schermata di gioco passata in input.\\
 Il messaggio \texttt{Pause}, inviato dal \texttt{GamePresenter} a fronte della pressione del pulsante associato, informa l'attore \texttt{GuiUpdater} della messa in pausa del gioco da parte dell'utente.\\
 Il messaggio \texttt{Resume}, inviato dal \texttt{GamePresenter} a fronte della pressione del pulsante associato, informa l'attore \texttt{GuiUpdater} della ripresa del gioco.\\
 Il messaggio\texttt{Stop}, inviato dal \texttt{GamePresenter} a fronte della pressione del pulsante associato, informa l'attore \texttt{GuiUpdater}, che informerà gli altri attori sulla volontà dell'utente di voler termianre la simulazione.\\
 Il Presenter addetto alla gestione degli eventi di gioco (\texttt{GamePresenter}) utilizza un servizio di rendering offerto dalla classe \texttt{RenderingService} nella quale sono state incapsulate le funzioni relative al disegno della scacchiera di gioco.\\
-Quest'ultima è stata realizzata utilizzando un componente grafico \texttt{Canvas} sul quale vengono disegnate le celle attraverso la classe \texttt{PixelWriter} di Java FX: una classe ottimizzata per il disegno dei singoli pixel.
+Quest'ultima è stata realizzata utilizzando un componente grafico \texttt{Canvas} sul quale vengono disegnate le celle attraverso la classe \texttt{PixelWriter} di JavaFX: una classe ottimizzata per il disegno dei singoli pixel.
 
 \section{Dinamica del sistema}\label{dinamica-del-sistema}
 La dinamica del sistema è stata rappresentata formalmente con le Reti di Petri. Le piazze (\textit{places}) del livello corrispondono ai \texttt{Worker} che concorrono all'aggiornamento della scacchiera di gioco; in questo esempio è stato scelto di mostrare il sistema nel caso se ne utilizzino 4.
@@ -304,22 +304,21 @@ Dove:
 \begin{tabular}{l|ccccccccc}
 \hline
      & 2     & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10   \\ \hline
-Min. & 1.77  & 2.43 & 3.04 & 2.93 & 2.89 & 2.90 & 2.86 & 2.85 & 2.85 \\
-Max. & 2.11  & 2.87 & 3.41 & 3.22 & 3.40 & 3.26 & 3.38 & 3.06 & 3.45 \\
-Avg. & 1.81  & 2.50 & 3.06 & 2.94 & 2.93 & 2.91 & 2.92 & 2.85 & 2.94 \\ \hline
+Min. & 1.86 & 2.48 & 2.55 & 2.73 & 2.82 & 2.81 & 2.80 & 2.86 & 12.95 \\
+Max. & 1.44 & 1.75 & 2.41 & 2.49 & 2.35 & 2.53 & 2.45 & 2.39 & 12.34 \\
+Avg. & 1.74 & 2.22 & 2.35 & 2.42 & 2.41 & 2.47 & 2.47 & 2.48 & 12.51 \\ \hline
 \end{tabular}
 \caption{Lo speedup è stato calcolato su 25 iterazioni considerando una schacchiera di gioco 5000x5000. Sulle colonne sono specificati il numero di worker utilizzati per la parallelizzazione dell'algoritmo, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati. Gli speedup sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.
 È possibile eseguire i benchmark lanciando la classe \texttt{pcd.ass01.Benchmark} e visualizzare sia le velocità di computazione di uno stato della scacchiera, sia i relativi speedup ottenuti.}
 \label{speedup-table}
 \end{table}
-\begin{comment}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=110mm]{res/execution_times.png}
     \caption{Grafico che mostra l'evoluzione dei tempi di esecuzione (in ms) al crescere del numero di worker. I tempi di esecuzione sono stati calcolati come media su 25 iterazioni considerando una schacchiera di gioco 5000x5000. I tempi di esecuzione sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.}
     \label{fig:execution-times}
 \end{figure}
-\end{comment}
 
 % Your document ends here!
 \end{document}

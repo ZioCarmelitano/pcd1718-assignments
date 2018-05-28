@@ -9,15 +9,15 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import pcd.ass03.ex1.actors.GuiUpdater;
-import pcd.ass03.ex1.actors.msg.Pause;
-import pcd.ass03.ex1.actors.msg.Resume;
 import pcd.ass03.ex1.actors.msg.Start;
-import pcd.ass03.ex1.actors.msg.Stop;
 import pcd.ass03.ex1.domain.Board;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static pcd.ass03.ex1.actors.msg.Pause.Pause;
+import static pcd.ass03.ex1.actors.msg.Resume.Resume;
+import static pcd.ass03.ex1.actors.msg.Stop.Stop;
 import static pcd.ass03.ex1.view.factories.FxWindowFactory.*;
 import static pcd.ass03.ex1.view.settings.SettingsPresenter.getBoardConfiguration;
 import static pcd.ass03.ex1.view.settings.SettingsPresenter.getWorkersNumber;
@@ -55,10 +55,10 @@ public class GamePresenter implements Initializable {
             launchGUIUpdater(event);
         } else if (isPaused()) {
             resumeGame();
-            guiUpdater.tell(new Resume(), ActorRef.noSender());
+            guiUpdater.tell(Resume, ActorRef.noSender());
         } else if (!isPaused()) {
             pauseGame();
-            guiUpdater.tell(new Pause(), ActorRef.noSender());
+            guiUpdater.tell(Pause, ActorRef.noSender());
         }
         switchButtonGraphic();
     }
@@ -88,7 +88,7 @@ public class GamePresenter implements Initializable {
         if (guiUpdater == null) {
             showDialog("Game isn't started", "Please start the game before press STOP", Alert.AlertType.ERROR);
         } else {
-            guiUpdater.tell(new Stop(), ActorRef.noSender());
+            guiUpdater.tell(Stop, ActorRef.noSender());
             buttonStart.setDisable(true);
             buttonStop.setDisable(true);
         }
