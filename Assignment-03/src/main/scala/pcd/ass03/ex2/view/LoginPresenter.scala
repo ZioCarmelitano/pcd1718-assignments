@@ -58,7 +58,7 @@ object LoginValidator {
     matcher matches
   }
 
-  /* Extractor object used to enable pattern matching */
+  /* Extractor objects used to enable pattern matching */
   private object containsSpecialChars {
     def unapply(str: String): Boolean = !notContainSpecialChars(str)
   }
@@ -67,6 +67,7 @@ object LoginValidator {
     def unapply(str: String): Boolean = str.length > MaxUsernameLength
   }
 
+  /* Custom exception used to launch error in login validation */
   final case class IllegalCharsException(error: String) extends Exception(error)
 
   final case class CharsLimitException(error: String) extends Exception(error)
