@@ -5,14 +5,17 @@ import akka.pattern.ask
 import akka.util.Timeout
 import javafx.geometry.Pos
 import pcd.ass03.ex2.actors.User.{LockCheck, Send}
+import pcd.ass03.ex2.view.DialogUtils.errorDialog
+import pcd.ass03.ex2.view.MessageValidator.validateInput
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.Font
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 
 class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox) {
@@ -20,22 +23,32 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   private var _user = ActorRef.noSender
 
   def send() {
-    val content = messageField.text.value
-    implicit val timeout: Timeout = Timeout(2 seconds)
-    val future = _user ? LockCheck
 
-    def send_(lock: Boolean): Unit = {
-      if (!lock) Platform.runLater(() => addMessage(Pos.CENTER_RIGHT, _user.path.name, content))
-      _user ! Send(content)
+    def validateAndSend(message: String): Unit = Try(validateInput(message)) match {
+      case Success(_) => send_(message)
+      case Failure(t) => errorDialog(dialogTitle = "Input Error",
+        header = "An error occurred in message validation",
+        content = t.getMessage)
     }
 
-    future.onComplete {
-      case Success(lock) => send_(lock.asInstanceOf[Boolean])
-      case Failure(t) => Platform runLater {
-        DialogUtils errorDialog("Error in sending message...",
-          "An error has occurred:", t.getMessage)
+    def send_(message: String) = {
+      implicit val timeout: Timeout = Timeout(2 seconds)
+      val future = _user ? LockCheck
+      future.onComplete {
+        case Success(lock) =>
+          if (!lock.asInstanceOf[Boolean]) Platform runLater {
+            addMessage(Pos.CENTER_RIGHT, _user.path.name, message)
+          }
+          _user ! Send(message)
+        case Failure(t) => Platform runLater {
+          DialogUtils errorDialog("Error in sending message...",
+            "An error has occurred:", t.getMessage)
+        }
       }
     }
+
+    val content = messageField.text.value
+    validateAndSend(content)
   }
 
   def receive(content: String, senderPath: ActorPath): Unit = {
@@ -81,4 +94,20 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   }
 
   def user_(value: ActorRef): Unit = _user = value
+}
+
+object MessageValidator {
+  val MaxMessageSize = 50
+
+  def validateInput(content: String): Try[Unit] = content match {
+    case CharLimitExceeded() => throw MessageLimitException("You have exceeded the max length allowed for messages")
+    case _ => Success()
+  }
+
+  object CharLimitExceeded {
+    def unapply(str: String): Boolean = str.length > MaxMessageSize
+  }
+
+  final case class MessageLimitException(error: String) extends Exception(error)
+
 }
