@@ -10,6 +10,8 @@ import pcd.ass03.ex1.view.game.RenderingService;
 
 import java.time.Duration;
 
+import static pcd.ass03.ex1.actors.msg.Stop.Stop;
+
 public class GuiUpdater extends AbstractLoggingActor {
 
     private static final int UPDATE_INTERVAL = 50;
@@ -24,13 +26,13 @@ public class GuiUpdater extends AbstractLoggingActor {
     public GuiUpdater(Canvas boardView, int numberOfWorkers) {
         this.numberOfWorkers = numberOfWorkers;
 
-        this.running = receiveBuilder().match(Stop.class, stopMsg -> {
+        this.running = receiveBuilder().match(Stop.class, stop -> {
             log().info("GuiUpdater Stop");
-            boardUpdater.tell(new Stop(), getSelf());
+            boardUpdater.tell(Stop, getSelf());
             context().stop(getSelf());
-        }).match(Start.class, startMsg -> {
+        }).match(Start.class, start -> {
             log().info("GuiUpdater Start");
-            currentBoard = startMsg.getBoard();
+            currentBoard = start.getBoard();
             boardUpdater.tell(new Start(currentBoard), getSelf());
         }).match(NewBoard.class, newBoard -> {
             log().info("GuiUpdater NewBoard");
@@ -46,9 +48,9 @@ public class GuiUpdater extends AbstractLoggingActor {
             getContext().become(paused);
         }).build();
 
-        this.paused = receiveBuilder().match(Stop.class, stopMsg -> {
+        this.paused = receiveBuilder().match(Stop.class, stop -> {
             log().info("GuiUpdater Stop");
-            boardUpdater.tell(new Stop(), getSelf());
+            boardUpdater.tell(Stop, getSelf());
             context().stop(getSelf());
         }).match(Resume.class, resume -> {
             log().info("GuiUpdater Resume");
@@ -63,7 +65,7 @@ public class GuiUpdater extends AbstractLoggingActor {
     }
 
     @Override
-    public void preStart() throws Exception {
+    public void preStart() {
         boardUpdater = getContext().actorOf(BoardUpdater.props(numberOfWorkers), "boardUpdater");
     }
 
