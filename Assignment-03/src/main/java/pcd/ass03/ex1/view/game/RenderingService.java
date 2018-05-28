@@ -31,7 +31,7 @@ public final class RenderingService {
         int[] boardBuffer = new int[boardWidth * boardHeight];
         for (int y = getStartX(); y < getEndX(); y++)
             for (int x = getStartY(); x < getEndY(); x++)
-                boardBuffer[y + boardWidth * x] = colorToInt(getColor(board.getCell(x,y)));
+                boardBuffer[y + boardWidth * x] = colorToInt(getColor(board.getCell(x, y)));
         return boardBuffer;
     }
 
@@ -43,10 +43,10 @@ public final class RenderingService {
     }
 
     private static int colorToInt(Color c) {
-        return (                       255  << 24) |
-                ((int) (c.getRed()   * 255) << 16) |
-                ((int) (c.getGreen() * 255) << 8)  |
-                ((int) (c.getBlue()  * 255));
+        return (255 << 24) |
+                ((int) (c.getRed() * 255) << 16) |
+                ((int) (c.getGreen() * 255) << 8) |
+                ((int) (c.getBlue() * 255));
     }
 
 

@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SettingsPresenter implements Initializable{
+public class SettingsPresenter implements Initializable {
 
     @FXML
     private TextField txtWidth;
@@ -59,7 +59,7 @@ public class SettingsPresenter implements Initializable{
     }
 
     private boolean inputIsIncorrect(String widthInserted, String heightInserted, String workersNumberInserted) {
-        if(widthInserted.isEmpty() || heightInserted.isEmpty() || workersNumberInserted.isEmpty()){
+        if (widthInserted.isEmpty() || heightInserted.isEmpty() || workersNumberInserted.isEmpty()) {
             FxWindowFactory.showDialog("Missing fields", "Please fill out all fields!",
                     Alert.AlertType.ERROR);
             return true;
@@ -80,7 +80,7 @@ public class SettingsPresenter implements Initializable{
         addChangeListener(txtNWorkers);
     }
 
-    public static Board getBoardConfiguration(){
+    public static Board getBoardConfiguration() {
         return boardConfiguration;
     }
 

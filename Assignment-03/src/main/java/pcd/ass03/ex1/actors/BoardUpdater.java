@@ -3,18 +3,19 @@ package pcd.ass03.ex1.actors;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import io.aeron.driver.Sender;
 import pcd.ass03.ex1.actors.msg.*;
 import pcd.ass03.ex1.domain.Board;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class BoardUpdater extends AbstractLoggingActor {
+
+    public static final int DEFAULT_PARTITIONS = 5;
     private final int numberOfWorkers;
     private List<ActorRef> workers;
-    private int finishUpdate;
 
     public BoardUpdater(int numberOfWorkers) {
         this.numberOfWorkers = numberOfWorkers;
@@ -26,12 +27,14 @@ public class BoardUpdater extends AbstractLoggingActor {
 
     @Override
     public void preStart() throws Exception {
-        workers = IntStream.range(0,numberOfWorkers).mapToObj(i -> getContext().actorOf(Props.create(Worker.class), "Worker" + i)).collect(Collectors.toList());
+        workers = IntStream.range(0, numberOfWorkers)
+                .mapToObj(i -> getContext().actorOf(Worker.props(DEFAULT_PARTITIONS), "Worker" + i))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StartMsg.class, msg -> {
+        return receiveBuilder().match(Start.class, msg -> {
             Board oldBoard = msg.getBoard();
             // Create the new board
             final Board newBoard = Board.board(oldBoard.getWidth(), oldBoard.getHeight());
@@ -40,15 +43,16 @@ public class BoardUpdater extends AbstractLoggingActor {
             prepareWorkers(oldBoard, newBoard);
 
             ActorRef sender = getSender();
-            getContext().become(receiveBuilder().match(FinishedUpdateMsg.class, finishMsg -> {
-                this.finishUpdate++;
-                if (this.finishUpdate == this.numberOfWorkers) {
-                    this.finishUpdate = 0;
-                    sender.tell(new NewBoardMsg(newBoard), getSelf());
+
+            final AtomicInteger finishUpdate = new AtomicInteger();
+            getContext().become(receiveBuilder().match(FinishedUpdate.class, finishMsg -> {
+                if (finishUpdate.incrementAndGet() == this.numberOfWorkers) {
+                    finishUpdate.set(0);
+                    sender.tell(new NewBoard(newBoard), getSelf());
                     getContext().unbecome();
                 }
             }).build(), false);
-        }).match(StopMsg.class, msg -> {
+        }).match(Stop.class, msg -> {
             log().debug(getSelf().path().name() + " --> Stop update");
             for (ActorRef w : workers) {
                 w.tell(msg, getSelf());
@@ -62,10 +66,11 @@ public class BoardUpdater extends AbstractLoggingActor {
         final int offset = height / workers.size();
         int fromRow = 0, toRow = offset;
         for (int i = 1; i < workers.size(); i++) {
-            workers.get(i).tell(new StartUpdateMsg(fromRow, toRow, oldBoard, newBoard), getSelf());
+            workers.get(i).tell(new StartUpdate(fromRow, toRow, oldBoard, newBoard), getSelf());
             fromRow += offset;
             toRow += offset;
         }
-        workers.get(0).tell(new StartUpdateMsg(fromRow, fromRow + (height - fromRow), oldBoard, newBoard), getSelf());
+        workers.get(0).tell(new StartUpdate(fromRow, fromRow + (height - fromRow), oldBoard, newBoard), getSelf());
     }
+
 }

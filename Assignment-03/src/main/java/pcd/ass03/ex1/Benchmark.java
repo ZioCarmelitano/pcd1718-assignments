@@ -8,7 +8,7 @@ import com.google.common.collect.Multimaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pcd.ass03.ex1.actors.BenchmarkActor;
-import pcd.ass03.ex1.actors.msg.StartMsg;
+import pcd.ass03.ex1.actors.msg.Start;
 import pcd.ass03.ex1.domain.Board;
 import pcd.ass03.ex1.domain.Boards;
 import pcd.ass03.ex1.util.LoggingUtils;
@@ -50,12 +50,13 @@ final class Benchmark {
                 final ActorRef benchmark = system.actorOf(BenchmarkActor.props(numberOfWorkers), i + "BenchmarkActor" + numberOfWorkers);
 
                 long startTime = System.currentTimeMillis();
-                benchmark.tell(new StartMsg(board), ActorRef.noSender());
-                while (!benchmark.isTerminated()) {}
+                benchmark.tell(new Start(board), ActorRef.noSender());
+                while (!benchmark.isTerminated()) {
+                }
                 long updateTime = System.currentTimeMillis() - startTime;
 
                 results.put(numberOfWorkers, updateTime);
-                }
+            }
         }
 
         system.terminate();

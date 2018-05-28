@@ -4,13 +4,13 @@ import pcd.ass03.ex1.domain.Board;
 
 import java.io.Serializable;
 
-public class StartUpdateMsg implements Serializable {
+public class StartUpdate implements Serializable {
     private final Board oldBoard;
     private final Board newBoard;
     private final int fromRow;
     private final int toRow;
 
-    public StartUpdateMsg(int fromRow, int toRow, Board oldBoard, Board newBoard) {
+    public StartUpdate(int fromRow, int toRow, Board oldBoard, Board newBoard) {
         this.oldBoard = oldBoard;
         this.fromRow = fromRow;
         this.toRow = toRow;
