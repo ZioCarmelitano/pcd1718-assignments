@@ -8,12 +8,18 @@ import pcd.ass03.ex2.actors.Room._
 import pcd.ass03.ex2.actors.User.{LockCheck, Matrix, Send}
 import pcd.ass03.ex2.view.ChatPresenter
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+import scala.util.Random
+
 class User(presenter: ChatPresenter) extends Actor with ActorLogging {
+
+  private[this] implicit val dispatcher: ExecutionContext = context.system.dispatcher
 
   private[this] lazy val room = context.actorSelection(Room.Path)
   private[this] var lock = false
 
-  implicit private[this] var matrix = Matrix()
+  private[this] var matrix = Matrix()
   private[this] var pendingQueue = List[Message]()
 
   override def receive: Receive = {
@@ -61,19 +67,22 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
     case Commands(commands) => log.info(s"Commands are: $commands")
 
     case Message(content, user, userMatrix) =>
+      if (isDeliverable(user, userMatrix)) {
+        showMessage(content, user)
+        matrix = max(userMatrix)
+      } else {
+        pendingQueue = pendingQueue :+ Message(content, user, userMatrix)
+        log.info(s"Pending queue: $pendingQueue")
+      }
       var deliverableMessage = pendingQueue.find(m => isDeliverable(m.user, m.userMatrix))
       while (deliverableMessage.isDefined) {
         val message = deliverableMessage.get
         showMessage(message.content, message.user)
+        matrix = max(message.userMatrix)
         pendingQueue = pendingQueue filterNot(_ == message)
+        log.info(s"Pending queue: $pendingQueue")
         deliverableMessage = pendingQueue.find(m => isDeliverable(m.user, m.userMatrix))
       }
-      if (isDeliverable(user, userMatrix)) {
-        showMessage(content, user)
-      } else {
-        pendingQueue = pendingQueue :+ Message(content, user, userMatrix)
-      }
-      matrix = max(userMatrix)
 
     case CommandNotUnderstood(command) =>
       log.error(s"$command is not a valid command")
@@ -99,8 +108,14 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
     case Send(content) =>
       // Update the the row corresponding the user that sends the message
       matrix = matrix + (self -> matrix(self).map {
-        x => (x._1, x._2 + 1)
+        x => x._1 -> (x._2 + 1)
       })
+      implicit val userMatrix: Matrix = matrix
+      /*context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
+        log.info(s"Sending $content")
+        room ! Room.createMessage(content)
+      } */
+      log.info(s"Sending $content")
       room ! Room.createMessage(content)
   }
 
