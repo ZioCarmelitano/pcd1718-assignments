@@ -109,4 +109,5 @@ object MessageValidator {
   }
 
   final case class MessageLimitException(error: String) extends Exception(error)
+
 }

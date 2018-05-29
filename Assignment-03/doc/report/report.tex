@@ -175,7 +175,7 @@
 
 % Define document title and author
 \title{\LARGE \bf
-Assigment \#3
+Assignent \#3
 }
 \author{
     Martina Magnani\\
@@ -199,17 +199,17 @@ Assigment \#3
 L'obiettivo della consegna è implementare Implementare in Java o in Scala una versione ad attori del gioco \textit{``The Game of Life''}.\\
 Il gioco consiste nel calcolare e visualizzare l'evoluzione della matrice di celle che caratterizza il gioco, come sequenza di fotogrammi (ognuno dei quali rappresenta lo stato del mondo).\\
 Nella matrice, ogni cella può essere in uno dei due stati possibili, \textit{live} o \textit{dead}.\\
-Dato lo stato \(s\left(t\right)\) della matrice, lo stato \(s\left(t + 1\right)\) si computa con le seguenti regole:
+Dato lo stato $s\left(t\right)$ della matrice, lo stato $s\left(t + 1\right)$ si computa con le seguenti regole:
 
 \begin{itemize}
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{live} e ha zero o al più una cella vicina \textit{live} (e le altre \textit{dead}), nello stato \(s\left(t + 1\right)\) diventa \textit{dead} (``muore di solitudine'')
+  una cella $m\left[i,j\right]$ che nello stato $s\left(t\right)$ è \textit{live} e ha zero o al più una cella vicina \textit{live} (e le altre \textit{dead}), nello stato $s\left(t + 1\right)$ diventa \textit{dead} (``muore di solitudine'')
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{live} e ha quattro o più celle vicine \textit{live}, nello stato \(s\left(t + 1\right)\) diventa \textit{dead} (``muore di sovrappopolamento'')
+  una cella $m\left[i,j\right]$ che nello stato $s\left(t\right)$ è \textit{live} e ha quattro o più celle vicine \textit{live}, nello stato $s\left(t + 1\right)$ diventa \textit{dead} (``muore di sovrappopolamento'')
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{live} e ha due o tre celle vicine \textit{live}, nello stato \(s\left(t + 1\right)\) rimane \textit{live} (``sopravvive'')
+  una cella $m\left[i,j\right]$ che nello stato $s\left(t\right)$ è \textit{live} e ha due o tre celle vicine \textit{live}, nello stato $s\left(t + 1\right)$ rimane \textit{live} (``sopravvive'')
 \item
-  una cella \(m\left[i,j\right]\) che nello stato \(s\left(t\right)\) è \textit{dead} e ha tre celle vicine \textit{live}, nello stato \(s\left(t + 1\right)\) diventa \textit{live}
+  una cella $m\left[i,j\right]$ che nello stato $s\left(t\right)$ è \textit{dead} e ha tre celle vicine \textit{live}, nello stato $s\left(t + 1\right)$ diventa \textit{live}
 \end{itemize}
 Il gioco deve presentare un'interfaccia grafica con pulsanti \texttt{start} e \texttt{stop} con cui si fa partire e fermare il gioco.
 Ogni stato del gioco deve essere visualizzato, insieme al numero di celle nello stato \textit{live}.
@@ -246,12 +246,11 @@ L'architettura del sistema è stata scomposta in tre livelli utilizzando il patt
 
 \subsubsection{Dominio applicativo}\label{dominio-applicativo}
 
-Abbiamo implementato il dominio applicativo attraverso due classi:
-\texttt{Cell} e \texttt{Board}.\\
+Abbiamo implementato il dominio applicativo attraverso due classi: \texttt{Cell} e \texttt{Board}.\\
 L'enumerazione \texttt{Cell} rappresenta lo stato di una cella della scacchiera che può essere \textit{live} o \textit{dead}.
 La classe \texttt{Board} rappresenta la scacchiera di gioco. Questa è caratterizzata da un'\textit{altezza} e una \textit{larghezza} variabili e dalla possibilità di recuperare/impostare lo stato di una cella date le coordinate $x$ e $y$.
 
-\subsubsection{Attori}\label{interattori}
+\subsubsection{Attori}\label{attori}
 
 Abbiamo implementato un attore \texttt{BoardUpdater} che si occupa dell'aggiornamento della scacchiera di gioco.
 
@@ -287,7 +286,7 @@ La dinamica del sistema è stata rappresentata formalmente con le Reti di Petri.
 
 \section{Analisi delle prestazioni}\label{analisi-delle-prestazioni}
 La tabella sottostante mostra gli speedup $S$ (misura quantitativa delle performance) che il sistema raggiunge a seconda del numero di worker utilizzati.\\
-Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema utilizzando un algoritmo sequenziale e il tempo di esecuzione del sistema utilizzando un algoritmo parallelo.
+Lo speedup viene misurato calcolando il rapporto tra il tempo di esecuzione del sistema utilizzando un singolo worker e il tempo di esecuzione del sistema utilizzando un algoritmo parallelo.
 
 \begin{equation}
  S = \frac{T_1}{T_N}
@@ -303,13 +302,13 @@ Dove:
 \centering
 \begin{tabular}{l|ccccccccc}
 \hline
-     & 2     & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10   \\ \hline
+     & 2    & 3    & 4    & 5    & 6    & 7    & 8    & 9    & 10    \\ \hline
 Min. & 1.86 & 2.48 & 2.55 & 2.73 & 2.82 & 2.81 & 2.80 & 2.86 & 12.95 \\
 Max. & 1.44 & 1.75 & 2.41 & 2.49 & 2.35 & 2.53 & 2.45 & 2.39 & 12.34 \\
 Avg. & 1.74 & 2.22 & 2.35 & 2.42 & 2.41 & 2.47 & 2.47 & 2.48 & 12.51 \\ \hline
 \end{tabular}
 \caption{Lo speedup è stato calcolato su 25 iterazioni considerando una schacchiera di gioco 5000x5000. Sulle colonne sono specificati il numero di worker utilizzati per la parallelizzazione dell'algoritmo, sulle righe i valori statistici (minimi, massimi e medi) degli speedup calcolati. Gli speedup sono stati calcolati su un Apple Macbook Pro (Retina, 15", metà 2015) dotato di un processore Intel Core i7 quad-core a 2.2GHz.
-È possibile eseguire i benchmark lanciando la classe \texttt{pcd.ass01.Benchmark} e visualizzare sia le velocità di computazione di uno stato della scacchiera, sia i relativi speedup ottenuti.}
+È possibile eseguire i benchmark lanciando la classe \texttt{pcd.ass03.ex1.Benchmark} e visualizzare sia le velocità di computazione di uno stato della scacchiera, sia i relativi speedup ottenuti.}
 \label{speedup-table}
 \end{table}
 

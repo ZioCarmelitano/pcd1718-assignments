@@ -34,13 +34,16 @@ public class BenchmarkActor extends AbstractLoggingActor {
                     log().info(getSelf().path().name() + " Stop");
                     boardUpdater.tell(Stop, getSelf());
                     context().stop(getSelf());
-                }).match(Start.class, start -> {
+                })
+                .match(Start.class, start -> {
                     log().info(getSelf().path().name() + " Start");
                     this.boardUpdater.tell(start, getSelf());
-                }).match(NewBoard.class, newBoard -> {
+                })
+                .match(NewBoard.class, newBoard -> {
                     log().info(getSelf().path().name() + " newBoard");
                     getSelf().tell(Stop, getSelf());
-                }).build();
+                })
+                .build();
     }
 
 }
