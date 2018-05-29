@@ -5,6 +5,7 @@ import java.io.File
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props, Terminated}
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
+import pcd.ass03.ex2.actors.User.Matrix
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -20,6 +21,7 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
   private[this] val default: Receive = {
     case Join =>
       broadcast(Joined(sender))
+      sender ! Users(users)
       sender ! commands
       users = users :+ sender
       context watch sender
@@ -37,7 +39,8 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
       broadcast(EnterCriticalSection)
       log.info(s"User ${sender.path.name} has started the critical section")
     case ExitCriticalSection => sender ! NoCriticalSection
-    case message: Message => broadcast(message)
+    case message: Message =>
+      broadcast(message)
   }
 
   private[this] def criticalSection(cs: CriticalSection, cancellable: Cancellable): Receive = default orElse {
@@ -46,8 +49,10 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
       context become noCriticalSection
       broadcast(ExitCriticalSection)
       log.info("Exited from critical section")
-    case message: Message if sender == cs.user => broadcast(message)
-    case Message(_, _) | EnterCriticalSection | ExitCriticalSection => sender ! cs
+    case message: Message if sender == cs.user =>
+
+      broadcast(message)
+    case Message(_, _, _) | EnterCriticalSection | ExitCriticalSection => sender ! cs
   }
 
   private[this] def remove(user: ActorRef): Unit = {
@@ -90,7 +95,9 @@ object Room {
 
   final case class Left(user: ActorRef)
 
-  final case class Message(content: String, user: ActorRef)
+  final case class Users(users: List[ActorRef])
+
+  final case class Message(content: String, user: ActorRef, userMatrix: Matrix)
 
   final case object EnterCriticalSection
 
@@ -109,10 +116,10 @@ object Room {
 
   final case object NoCriticalSection
 
-  def createMessage(content: String)(implicit user: ActorRef): Any = content match {
+  def createMessage(content: String)(implicit user: ActorRef, userMatrix: Matrix): Any = content match {
     case command if commandMap contains command => commandMap(command)
     case command if command.startsWith(":") => CommandNotUnderstood(command)
-    case c => Message(c, user)
+    case c => Message(c, user, userMatrix)
   }
 
 }

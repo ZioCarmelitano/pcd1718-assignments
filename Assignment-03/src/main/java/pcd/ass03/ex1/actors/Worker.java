@@ -25,30 +25,35 @@ public class Worker extends AbstractLoggingActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(StartUpdate.class, msg -> {
-            int from = msg.getFromRow();
-            int maxTo = msg.getToRow();
-            int rowForPartialWorker = (maxTo - from) / numberOfPartitions;
+        return receiveBuilder()
+                .match(StartUpdate.class, msg -> {
+                    int from = msg.getFromRow();
+                    int maxTo = msg.getToRow();
+                    int rowForPartialWorker = (maxTo - from) / numberOfPartitions;
 
-            final ActorRef sender = getSender();
+                    final ActorRef sender = getSender();
 
-            getSelf().tell(new StartPartialUpdate(from, from + rowForPartialWorker, msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
+                    getSelf().tell(new StartPartialUpdate(from, from + rowForPartialWorker, msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
 
-            getContext().become(receiveBuilder().match(StartPartialUpdate.class, partial -> {
-                if ((rowForPartialWorker + partial.getToRow()) >= maxTo) {
-                    this.updateBoard(partial.getFromRow(), maxTo, partial.getOldBoard(), partial.getNewBoard());
-                    sender.tell(FinishedUpdate, getSelf());
-                    getContext().unbecome();
-                } else {
-                    this.updateBoard(partial.getFromRow(), partial.getToRow(), partial.getOldBoard(), partial.getNewBoard());
-                    getSelf().tell(new StartPartialUpdate(partial.getToRow(), rowForPartialWorker + partial.getToRow(), msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
-                }
-            }).build(), false);
+                    getContext().become(receiveBuilder()
+                            .match(StartPartialUpdate.class, partial -> {
+                                if ((rowForPartialWorker + partial.getToRow()) >= maxTo) {
+                                    this.updateBoard(partial.getFromRow(), maxTo, partial.getOldBoard(), partial.getNewBoard());
+                                    sender.tell(FinishedUpdate, getSelf());
+                                    getContext().unbecome();
+                                } else {
+                                    this.updateBoard(partial.getFromRow(), partial.getToRow(), partial.getOldBoard(), partial.getNewBoard());
+                                    getSelf().tell(new StartPartialUpdate(partial.getToRow(), rowForPartialWorker + partial.getToRow(), msg.getOldBoard(), msg.getNewBoard(), maxTo), getSender());
+                                }
+                            })
+                            .build(), false);
 
-        }).match(Stop.class, msg -> {
-            log().info(getSelf().path().name() + " stopped");
-            context().stop(getSelf());
-        }).build();
+                })
+                .match(Stop.class, msg -> {
+                    log().info(getSelf().path().name() + " stopped");
+                    context().stop(getSelf());
+                })
+                .build();
     }
 
     private void updateBoard(int fromRow, int toRow, Board oldBoard, Board newBoard) {
