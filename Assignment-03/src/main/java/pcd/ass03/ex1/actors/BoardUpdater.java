@@ -34,31 +34,34 @@ public class BoardUpdater extends AbstractLoggingActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder().match(Start.class, msg -> {
-            Board oldBoard = msg.getBoard();
-            // Create the new board
-            final Board newBoard = Board.board(oldBoard.getWidth(), oldBoard.getHeight());
-            // Prepare workers
-            log().debug(getSelf().path().name() + " --> Start update");
-            prepareWorkers(oldBoard, newBoard);
+        return receiveBuilder()
+                .match(Start.class, msg -> {
+                    Board oldBoard = msg.getBoard();
+                    // Create the new board
+                    final Board newBoard = Board.board(oldBoard.getWidth(), oldBoard.getHeight());
+                    // Prepare workers
+                    log().debug(getSelf().path().name() + " --> Start update");
+                    prepareWorkers(oldBoard, newBoard);
 
-            ActorRef sender = getSender();
+                    ActorRef sender = getSender();
 
-            final AtomicInteger finishUpdate = new AtomicInteger();
-            getContext().become(receiveBuilder().match(FinishedUpdate.class, finish -> {
-                if (finishUpdate.incrementAndGet() == this.numberOfWorkers) {
-                    finishUpdate.set(0);
-                    sender.tell(new NewBoard(newBoard), getSelf());
-                    getContext().unbecome();
-                }
-            }).build(), false);
-        }).match(Stop.class, msg -> {
-            log().debug(getSelf().path().name() + " --> Stop update");
-            for (ActorRef w : workers) {
-                w.tell(msg, getSelf());
-            }
-            context().stop(getSelf());
-        }).build();
+                    final AtomicInteger finishUpdate = new AtomicInteger();
+                    getContext().become(receiveBuilder().match(FinishedUpdate.class, finish -> {
+                        if (finishUpdate.incrementAndGet() == this.numberOfWorkers) {
+                            finishUpdate.set(0);
+                            sender.tell(new NewBoard(newBoard), getSelf());
+                            getContext().unbecome();
+                        }
+                    }).build(), false);
+                })
+                .match(Stop.class, msg -> {
+                    log().debug(getSelf().path().name() + " --> Stop update");
+                    for (ActorRef w : workers) {
+                        w.tell(msg, getSelf());
+                    }
+                    context().stop(getSelf());
+                })
+                .build();
     }
 
     private void prepareWorkers(final Board oldBoard, final Board newBoard) {
