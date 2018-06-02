@@ -2,6 +2,7 @@ package pcd.ass03.ex2.view
 
 import akka.actor.{ActorRef, ActorSystem}
 import pcd.ass03.ex2.actors.User
+import pcd.ass03.ex2.actors.User.Kill
 import pcd.ass03.ex2.view.ChatView._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
@@ -72,7 +73,11 @@ class ChatView(username: String) extends PrimaryStage {
       center = chatBoxContainer
       bottom = commandContainer
     }
-    onCloseRequest = _ => system.terminate()
+    onCloseRequest = _ => {
+      user ! Kill
+      system terminate()
+      System exit 0
+    }
   }
 
   /* Setting of the app logo */
@@ -85,11 +90,11 @@ class ChatView(username: String) extends PrimaryStage {
   val system = ActorSystem("User", User.Config)
   val user: ActorRef = system.actorOf(User(presenter), username)
   presenter.user_(user)
-
 }
 
-/* Companion object that contains file paths used by ChatView class */
+/* ChatView Companion object */
 object ChatView {
+  //file paths
   val appLogoPath = "/ex2/logo.png"
   private val sendLogoPath = "/ex2/send_button_logo.png"
 }

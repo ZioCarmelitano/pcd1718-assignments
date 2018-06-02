@@ -5,12 +5,10 @@ import java.io.File
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
-import pcd.ass03.ex2.actors.User.{LockCheck, Matrix, Send}
+import pcd.ass03.ex2.actors.User.{Kill, LockCheck, Matrix, Send}
 import pcd.ass03.ex2.view.ChatPresenter
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
-import scala.util.Random
 
 class User(presenter: ChatPresenter) extends Actor with ActorLogging {
 
@@ -27,9 +25,10 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
       // Create the new matrix initialized with zeros
       matrix = (actors :+ self).toStream
         .map {
-          x => x -> (actors :+ self).map {
-            _ -> 0
-          }.toMap
+          x =>
+            x -> (actors :+ self).map {
+              _ -> 0
+            }.toMap
         }
         .toMap
       log.info(s"$matrix")
@@ -79,7 +78,7 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
         val message = deliverableMessage.get
         showMessage(message.content, message.user)
         matrix = max(message.userMatrix)
-        pendingQueue = pendingQueue filterNot(_ == message)
+        pendingQueue = pendingQueue filterNot (_ == message)
         log.info(s"Pending queue: $pendingQueue")
         deliverableMessage = pendingQueue.find(m => isDeliverable(m.user, m.userMatrix))
       }
@@ -117,6 +116,8 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
       } */
       log.info(s"Sending $content")
       room ! Room.createMessage(content)
+
+    case Kill => context.stop(self)
   }
 
   private def showMessage(content: String, user: ActorRef) = {
@@ -161,6 +162,8 @@ object User {
   final case class Send(content: String)
 
   final case object LockCheck
+
+  final case object Kill
 
   val Config: Config = ConfigFactory.parseFile(new File("src/main/resources/ex2/akka/user.conf"))
 
