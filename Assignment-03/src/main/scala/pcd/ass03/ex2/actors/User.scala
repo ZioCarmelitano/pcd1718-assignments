@@ -10,9 +10,9 @@ import pcd.ass03.ex2.actors.Room._
 import pcd.ass03.ex2.actors.User.{apply => _, _}
 import pcd.ass03.ex2.view.chat.ChatPresenter
 
-import scala.concurrent.duration._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 import scala.util.Success
 
 class User(private[this] val presenter: ChatPresenter) extends Actor with ActorLogging {
@@ -63,8 +63,9 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
       presenter.receiveInfo(s"User ${user.path.name} has left the room")
       clock = clock.filterKeys(_ != user)
 
-    case Commands(commands) =>
-      log.info(s"Commands are: $commands")
+    case Commands(availableCommands) =>
+      log.info(s"Commands are: $availableCommands")
+      presenter.receiveInfo("Available commands are:\n" + availableCommands.mkString("\n"))
 
     case RoomCounter(c) => roomCounter = c
 
@@ -115,7 +116,9 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
         case Success(c: CriticalSection) => presenter ! c
       }
 
-    case NoCriticalSection => log.error("The room is not in a critical section state")
+    case NoCriticalSection =>
+      log.error("The room is not in a critical section state")
+      presenter.receiveInfo("The room is not in a critical section state")
 
     case Send(content) =>
       if (!(Room.commands.commands contains content)) userCounter += 1

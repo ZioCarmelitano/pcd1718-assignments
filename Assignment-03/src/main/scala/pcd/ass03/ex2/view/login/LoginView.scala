@@ -47,7 +47,7 @@ class LoginView extends PrimaryStage {
 }
 
 /* LoginView Companion Object*/
-object LoginView{
+object LoginView {
   //file paths
   val loginLogoPath = "/ex2/logo.png"
 }

@@ -1,6 +1,8 @@
 package pcd.ass03.ex2.view.chat
 
 import akka.actor.{ActorRef, ActorSystem}
+import akka.pattern.ask
+import akka.util.Timeout
 import pcd.ass03.ex2.actors.User
 import pcd.ass03.ex2.actors.User.Kill
 import pcd.ass03.ex2.view.chat.ChatView.{appLogoPath, sendLogoPath}
@@ -11,8 +13,6 @@ import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
-import akka.pattern.ask
-import akka.util.Timeout
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -80,10 +80,10 @@ class ChatView(username: String) extends PrimaryStage {
     onCloseRequest = _ => {
       implicit val timeout: Timeout = Timeout(2 seconds)
       val future = user ? Kill
-       future
-         .andThen{case _ => system terminate()}
-         .onComplete(_ => System exit 0)
-     }
+      future
+        .andThen { case _ => system terminate() }
+        .onComplete(_ => System exit 0)
+    }
   }
 
   /* Setting of the app logo */
