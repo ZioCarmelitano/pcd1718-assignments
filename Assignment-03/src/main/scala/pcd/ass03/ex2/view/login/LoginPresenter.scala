@@ -1,11 +1,12 @@
-package pcd.ass03.ex2.view
+package pcd.ass03.ex2.view.login
 
 import java.util.regex.Pattern
 
 import akka.actor.ActorSystem
 import pcd.ass03.ex2.actors.{Room, User}
-import pcd.ass03.ex2.view.DialogUtils.errorDialog
-import pcd.ass03.ex2.view.LoginValidator.validateInput
+import pcd.ass03.ex2.view.chat.ChatView
+import pcd.ass03.ex2.view.login.LoginValidator.validateInput
+import pcd.ass03.ex2.view.utils.DialogUtils.errorDialog
 import scalafx.application.Platform
 import scalafx.scene.control.TextField
 

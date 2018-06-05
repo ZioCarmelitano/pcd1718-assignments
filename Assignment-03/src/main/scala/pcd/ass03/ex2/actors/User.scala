@@ -3,15 +3,17 @@ package pcd.ass03.ex2.actors
 import java.io.File
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.pattern.ask
+import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
 import pcd.ass03.ex2.actors.User.{apply => _, _}
-import pcd.ass03.ex2.view.ChatPresenter
+import pcd.ass03.ex2.view.chat.ChatPresenter
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.util.Random
+import scala.util.Success
 
 class User(private[this] val presenter: ChatPresenter) extends Actor with ActorLogging {
 
@@ -61,7 +63,9 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
       presenter.receiveInfo(s"User ${user.path.name} has left the room")
       clock = clock.filterKeys(_ != user)
 
-    case Commands(commands) => log.info(s"Commands are: $commands")
+    case Commands(availableCommands) =>
+      log.info(s"Commands are: $availableCommands")
+      presenter.receiveInfo("Available commands are:\n" + availableCommands.mkString("\n"))
 
     case RoomCounter(c) => roomCounter = c
 
@@ -74,7 +78,7 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
         causalMessageOrdering(message)
         var deliverableMessage = holdBackQueue.find(_._2 == roomCounter + 1)
         while (deliverableMessage.isDefined) {
-          val (message, c) = deliverableMessage.get
+          val (message, _) = deliverableMessage.get
           roomCounter += 1
           causalMessageOrdering(message)
           holdBackQueue = holdBackQueue.filterNot(_._1 == message)
@@ -103,17 +107,26 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
       log.warning(s"Could not send message, critical section is held by ${user.path.name}")
       presenter.receiveInfo(s"Could not send message, critical section is held by ${user.path.name}")
 
-    case LockCheck => sender ! lock
+    case LockCheck =>
+      val presenter = sender
+      implicit val timeout: Timeout = Timeout(2 seconds)
+      val future = room ? LockCheck
+      future.onComplete {
+        case Success(NoCriticalSection) => presenter ! NoCriticalSection
+        case Success(c: CriticalSection) => presenter ! c
+      }
 
-    case NoCriticalSection => log.error("The room is not in a critical section state")
+    case NoCriticalSection =>
+      log.error("The room is not in a critical section state")
+      presenter.receiveInfo("The room is not in a critical section state")
 
     case Send(content) =>
-      userCounter += 1
+      if (!(Room.commands.commands contains content)) userCounter += 1
       implicit val counter: Int = userCounter
-      // context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
-        log.info(s"Sending $content")
-        room ! Room.createMessage(content)
-      // }
+      //context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
+      log.info(s"Sending $content")
+      room ! Room.createMessage(content)
+    //}
 
     case Kill => context.stop(self)
   }
