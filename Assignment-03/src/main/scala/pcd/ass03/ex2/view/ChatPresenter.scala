@@ -31,15 +31,11 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
         content = t.getMessage)
     }
 
-    def send_(message: String) = {
+    def send_(message: String): Unit = {
       implicit val timeout: Timeout = Timeout(2 seconds)
       val future = _user ? LockCheck
       future.onComplete {
-        case Success(lock) =>
-          if (!lock.asInstanceOf[Boolean]) Platform runLater {
-            addMessage(Pos.CENTER_RIGHT, _user.path.name, message)
-          }
-          _user ! Send(message)
+        case Success(lock) => _user ! Send(message)
         case Failure(t) => Platform runLater {
           DialogUtils errorDialog("Error in sending message...",
             "An error has occurred:", t.getMessage)
@@ -54,7 +50,8 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
   def receive(content: String, senderPath: ActorPath): Unit = {
     println("Received message: " + content + "\nfrom " + senderPath)
     Platform.runLater {
-      addMessage(Pos.CENTER_LEFT, senderPath.name, content)
+      val pos = if (senderPath == _user) Pos.CENTER_RIGHT else Pos.CENTER_LEFT
+      addMessage(pos, senderPath.name, content)
     }
   }
 

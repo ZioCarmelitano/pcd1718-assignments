@@ -39,8 +39,8 @@ class LoginView extends PrimaryStage {
   }
 
   /* GUI components listeners settings */
-  userField.onAction = (_) => loginPresenter.login()
-  loginButton.onAction = (_) => loginPresenter.login()
+  userField.onAction = _ => loginPresenter.login()
+  loginButton.onAction = _ => loginPresenter.login()
 
   /* Logo image setting in Login stage */
   this getIcons() add new Image(appLogoPath)
