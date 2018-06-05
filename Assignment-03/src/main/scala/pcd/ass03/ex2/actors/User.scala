@@ -61,7 +61,7 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
     case Left(user) =>
       log.info(s"User ${user.path.name} has left the room")
       presenter.receiveInfo(s"User ${user.path.name} has left the room")
-      clock = clock.filterKeys(_ == user)
+      clock = clock.filterKeys(_ != user)
 
     case Commands(commands) =>
       log.info(s"Commands are: $commands")
