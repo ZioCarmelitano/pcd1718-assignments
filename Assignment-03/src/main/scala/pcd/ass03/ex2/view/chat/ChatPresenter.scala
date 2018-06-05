@@ -1,12 +1,13 @@
-package pcd.ass03.ex2.view
+package pcd.ass03.ex2.view.chat
 
 import akka.actor.{ActorPath, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
 import javafx.geometry.Pos
+import pcd.ass03.ex2.actors.Room.CriticalSection
 import pcd.ass03.ex2.actors.User.{LockCheck, Send}
-import pcd.ass03.ex2.view.DialogUtils.errorDialog
-import pcd.ass03.ex2.view.MessageValidator.validateInput
+import pcd.ass03.ex2.view.chat.MessageValidator.validateInput
+import pcd.ass03.ex2.view.utils.DialogUtils.errorDialog
 import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.{Button, Label, TextField}
@@ -35,9 +36,14 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
       implicit val timeout: Timeout = Timeout(2 seconds)
       val future = _user ? LockCheck
       future.onComplete {
-        case Success(lock) => _user ! Send(message)
+        case Success(CriticalSection(u)) =>
+          if (u == _user) _user ! Send(message)
+          else Platform runLater errorDialog("Error in sending message...",
+            "Critical section is held by " + u.path.name,
+            "You cannot send a message while critical section is enabled")
+        case Success(_) => _user ! Send(message)
         case Failure(t) => Platform runLater {
-          DialogUtils errorDialog("Error in sending message...",
+          errorDialog("Error in sending message...",
             "An error has occurred:", t.getMessage)
         }
       }
@@ -49,14 +55,14 @@ class ChatPresenter(messageField: TextField, sendMessage: Button, chatBox: VBox)
 
   def receive(content: String, senderPath: ActorPath): Unit = {
     println("Received message: " + content + "\nfrom " + senderPath)
-    Platform.runLater {
-      val pos = if (senderPath == _user) Pos.CENTER_RIGHT else Pos.CENTER_LEFT
+    Platform runLater {
+      val pos = if (senderPath == _user.path) Pos.CENTER_RIGHT else Pos.CENTER_LEFT
       addMessage(pos, senderPath.name, content)
     }
   }
 
   def receiveInfo(info: String): Unit = {
-    Platform.runLater {
+    Platform runLater {
       addInfoMessage(info)
     }
   }
@@ -106,4 +112,5 @@ object MessageValidator {
   }
 
   final case class MessageLimitException(error: String) extends Exception(error)
+
 }
