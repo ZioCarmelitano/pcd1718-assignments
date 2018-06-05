@@ -5,7 +5,7 @@ import java.io.File
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
-import pcd.ass03.ex2.actors.User.{LockCheck, Send, UserCounter, VectorClock}
+import pcd.ass03.ex2.actors.User.{apply => _, _}
 import pcd.ass03.ex2.view.ChatPresenter
 
 import scala.collection.mutable
@@ -117,6 +117,8 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
         log.info(s"Sending $content")
         room ! Room.createMessage(content)
       }
+
+    case Kill => context.stop(self)
   }
 
   private[this] def updateClock(): Unit = clock = clock + (self -> (clock(self) + 1))
@@ -156,6 +158,8 @@ object User {
   final case class Send(content: String)
 
   final case object LockCheck
+
+  final case object Kill
 
   val Config: Config = ConfigFactory.parseFile(new File("src/main/resources/ex2/akka/user.conf"))
 
