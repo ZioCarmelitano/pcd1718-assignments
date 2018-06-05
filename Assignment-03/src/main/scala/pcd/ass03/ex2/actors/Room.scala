@@ -5,6 +5,7 @@ import java.io.File
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props, Terminated}
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
+import pcd.ass03.ex2.actors.User.LockCheck
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -40,6 +41,7 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
       broadcast(EnterCriticalSection)
       log.info(s"User ${sender.path.name} has started the critical section")
     case ExitCriticalSection => sender ! NoCriticalSection
+    case LockCheck => sender ! NoCriticalSection
     case message: Message =>
       counter += 1
       val msg = (message, counter)
@@ -56,6 +58,7 @@ class Room(private[this] val timeout: FiniteDuration) extends Actor with ActorLo
       counter += 1
       val msg = (message, counter)
       broadcast(msg)
+    case LockCheck => sender ! cs
     case Message(_, _, _) | EnterCriticalSection | ExitCriticalSection => sender ! cs
   }
 
@@ -111,7 +114,7 @@ object Room {
   final case class Commands(commands: Set[String])
 
   private val commandMap = Map(":enter-cs" -> EnterCriticalSection, ":exit-cs" -> ExitCriticalSection, ":help" -> Help)
-  private val commands = Commands(commandMap.keySet)
+  val commands = Commands(commandMap.keySet)
 
   final case class CriticalSection(user: ActorRef)
 
@@ -119,7 +122,7 @@ object Room {
 
   def createMessage(content: String)(implicit user: ActorRef, userClock: Int): Any = content match {
     case command if commandMap contains command => commandMap(command)
-    case command if command.startsWith(":") => CommandNotUnderstood(command)
+    //case command if command.startsWith(":") => CommandNotUnderstood(command)
     case c => Message(c, user, userClock)
   }
 
