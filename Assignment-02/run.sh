@@ -15,7 +15,8 @@ while [[ $# -gt 0 ]]; do
             MAX_DEPTH="$2"
             shift # past argument
             shift # past value
-            ;;        -e|--exercise)
+            ;;
+        -e|--exercise)
             EXERCISE="$2"
             shift # past argument
             shift # past value
