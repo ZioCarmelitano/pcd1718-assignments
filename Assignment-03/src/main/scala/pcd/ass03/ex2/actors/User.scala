@@ -68,8 +68,6 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
     case UserCounter(c) => clock = clock + (sender -> c)
 
     case (message: Message, c: Int) =>
-//      updateClock()
-//      clock = max(message.vectorClock)
       if (c == roomCounter + 1) {
         log.info(s"Received total order $message")
         roomCounter += 1
@@ -110,28 +108,19 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
     case NoCriticalSection => log.error("The room is not in a critical section state")
 
     case Send(content) =>
-//      updateClock()
       userCounter += 1
       implicit val counter: Int = userCounter
-      context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
+      // context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
         log.info(s"Sending $content")
         room ! Room.createMessage(content)
-      }
+      // }
 
     case Kill => context.stop(self)
   }
 
-  private[this] def updateClock(): Unit = clock = clock + (self -> (clock(self) + 1))
-
   private[this] def showMessage(content: String, user: ActorRef): Unit = {
     log.info(s"${user.path.name} said: $content")
     presenter.receive(content, user.path)
-  }
-
-  private[this] def isHappenedBefore(x: VectorClock, y: VectorClock): Boolean = x.keySet.forall {
-    z => x(z) <= y(z)
-  } && x.keySet.exists {
-    z => x(z) < y(z)
   }
 
   override def preStart(): Unit = {
