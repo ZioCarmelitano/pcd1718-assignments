@@ -86,4 +86,11 @@ public interface Stopwatch {
         return isStarted() && !isStopped();
     }
 
+    default long timeIt(Runnable block) {
+        Objects.requireNonNull(block, "block is null");
+        start();
+        block.run();
+        return stopAndReset();
+    }
+
 }

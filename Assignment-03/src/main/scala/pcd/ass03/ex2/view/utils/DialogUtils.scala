@@ -1,4 +1,4 @@
-package pcd.ass03.ex2.view
+package pcd.ass03.ex2.view.utils
 
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType
