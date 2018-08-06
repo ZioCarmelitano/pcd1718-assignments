@@ -24,8 +24,9 @@ public class GuiService extends AbstractVerticle {
     public void init(Vertx vertx, Context context) {
         super.init(vertx, context);
 
-        address = context.config().getString("address");
-        port = context.config().getInteger("port");
+        final JsonObject config = context.config();
+        address = config.getString("address");
+        port = config.getInteger("port");
     }
 
     @Override

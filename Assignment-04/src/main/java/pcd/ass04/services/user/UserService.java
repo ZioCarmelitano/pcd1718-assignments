@@ -2,6 +2,7 @@ package pcd.ass04.services.user;
 
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.servicediscovery.ServiceDiscovery;
 import io.vertx.reactivex.servicediscovery.types.HttpEndpoint;
@@ -18,8 +19,9 @@ public class UserService extends AbstractVerticle {
     public void init(Vertx vertx, Context context) {
         super.init(vertx, context);
 
-        address = context.config().getString("address");
-        port = context.config().getInteger("port");
+        final JsonObject config = context.config();
+        address = config.getString("address");
+        port = config.getInteger("port");
     }
 
     @Override
