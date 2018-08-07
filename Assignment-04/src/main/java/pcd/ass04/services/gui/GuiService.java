@@ -1,31 +1,38 @@
 package pcd.ass04.services.gui;
 
-import io.vertx.circuitbreaker.CircuitBreakerOptions;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.reactivex.circuitbreaker.CircuitBreaker;
-import io.vertx.reactivex.core.AbstractVerticle;
-import io.vertx.reactivex.ext.web.client.WebClient;
-import io.vertx.reactivex.servicediscovery.ServiceDiscovery;
-import io.vertx.reactivex.servicediscovery.types.HttpEndpoint;
+import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.servicediscovery.Record;
-import pcd.ass04.util.ServiceDiscoveryUtils;
+import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.types.HttpEndpoint;
 
-public class GuiService extends AbstractVerticle {
+import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
+
+public final class GuiService extends AbstractVerticle {
 
     private ServiceDiscovery discovery;
     private Record record;
-    private String address;
+
+    private String host;
     private int port;
-    private WebClient guiClient;
+
+    private WebClient roomClient;
+    private WebClient userClient;
 
     @Override
     public void init(Vertx vertx, Context context) {
         super.init(vertx, context);
 
         final JsonObject config = context.config();
-        address = config.getString("address");
+        host = config.getString("host");
         port = config.getInteger("port");
     }
 
@@ -33,37 +40,56 @@ public class GuiService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        final CircuitBreaker circuitBreaker = CircuitBreaker.create("gui-circuit-breaker", vertx,
-                new CircuitBreakerOptions()
-                        .setMaxFailures(5) // number of failure before opening the circuit
-                        .setTimeout(2000) // consider a failure if the operation does not succeed in time
-                        .setFallbackOnFailure(true) // do we call the fallback on failure
-                        .setResetTimeout(10000) // time spent in open state before attempting to re-try
-        );
-
-        ServiceDiscoveryUtils.getWebClient(discovery, circuitBreaker, new JsonObject().put("name", "room-service"), ar -> {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "room-service"), ar -> {
             if (ar.succeeded()) {
-                guiClient = ar.result();
+                roomClient = ar.result();
+                System.out.println("Got room WebClient");
             } else {
                 System.err.println("Could not retrieve room client: " + ar.cause().getMessage());
             }
         });
 
-        ServiceDiscoveryUtils.getWebClient(discovery, circuitBreaker, new JsonObject().put("name", "user-service"), ar -> {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "user-service"), ar -> {
             if (ar.succeeded()) {
-                final WebClient userClient = ar.result();
+                userClient = ar.result();
+                System.out.println("Got user WebClient");
             } else {
                 System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
             }
         });
 
-        discovery.publish(HttpEndpoint.createRecord("gui-service", address, port, "/api"), ar -> {
-            if (ar.succeeded()) {
-                record = ar.result();
-            } else {
-                System.err.println("Could not publish record: " + ar.cause().getMessage());
-            }
+        final Router apiRouter = Router.router(vertx);
+
+        apiRouter.post("/messages")
+                .consumes("application/json")
+                .produces("application/json")
+                .handler(this::handleMessage);
+
+        apiRouter.route("/eventbus/*").handler(sockJSHandler());
+
+        final Router router = Router.router(vertx);
+
+        router.mountSubRouter("/api", apiRouter);
+
+        vertx.eventBus().consumer("chat.to.server", msg -> {
         });
+
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(port, host, ar -> {
+                    if (ar.succeeded()) {
+                        discovery.publish(HttpEndpoint.createRecord("gui-service", host, port, "/api"), ar1 -> {
+                            if (ar1.succeeded()) {
+                                record = ar1.result();
+                            } else {
+                                System.err.println("Could not publish record: " + ar1.cause().getMessage());
+                            }
+                        });
+                        System.out.println("HTTP server started at http://" + host + ":" + port);
+                    } else {
+                        System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
+                    }
+                });
     }
 
     @Override
@@ -77,6 +103,19 @@ public class GuiService extends AbstractVerticle {
                     }
                 });
         discovery.close();
+    }
+
+    private SockJSHandler sockJSHandler() {
+        // Allow events for the designated addresses in/out of the event bus bridge
+        BridgeOptions opts = new BridgeOptions()
+                .addInboundPermitted(new PermittedOptions().setAddress("chat.to.server"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client"));
+
+        // Create the event bus bridge and add it to the router.
+        return SockJSHandler.create(vertx).bridge(opts);
+    }
+
+    private void handleMessage(RoutingContext ctx) {
     }
 
 }

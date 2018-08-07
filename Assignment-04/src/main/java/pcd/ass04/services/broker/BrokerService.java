@@ -1,23 +1,26 @@
 package pcd.ass04.services.broker;
 
-import io.vertx.circuitbreaker.CircuitBreakerOptions;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.reactivex.circuitbreaker.CircuitBreaker;
-import io.vertx.reactivex.core.AbstractVerticle;
-import io.vertx.reactivex.ext.web.client.WebClient;
-import io.vertx.reactivex.servicediscovery.ServiceDiscovery;
-import io.vertx.reactivex.servicediscovery.types.HttpEndpoint;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.servicediscovery.Record;
-import pcd.ass04.util.ServiceDiscoveryUtils;
+import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.types.HttpEndpoint;
 
-public class BrokerService extends AbstractVerticle {
+import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
+
+public final class BrokerService extends AbstractVerticle {
 
     private ServiceDiscovery discovery;
     private Record record;
-    private String address;
+
+    private String host;
     private int port;
+
     private WebClient guiClient;
 
     @Override
@@ -25,7 +28,7 @@ public class BrokerService extends AbstractVerticle {
         super.init(vertx, context);
 
         final JsonObject config = context.config();
-        address = config.getString("address");
+        host = config.getString("host");
         port = config.getInteger("port");
     }
 
@@ -33,28 +36,41 @@ public class BrokerService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        final CircuitBreaker circuitBreaker = CircuitBreaker.create("broker-circuit-breaker", vertx,
-                new CircuitBreakerOptions()
-                        .setMaxFailures(5) // number of failure before opening the circuit
-                        .setTimeout(2000) // consider a failure if the operation does not succeed in time
-                        .setFallbackOnFailure(true) // do we call the fallback on failure
-                        .setResetTimeout(10000) // time spent in open state before attempting to re-try
-        );
-
-        ServiceDiscoveryUtils.getWebClient(discovery, circuitBreaker, new JsonObject().put("name", "gui-service"), ar -> {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "gui-service"), ar -> {
             if (ar.succeeded()) {
                 guiClient = ar.result();
+                System.out.println("Got gui WebClient");
             } else {
                 System.err.println("Could not retrieve GUI client: " + ar.cause().getMessage());
             }
         });
 
-        discovery.publish(HttpEndpoint.createRecord("broker-service", address, port, "/api"), ar -> {
-            if (ar.succeeded()) {
-                record = ar.result();
-            } else {
-                System.err.println("Could not publish record: " + ar.cause().getMessage());
-            }
+        final Router apiRouter = Router.router(vertx);
+
+        apiRouter.post("/messages")
+                .consumes("application/json")
+                .produces("application/json")
+                .handler(this::handleMessage);
+
+        final Router router = Router.router(vertx);
+
+        router.mountSubRouter("/api", apiRouter);
+
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(port, host, ar -> {
+           if (ar.succeeded()) {
+               discovery.publish(HttpEndpoint.createRecord("broker-service", host, port, "/api"), ar1 -> {
+                   if (ar1.succeeded()) {
+                       record = ar1.result();
+                   } else {
+                       System.err.println("Could not publish record: " + ar1.cause().getMessage());
+                   }
+               });
+               System.out.println("HTTP server started at http://" + host + ":" + port);
+           } else {
+               System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
+           }
         });
     }
 
@@ -69,6 +85,9 @@ public class BrokerService extends AbstractVerticle {
                     }
                 });
         discovery.close();
+    }
+
+    private void handleMessage(RoutingContext ctx) {
     }
 
 }

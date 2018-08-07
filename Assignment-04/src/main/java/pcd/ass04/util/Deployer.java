@@ -10,13 +10,13 @@ import java.util.function.Supplier;
 
 public final class Deployer {
 
-    public static void deploy(String address, int port, Supplier<Verticle> verticleSupplier) {
+    public static void deploy(Supplier<Verticle> verticleSupplier, String host, int port) {
         Vertx.clusteredVertx(new VertxOptions().setClustered(true), ar -> {
             if (ar.succeeded()) {
                 final Vertx vertx = ar.result();
                 vertx.deployVerticle(verticleSupplier, new DeploymentOptions()
                         .setConfig(new JsonObject()
-                                .put("address", address)
+                                .put("host", host)
                                 .put("port", port)));
             }
         });
