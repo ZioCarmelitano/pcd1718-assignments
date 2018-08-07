@@ -1,0 +1,56 @@
+group 'pcd'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    slf4jVersion = '1.7.25'
+    logbackVersion = '1.2.3'
+
+    guavaVersion = '24.1-jre'
+
+    rxJava2Version = '2.2.0'
+
+    vertxVersion = '3.5.1'
+
+    junit4Version = '4.12'
+
+}
+
+dependencies {
+    compile group: 'io.vertx', name: 'vertx-core', version: vertxVersion
+    compile group: 'io.vertx', name: 'vertx-hazelcast', version: vertxVersion
+
+    // Web
+    compile group: 'io.vertx', name: 'vertx-web', version: vertxVersion
+    compile group: 'io.vertx', name: 'vertx-web-client', version: vertxVersion
+
+    // Micro services
+    compile group: 'io.vertx', name: 'vertx-service-discovery', version: vertxVersion
+    // compile group: 'io.vertx', name: 'vertx-circuit-breaker', version: vertxVersion
+
+    // RxJava
+    // compile group: 'io.rxjava2', name: 'rxjava', version: rxJava2Version
+    // compile group: 'io.vertx', name: 'vertx-rx-java2', version: vertxVersion
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name
+    manifest {
+        attributes 'Main-Class': 'pcd.ass04.Launcher'
+    }
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
