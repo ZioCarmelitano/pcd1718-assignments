@@ -1,4 +1,4 @@
-package pcd.ass04.services.gui;
+package pcd.ass04.services.webapp;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
@@ -16,7 +16,7 @@ import io.vertx.servicediscovery.types.HttpEndpoint;
 
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
-public final class GuiService extends AbstractVerticle {
+public final class WebAppService extends AbstractVerticle {
 
     private ServiceDiscovery discovery;
     private Record record;

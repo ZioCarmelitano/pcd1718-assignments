@@ -1,8 +1,7 @@
 package pcd.ass04;
 
 import io.vertx.core.Verticle;
-import pcd.ass04.services.broker.BrokerService;
-import pcd.ass04.services.gui.GuiService;
+import pcd.ass04.services.webapp.WebAppService;
 import pcd.ass04.services.room.RoomService;
 import pcd.ass04.services.user.UserService;
 import pcd.ass04.util.Deployer;
@@ -23,14 +22,12 @@ final class Launcher {
 
     private static Supplier<Verticle> getService(String serviceName) {
         switch (serviceName) {
-        case "broker":
-            return BrokerService::new;
-            case "gui":
-                return GuiService::new;
             case "room":
                 return RoomService::new;
             case "user":
                 return UserService::new;
+            case "webapp":
+                return WebAppService::new;
             default:
                 throw new IllegalArgumentException("Invalid service name: " + serviceName);
         }

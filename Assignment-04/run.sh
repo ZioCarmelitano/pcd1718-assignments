@@ -6,12 +6,6 @@ if [ "$#" != 2 ]; then
 fi
 
 case $1 in
-    -b|--broker)
-        service=broker
-        ;;
-    -g|--gui)
-        service=gui
-        ;;
     -r|--room)
         service=room
         ;;
@@ -26,6 +20,9 @@ case $1 in
     *)    # unknown option
         usage
         exit 1
+        ;;
+    -w|--web-app)
+        service=webapp
         ;;
 esac
 

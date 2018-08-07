@@ -23,7 +23,6 @@ public final class RoomService extends AbstractVerticle {
     private String host;
     private int port;
 
-    private WebClient brokerClient;
     private WebClient guiClient;
 
     @Override
@@ -38,15 +37,6 @@ public final class RoomService extends AbstractVerticle {
     @Override
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
-
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "broker-service"), ar -> {
-            if (ar.succeeded()) {
-                brokerClient = ar.result();
-                System.out.println("Got broker WebClient");
-            } else {
-                System.err.println("Could not retrieve broker client: " + ar.cause().getMessage());
-            }
-        });
 
         getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "gui-service"), ar -> {
             if (ar.succeeded()) {
@@ -87,7 +77,7 @@ public final class RoomService extends AbstractVerticle {
                 .produces("application/json")
                 .handler(this::join);
 
-        apiRouter.delete("/rooms/:userId/leave/:userId")
+        apiRouter.delete("/rooms/:roomId/leave/:userId")
                 .produces("application/json")
                 .handler(this::leave);
 
