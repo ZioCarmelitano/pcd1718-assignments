@@ -109,7 +109,8 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
 
     case LockCheck =>
       val presenter = sender
-      implicit val timeout: Timeout = Timeout(2 seconds)
+
+      implicit val timeout: Timeout = 2 seconds
       val future = room ? LockCheck
       future.onComplete {
         case Success(NoCriticalSection) => presenter ! NoCriticalSection
