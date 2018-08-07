@@ -1,16 +1,24 @@
 package pcd.ass04.services.user;
 
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
-import io.vertx.servicediscovery.Record;
+import pcd.ass04.services.user.exceptions.UserNotFoundException;
+import pcd.ass04.services.user.model.User;
+import pcd.ass04.services.user.repositories.InMemoryUserRepository;
+import pcd.ass04.services.user.repositories.UserRepository;
 
+import java.util.List;
+import java.util.Optional;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.vertx.core.http.HttpMethod.PATCH;
 import static io.vertx.core.http.HttpMethod.PUT;
 
@@ -21,6 +29,8 @@ public final class UserService extends AbstractVerticle {
 
     private String host;
     private int port;
+
+    private UserRepository userRepository;
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -77,6 +87,7 @@ public final class UserService extends AbstractVerticle {
                             }
                         });
                         System.out.println("HTTP server started at http://" + host + ":" + port);
+                        this.userRepository = InMemoryUserRepository.getInstance();
                     } else {
                         System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
                     }
@@ -97,18 +108,45 @@ public final class UserService extends AbstractVerticle {
     }
 
     private void index(RoutingContext ctx) {
+        List<User> users = this.userRepository.getAll();
+        JsonArray userArray = new JsonArray();
+        users.stream().map(User::toJson).forEach(userArray::add);
+        ctx.response().end(userArray.toString());
     }
 
     private void store(RoutingContext ctx) {
+        JsonObject userToStoreJson = ctx.getBodyAsJson();
+        this.userRepository.store(new User(userToStoreJson));
     }
 
     private void show(RoutingContext ctx) {
+        long userId = Long.valueOf(ctx.request().getParam("id"));
+        Optional<User> user = this.userRepository.get(userId);
+        if (user.isPresent()) {
+            ctx.response().end(user.get().toJson().toString());
+        } else {
+            ctx.response().setStatusCode(NOT_FOUND.code()).end("User to show not found");
+        }
     }
 
     private void update(RoutingContext ctx) {
+        JsonObject userToUpdateJson = ctx.getBodyAsJson();
+        try {
+            this.userRepository.update(new User(userToUpdateJson));
+            ctx.response().end();
+        } catch (UserNotFoundException e) {
+            ctx.response().setStatusCode(NOT_FOUND.code()).end("User to update not found");
+        }
     }
 
     private void destroy(RoutingContext ctx) {
+        long userId = Long.valueOf(ctx.request().getParam("id"));
+        try {
+            this.userRepository.destroy(userId);
+            ctx.response().end();
+        } catch (UserNotFoundException e) {
+            ctx.response().setStatusCode(NOT_FOUND.code()).end("User to delete not found");
+        }
     }
 
 }
