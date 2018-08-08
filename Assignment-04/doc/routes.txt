@@ -99,6 +99,7 @@ Request
 
 Response
 {
+    held: Boolean
     user: User?
 }
 
@@ -111,17 +112,6 @@ Request
 
 /rooms/:roomId/cs/exit/:userId      DELETE      Utente che rilascia la sezione critica
 
-
-Broker
-
-/messages   POST    Salva un nuovo messaggio da ordinare dato l'identificativo della stanza e dell'utente
-
-Request
-{
-    user: User,
-    content: String,
-    userClock: Integer
-}
 
 WEBAPP
 

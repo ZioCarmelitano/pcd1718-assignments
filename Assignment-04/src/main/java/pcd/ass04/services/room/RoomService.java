@@ -31,22 +31,17 @@ public final class RoomService extends AbstractVerticle {
 
     private static final long CRITICAL_SECTION_TIMEOUT = 30_000;
 
-    private final RoomRepository repository;
     private ServiceDiscovery discovery;
     private Record record;
 
     private String host;
     private int port;
 
-    private WebClient guiClient;
+    private final RoomRepository repository = new RoomRepositoryImpl();;
 
     // Critical section
     private final Map<Room, Optional<User>> csMap = new HashMap<>();
     private OptionalLong csTimerId = OptionalLong.empty();
-
-    public RoomService() {
-        repository = new RoomRepositoryImpl();
-    }
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -60,14 +55,6 @@ public final class RoomService extends AbstractVerticle {
     @Override
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
-
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "gui-service"), ar -> {
-            if (ar.succeeded()) {
-                guiClient = ar.result();
-            } else {
-                System.err.println("Could not retrieve GUI client: " + ar.cause().getMessage());
-            }
-        });
 
         final Router apiRouter = Router.router(vertx);
 
@@ -181,7 +168,7 @@ public final class RoomService extends AbstractVerticle {
                         ctx.response()::end,
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+                                .end(new JsonObject().put("error", new JsonObject().put("error", cause.getMessage()).toString()).toString()));
     }
 
     private void store(RoutingContext ctx) {
@@ -197,7 +184,7 @@ public final class RoomService extends AbstractVerticle {
                         },
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void show(RoutingContext ctx) {
@@ -208,7 +195,7 @@ public final class RoomService extends AbstractVerticle {
                         ctx.response()::end,
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
 
     }
 
@@ -220,7 +207,7 @@ public final class RoomService extends AbstractVerticle {
                         ctx.response()::end,
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void destroy(RoutingContext ctx) {
@@ -234,7 +221,7 @@ public final class RoomService extends AbstractVerticle {
                         },
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void join(RoutingContext ctx) {
@@ -247,7 +234,7 @@ public final class RoomService extends AbstractVerticle {
                         ctx.response()::end,
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void leave(RoutingContext ctx) {
@@ -261,10 +248,31 @@ public final class RoomService extends AbstractVerticle {
                         ctx.response()::end,
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void messages(RoutingContext ctx) {
+        final long id = Long.parseLong(ctx.request().getParam("roomId"));
+
+        final JsonObject body = ctx.getBodyAsJson();
+        final String content = body.getString("content");
+        final User user = User.fromJson(body.getJsonObject("user"));
+        final long userClock = body.getLong("userClock");
+
+        repository.findById(id)
+                .map(room -> {
+                    final Optional<User> csUser = csMap.get(room);
+                    if (csUser.isPresent() && !csUser.get().equals(user)) {
+                        throw new IllegalStateException("The user who tried to send the message is not the user in critical section");
+                    }
+                    return body;
+                })
+                .map(Object::toString)
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void status(RoutingContext ctx) {
@@ -286,7 +294,7 @@ public final class RoomService extends AbstractVerticle {
                         },
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void enter(RoutingContext ctx) {
@@ -309,7 +317,7 @@ public final class RoomService extends AbstractVerticle {
                         room -> ctx.response().end(),
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void exit(RoutingContext ctx) {
@@ -336,7 +344,7 @@ public final class RoomService extends AbstractVerticle {
                         ctx.response()::end,
                         cause -> ctx.response()
                                 .setStatusCode(500)
-                                .end(cause.getMessage()));
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
 }
