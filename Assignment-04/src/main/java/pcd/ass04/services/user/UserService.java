@@ -111,20 +111,20 @@ public final class UserService extends AbstractVerticle {
         List<User> users = this.userRepository.getAll();
         JsonArray userArray = new JsonArray();
         users.stream().map(User::toJson).forEach(userArray::add);
-        ctx.response().end(userArray.toString());
+        ctx.response().end(userArray.encodePrettily());
     }
 
     private void store(RoutingContext ctx) {
         JsonObject userToStoreJson = ctx.getBodyAsJson();
-        this.userRepository.store(new User(userToStoreJson));
-        ctx.response().end();
+        User userStored = this.userRepository.store(new User(userToStoreJson.getString("name")));
+        ctx.response().end(userStored.toJson().encodePrettily());
     }
 
     private void show(RoutingContext ctx) {
         long userId = Long.valueOf(ctx.request().getParam("id"));
         Optional<User> user = this.userRepository.get(userId);
         if (user.isPresent()) {
-            ctx.response().end(user.get().toJson().toString());
+            ctx.response().end(user.get().toJson().encodePrettily());
         } else {
             ctx.response().setStatusCode(NOT_FOUND.code()).end("User to show not found");
         }
@@ -132,9 +132,10 @@ public final class UserService extends AbstractVerticle {
 
     private void update(RoutingContext ctx) {
         JsonObject userToUpdateJson = ctx.getBodyAsJson();
+        long userToUpdateId = Long.parseLong(ctx.request().getParam("id"));
         try {
-            this.userRepository.update(new User(userToUpdateJson));
-            ctx.response().end();
+            User userUpdated = this.userRepository.update(new User(userToUpdateId, userToUpdateJson.getString("name")));
+            ctx.response().end(userUpdated.toJson().encodePrettily());
         } catch (UserNotFoundException e) {
             ctx.response().setStatusCode(NOT_FOUND.code()).end("User to update not found");
         }
@@ -144,7 +145,7 @@ public final class UserService extends AbstractVerticle {
         long userId = Long.valueOf(ctx.request().getParam("id"));
         try {
             this.userRepository.destroy(userId);
-            ctx.response().end();
+            ctx.response().end(new JsonObject().put("id", userId).encodePrettily());
         } catch (UserNotFoundException e) {
             ctx.response().setStatusCode(NOT_FOUND.code()).end("User to delete not found");
         }
