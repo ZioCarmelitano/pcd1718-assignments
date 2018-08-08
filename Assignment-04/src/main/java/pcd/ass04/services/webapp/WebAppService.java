@@ -73,85 +73,113 @@ public final class WebAppService extends AbstractVerticle {
 
         vertx.eventBus().consumer("chat.to.server", msg -> {
             JsonObject message = (JsonObject) msg;
+            JsonObject request = message.getJsonObject("request");
             switch (message.getString("type")) {
-                case "getUsers":
-                    userClient.get("/users");
-                    break;
                 case "newUser":
-                    userClient.post("/users");
-                    break;
-                case "getUser":
-                    userClient.get("/users/" + message.getString("id"));
+                    userClient.post("/users").sendJsonObject(request, response -> {
+                        if (response.succeeded()) {
+                            System.out.println("Message (newUser) sent correctly");
+                            vertx.eventBus().publish("chat.to.client.newUser", response.result().bodyAsJsonObject());
+                        } else {
+                            System.out.println("Error, message (newUser) was not sent correctly");
+                        }
+                    });
                     break;
                 case "deleteUser":
-                    userClient.delete("/users/" + message.getString("id"));
-                    break;
-                case "modifyUser":
-                    userClient.put("/users/" + message.getString("id"));
+                    userClient.delete("/users/" + request.getJsonObject("user").getString("id")).send(response -> {
+                        if (response.succeeded()) {
+                            System.out.println("Message (deleteUser) sent correctly");
+                            vertx.eventBus().publish("chat.to.client.deleteUser", request);
+                        } else {
+                            System.out.println("Error, message (deleteUser) was not sent correctly");
+                        }
+                    });
                     break;
                 case "getRooms":
-                    roomClient.get("/rooms");
+                    roomClient.get("/rooms").send(response -> {
+                    if (response.succeeded()) {
+                        System.out.println("Message (getRooms) sent correctly");
+                        vertx.eventBus().publish("chat.to.client.rooms", response.result().bodyAsJsonArray());
+                    } else {
+                        System.out.println("Error, message (getRooms) was not sent correctly");
+                    }
+                });
                     break;
                 case "newRoom":
-                    roomClient.post("/rooms");
+                    roomClient.post("/rooms").send(response -> {
+                        if (response.succeeded()) {
+                            System.out.println("Message (newRoom) sent correctly");
+                            vertx.eventBus().publish("chat.to.client.newRoom", response.result().bodyAsJsonObject());
+                        } else {
+                            System.out.println("Error, message (newRoom) was not sent correctly");
+                        }
+                    });
                     break;
                 case "getRoom":
-                    roomClient.get("/rooms/" + message.getString("id"));
+                    roomClient.get("/rooms/" + request.getString("roomId")).send(response -> {
+                        if (response.succeeded()) {
+                            System.out.println("Message (getRoom) sent correctly");
+                            vertx.eventBus().publish("chat.to.client.getRoom", response.result().bodyAsJsonObject());
+                        } else {
+                            System.out.println("Error, message (getRoom) was not sent correctly");
+                        }
+                    });
                     break;
                 case "deleteRoom":
-                    roomClient.delete("/rooms/" + message.getString("id"));
-                    break;
-                case "modifyRoom":
-                    roomClient.put("/rooms/" + message.getString("id"));
+                    roomClient.delete("/rooms/" + request.getString("roomId")).send(response -> {
+                        if (response.succeeded()) {
+                            System.out.println("Message (deleteRoom) sent correctly");
+                            vertx.eventBus().publish("chat.to.client.deleteRoom", request);
+                        } else {
+                            System.out.println("Error, message (deleteRoom) was not sent correctly");
+                        }
+                    });
                     break;
                 case "addUserToRoom":
-                    roomClient.post("/rooms/" + message.getString("id") + "/join").sendJsonObject(message.getJsonObject("user"), response -> {
+                    roomClient.post("/rooms/" + request.getString("roomId") + "/join").sendJsonObject(request, response -> {
                         if (response.succeeded()) {
                             System.out.println("Message (addUserToRoom) sent correctly");
-                            vertx.eventBus().publish("chat.to.client", message);
+                            vertx.eventBus().publish("chat.to.client.joinRoom", response.result().bodyAsJsonObject());
                         } else {
                             System.out.println("Error, message (addUserToRoom) was not sent correctly");
                         }
                     });
                     break;
                 case "exitUserFromRoom":
-                    roomClient.delete("/rooms/" + message.getString("id") + "/leave/" + message.getString("idUser")).send(response -> {
+                    roomClient.delete("/rooms/" + request.getString("roomId") + "/leave/" + request.getJsonObject("user").getLong("id")).send(response -> {
                         if (response.succeeded()) {
                             System.out.println("Message (exitUserFromRoom) sent correctly");
-                            vertx.eventBus().publish("chat.to.client", message);
+                            vertx.eventBus().publish("chat.to.client.leaveRoom", request);
                         } else {
                             System.out.println("Error, message (exitUserFromRoom) was not sent correctly");
                         }
                     });
                     break;
                 case "saveMessageInRoom":
-                    roomClient.post("/rooms/" + message.getString("id") + "/messages").sendJsonObject(message.getJsonObject("message"), response -> {
+                    roomClient.post("/rooms/" + request.getString("roomId") + "/messages").sendJsonObject(request, response -> {
                         if (response.succeeded()) {
                             System.out.println("Message (saveMessageInRoom) sent correctly");
-                            vertx.eventBus().publish("chat.to.client", message);
+                            vertx.eventBus().publish("chat.to.client.newMessage", response.result().bodyAsJsonObject());
                         } else {
                             System.out.println("Error, message (saveMessageInRoom) was not sent correctly");
                         }
                     });
                     break;
-                case "isCriticalSection":
-                    roomClient.get("/rooms/" + message.getString("id") + "/cs");
-                    break;
                 case "enterCriticalSection":
-                    roomClient.get("/rooms/" + message.getString("id") + "/cs/enter").sendJsonObject(message.getJsonObject("user"), response -> {
+                    roomClient.post("/rooms/" + request.getString("roomId") + "/cs/enter").sendJsonObject(request.getJsonObject("user"), response -> {
                         if (response.succeeded()) {
                             System.out.println("Message (enterCriticalSection) sent correctly");
-                            vertx.eventBus().publish("chat.to.client", message);
+                            vertx.eventBus().publish("chat.to.client.enterCS", request);
                         } else {
                             System.out.println("Error, message (enterCriticalSection) was not sent correctly");
                         }
                     });
                     break;
                 case "exitCriticalSection":
-                    roomClient.delete("/rooms/" + message.getString("id") + "/cs/exit/" + message.getString("idUser")).send(response -> {
+                    roomClient.delete("/rooms/" + request.getString("roomId") + "/cs/exit/" + request.getJsonObject("user").getString("id")).send(response -> {
                         if (response.succeeded()) {
                             System.out.println("Message (exitCriticalSection) sent correctly");
-                            vertx.eventBus().publish("chat.to.client", message);
+                            vertx.eventBus().publish("chat.to.client.exitCS", request);
                         } else {
                             System.out.println("Error, message (exitCriticalSection) was not sent correctly");
                         }
@@ -198,7 +226,20 @@ public final class WebAppService extends AbstractVerticle {
         // Allow events for the designated addresses in/out of the event bus bridge
         BridgeOptions opts = new BridgeOptions()
                 .addInboundPermitted(new PermittedOptions().setAddress("chat.to.server"))
-                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client"));
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.newUser"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.deleteUser"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.rooms"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.newRoom"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.getRoom"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.deleteRoom"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.joinRoom"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.leaveRoom"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.newMessage"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.deleteRoom"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.enterCS"))
+                .addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client.exitCS"))
+
+                ;
 
         // Create the event bus bridge and add it to the router.
         return SockJSHandler.create(vertx).bridge(opts);
