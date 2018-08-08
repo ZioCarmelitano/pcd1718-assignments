@@ -12,6 +12,9 @@ case $1 in
     -u|--user)
         service=user
         ;;
+    -w|--web-app)
+        service=webapp
+        ;;
     -*|--*)
         echo "Invalid option: \"$1\"" >& 2
         usage
@@ -20,9 +23,6 @@ case $1 in
     *)    # unknown option
         usage
         exit 1
-        ;;
-    -w|--web-app)
-        service=webapp
         ;;
 esac
 
