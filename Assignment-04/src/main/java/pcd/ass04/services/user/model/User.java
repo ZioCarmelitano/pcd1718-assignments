@@ -6,17 +6,16 @@ import java.util.Objects;
 
 public class User {
 
-    private final long id;
+    private long id;
     private String username;
+
+    public User(String username) {
+        this.username = username;
+    }
 
     public User(long id, String username) {
         this.id = id;
         this.username = username;
-    }
-
-    public User(JsonObject user) {
-        this.id = user.getLong("id");
-        this.username = user.getString("username");
     }
 
     public long getId() {
@@ -49,5 +48,9 @@ public class User {
         return new JsonObject()
                 .put("id", id)
                 .put("username", username);
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
