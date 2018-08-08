@@ -1,6 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { SendFieldComponent } from './send-field.component';
+import {SendFieldComponent} from './send-field.component';
 
 describe('SendFieldComponent', () => {
   let component: SendFieldComponent;
@@ -8,9 +8,9 @@ describe('SendFieldComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SendFieldComponent ]
+      declarations: [SendFieldComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {User} from "../user";
 
 @Component({
   selector: 'app-index',
@@ -7,9 +8,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class IndexComponent implements OnInit {
 
-  constructor() { }
+  public user: User;
+
+  constructor() {
+  }
 
   ngOnInit() {
+    this.user = {
+      id: 1,
+      name: 'Pippo'
+    };
   }
 
 }
