@@ -117,6 +117,7 @@ public final class UserService extends AbstractVerticle {
     private void store(RoutingContext ctx) {
         JsonObject userToStoreJson = ctx.getBodyAsJson();
         this.userRepository.store(new User(userToStoreJson));
+        ctx.response().end();
     }
 
     private void show(RoutingContext ctx) {
