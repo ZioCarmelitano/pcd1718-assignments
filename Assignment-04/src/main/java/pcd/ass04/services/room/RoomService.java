@@ -1,21 +1,35 @@
 package pcd.ass04.services.room;
 
+import io.reactivex.Completable;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
+import pcd.ass04.services.room.domain.Room;
+import pcd.ass04.services.room.domain.User;
+import pcd.ass04.services.room.repository.RoomRepository;
+import pcd.ass04.services.room.repository.RoomRepositoryImpl;
 
-import static io.vertx.core.http.HttpMethod.PATCH;
-import static io.vertx.core.http.HttpMethod.PUT;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalLong;
+
+import static io.vertx.core.http.HttpMethod.*;
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
 public final class RoomService extends AbstractVerticle {
+
+    private static final long CRITICAL_SECTION_TIMEOUT = 30_000;
 
     private ServiceDiscovery discovery;
     private Record record;
@@ -23,7 +37,11 @@ public final class RoomService extends AbstractVerticle {
     private String host;
     private int port;
 
-    private WebClient guiClient;
+    private final RoomRepository repository = new RoomRepositoryImpl();;
+
+    // Critical section
+    private final Map<Room, Optional<User>> csMap = new HashMap<>();
+    private OptionalLong csTimerId = OptionalLong.empty();
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -38,15 +56,21 @@ public final class RoomService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "gui-service"), ar -> {
-            if (ar.succeeded()) {
-                guiClient = ar.result();
-            } else {
-                System.err.println("Could not retrieve GUI client: " + ar.cause().getMessage());
-            }
-        });
-
         final Router apiRouter = Router.router(vertx);
+
+        apiRouter.route()
+                .handler(BodyHandler.create());
+
+        apiRouter.route().handler(CorsHandler.create("*")
+                .allowedMethod(GET)
+                .allowedMethod(POST)
+                .allowedMethod(PATCH)
+                .allowedMethod(PUT)
+                .allowedMethod(DELETE)
+                .allowedHeader("Access-Control-Allow-Method")
+                .allowedHeader("Access-Control-Allow-Origin")
+                .allowedHeader("Access-Control-Allow-Credentials")
+                .allowedHeader("Content-Type"));
 
         apiRouter.get("/rooms")
                 .produces("application/json")
@@ -135,36 +159,192 @@ public final class RoomService extends AbstractVerticle {
     }
 
     private void index(RoutingContext ctx) {
+        repository.findAll()
+                .map(Room::toJson)
+                .toList()
+                .map(JsonArray::new)
+                .map(Object::toString)
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", new JsonObject().put("error", cause.getMessage()).toString()).toString()));
     }
 
     private void store(RoutingContext ctx) {
+        final Room room = Room.fromJson(ctx.getBodyAsJson());
+
+        repository.save(room)
+                .flatMap(repository::findById)
+                .map(Object::toString)
+                .subscribe(
+                        chunk -> {
+                            csMap.put(room, Optional.empty());
+                            ctx.response().end(chunk);
+                        },
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void show(RoutingContext ctx) {
+        final long id = Long.parseLong(ctx.request().getParam("id"));
+        repository.findById(id)
+                .map(Object::toString)
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+
     }
 
     private void update(RoutingContext ctx) {
+        repository.save(Room.fromJson(ctx.getBodyAsJson()))
+                .flatMap(repository::findById)
+                .map(Object::toString)
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void destroy(RoutingContext ctx) {
+        final long id = Long.parseLong(ctx.request().getParam("id"));
+        repository.findById(id)
+                .map(csMap::remove)
+                .flatMap(v -> repository.deleteById(id))
+                .subscribe(
+                        roomId -> {
+                            ctx.response().end(new JsonObject().put("id", roomId).toString());
+                        },
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void join(RoutingContext ctx) {
+        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
+        final User user = User.fromJson(ctx.getBodyAsJson());
+
+        repository.findById(roomId)
+                .flatMapCompletable(room -> repository.addUser(room, user))
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void leave(RoutingContext ctx) {
+        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
+        final long userId = Long.parseLong(ctx.request().getParam("userId"));
+
+        repository.findById(roomId)
+                .flatMapCompletable(room -> repository.findUserById(room, userId)
+                        .flatMapCompletable(user -> repository.removeUser(room, user)))
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void messages(RoutingContext ctx) {
+        final long id = Long.parseLong(ctx.request().getParam("roomId"));
+
+        final JsonObject body = ctx.getBodyAsJson();
+        final String content = body.getString("content");
+        final User user = User.fromJson(body.getJsonObject("user"));
+        final long userClock = body.getLong("userClock");
+
+        repository.findById(id)
+                .map(room -> {
+                    final Optional<User> csUser = csMap.get(room);
+                    if (csUser.isPresent() && !csUser.get().equals(user)) {
+                        throw new IllegalStateException("The user who tried to send the message is not the user in critical section");
+                    }
+                    return body;
+                })
+                .map(Object::toString)
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void status(RoutingContext ctx) {
+        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
+
+        repository.findById(roomId)
+                .subscribe(room -> {
+                            final JsonObject response = new JsonObject();
+
+                            response.put("held", false);
+                            response.putNull("user");
+
+                            csMap.get(room).ifPresent(user -> {
+                                response.put("held", true);
+                                response.put("user", user.toJson());
+                            });
+
+                            ctx.response().end(response.toString());
+                        },
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void enter(RoutingContext ctx) {
+        final long id = Long.parseLong(ctx.request().getParam("roomId"));
+        final User user = User.fromJson(ctx.getBodyAsJson());
+
+        repository.findById(id)
+                .map(room -> {
+                    final Optional<User> csUser = csMap.get(room);
+
+                    if (csUser.isPresent()) {
+                        throw new IllegalStateException("Critical section is already held by " + csUser.get().getName());
+                    }
+                    csMap.put(room, Optional.of(user));
+                    final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> csMap.put(room, Optional.empty()));
+                    csTimerId = OptionalLong.of(tid);
+                    return room;
+                })
+                .subscribe(
+                        room -> ctx.response().end(),
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
     private void exit(RoutingContext ctx) {
+        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
+        final long userId = Long.parseLong(ctx.request().getParam("userId"));
+
+        repository.findById(roomId)
+                .flatMapCompletable(room -> repository.findUserById(room, userId)
+                        .flatMapCompletable(user -> Completable.fromAction(() -> {
+                            final Optional<User> csUserOpt = csMap.get(room);
+                            if (!csUserOpt.isPresent()) {
+                                throw new IllegalStateException("Critical section is not held by a user");
+                            } else {
+                                if (csUserOpt.get().equals(user)) {
+                                    csMap.put(room, Optional.empty());
+                                    csTimerId.ifPresent(vertx::cancelTimer);
+                                    csTimerId = OptionalLong.empty();
+                                } else {
+                                    throw new RuntimeException("The user who tried to release the critical section is not the user who acquired it");
+                                }
+                            }
+                        })))
+                .subscribe(
+                        ctx.response()::end,
+                        cause -> ctx.response()
+                                .setStatusCode(500)
+                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
     }
 
 }
