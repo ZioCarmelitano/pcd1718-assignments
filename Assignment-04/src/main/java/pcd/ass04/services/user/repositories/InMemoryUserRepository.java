@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class InMemoryUserRepository implements UserRepository {
 
-    private List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
     private static volatile InMemoryUserRepository instance;
     private static final Object mutex = new Object();
