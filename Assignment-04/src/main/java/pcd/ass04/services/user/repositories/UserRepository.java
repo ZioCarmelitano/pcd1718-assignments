@@ -10,11 +10,11 @@ public interface UserRepository {
 
     List<User> getAll();
 
-    void store(User user);
+    User store(User user);
 
     Optional<User> get(long userId);
 
-    void update(User user) throws UserNotFoundException;
+    User update(User user) throws UserNotFoundException;
 
     void destroy(long userId) throws UserNotFoundException;
 }

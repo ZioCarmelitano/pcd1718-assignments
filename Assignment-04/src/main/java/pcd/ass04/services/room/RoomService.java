@@ -37,7 +37,7 @@ public final class RoomService extends AbstractVerticle {
     private String host;
     private int port;
 
-    private final RoomRepository repository = new RoomRepositoryImpl();;
+    private final RoomRepository repository = new RoomRepositoryImpl();
 
     // Critical section
     private final Map<Room, Optional<User>> csMap = new HashMap<>();
