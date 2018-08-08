@@ -64,11 +64,6 @@ public final class WebAppService extends AbstractVerticle {
 
         router.mountSubRouter("/api", apiRouter);
 
-        apiRouter.post("/messages")
-                .consumes("application/json")
-                .produces("application/json")
-                .handler(this::handleMessage);
-
         apiRouter.route("/eventbus/*").handler(sockJSHandler());
 
         vertx.eventBus().consumer("chat.to.server", msg -> {
@@ -243,10 +238,6 @@ public final class WebAppService extends AbstractVerticle {
 
         // Create the event bus bridge and add it to the router.
         return SockJSHandler.create(vertx).bridge(opts);
-    }
-
-    private void handleMessage(RoutingContext ctx) {
-        vertx.eventBus().publish("chat.to.client", ctx.getBody());
     }
 
 }
