@@ -1,12 +1,13 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
 
-import { AppComponent } from './app.component';
-import { IndexComponent } from './index/index.component';
-import { LoginComponent } from './login/login.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { MessagesComponent } from './messages/messages.component';
-import { SendFieldComponent } from './send-field/send-field.component';
+import {AppComponent} from './app.component';
+import {IndexComponent} from './index/index.component';
+import {LoginComponent} from './login/login.component';
+import {SidebarComponent} from './sidebar/sidebar.component';
+import {MessagesComponent} from './messages/messages.component';
+import {SendFieldComponent} from './send-field/send-field.component';
+import {RoomComponent} from './room/room.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { SendFieldComponent } from './send-field/send-field.component';
     LoginComponent,
     SidebarComponent,
     MessagesComponent,
-    SendFieldComponent
+    SendFieldComponent,
+    RoomComponent
   ],
   imports: [
     BrowserModule
@@ -23,4 +25,5 @@ import { SendFieldComponent } from './send-field/send-field.component';
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
