@@ -16,6 +16,11 @@ export class SidebarComponent implements OnInit {
   public rooms: Room[];
 
   constructor() {
+    this.user =
+      {
+        id: 0,
+        name: 'marco'
+      };
   }
 
   ngOnInit() {
