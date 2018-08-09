@@ -13,4 +13,7 @@ export class SendFieldComponent implements OnInit {
   ngOnInit() {
   }
 
+  send(){
+
+  }
 }

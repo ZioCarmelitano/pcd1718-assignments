@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
   display: flex;
   align-items: center;
@@ -793,3 +794,5 @@ body {
 #frame .content .message-input .wrap button:focus {
   outline: none;
 }
+=======
+>>>>>>> 4c154c6ff1f1df86486a215dd7bf19ce727cd814
