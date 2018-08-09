@@ -9,6 +9,8 @@ import {SendFieldComponent} from './send-field/send-field.component';
 import {AppRoutingModule} from './app-routing.module';
 import {ChatComponent} from './chat/chat.component';
 import {RoomComponent} from "./room/room.component";
+import {FormsModule} from "@angular/forms";
+import { LoginFormComponent } from './login-form/login-form.component';
 
 @NgModule({
   declarations: [
@@ -18,11 +20,13 @@ import {RoomComponent} from "./room/room.component";
     MessagesComponent,
     SendFieldComponent,
     ChatComponent,
-    RoomComponent
+    RoomComponent,
+    LoginFormComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

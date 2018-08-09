@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 import {Room} from '../room';
-import {User} from '../user';
+import {ChatUser} from "../chat-user";
 
 @Component({
   selector: 'app-sidebar',
@@ -11,16 +11,11 @@ import {User} from '../user';
 export class SidebarComponent implements OnInit {
 
   @Input()
-  public user: User;
+  public user: ChatUser;
 
   public rooms: Room[];
 
   constructor() {
-    this.user =
-      {
-        id: 0,
-        name: 'Marco'
-      };
   }
 
   ngOnInit() {
