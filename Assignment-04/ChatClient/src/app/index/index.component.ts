@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {User} from "../user";
 
 @Component({
@@ -8,16 +8,13 @@ import {User} from "../user";
 })
 export class IndexComponent implements OnInit {
 
+  @Input()
   public user: User;
 
   constructor() {
   }
 
   ngOnInit() {
-    this.user = {
-      id: 1,
-      name: 'Pippo'
-    };
   }
 
 }
