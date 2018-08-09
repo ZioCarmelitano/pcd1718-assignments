@@ -19,7 +19,7 @@ export class SidebarComponent implements OnInit {
     this.user =
       {
         id: 0,
-        name: 'marco'
+        name: 'Marco'
       };
   }
 
