@@ -5,6 +5,9 @@ import {User} from "./user";
 import {Observable, Subject} from 'rxjs';
 import {Room} from "./room";
 
+import {filter} from 'rxjs/operators';
+import {Message} from "./message";
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,7 +38,7 @@ export class ChatService {
   private deleteRoom: Subject<number>;
   private joinRoom: Subject<any>;
   private leaveRoom: Subject<any>;
-  private newMessage: Subject<any>;
+  private newMessage: Subject<Message>;
   private enterCS: Subject<any>;
   private exitCS: Subject<any>;
 
@@ -50,7 +53,7 @@ export class ChatService {
     this.deleteRoom = new Subject<number>();
     this.joinRoom = new Subject<any>();
     this.leaveRoom = new Subject<any>();
-    this.newMessage = new Subject<any>();
+    this.newMessage = new Subject<Message>();
     this.enterCS = new Subject<any>();
     this.exitCS = new Subject<any>();
 
@@ -102,9 +105,7 @@ export class ChatService {
   sendNewUser(user: User) {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'newUser',
-      request: {
-        user
-      }
+      request: user
     });
   }
 
@@ -126,9 +127,7 @@ export class ChatService {
   sendNewRoom(room: Room) {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'newRoom',
-      request: {
-        room
-      }
+      request: room
     });
   }
 
@@ -170,8 +169,11 @@ export class ChatService {
     });
   }
 
-  sendNewMessage() {
-
+  sendNewMessage(message: Message) {
+    this.eventBus.send(ChatService.SEND_ADDRESS, {
+      type: 'newMessage',
+      request: message
+    });
   }
 
   sendEnterCS(room: Room, user: User) {
@@ -226,8 +228,10 @@ export class ChatService {
     return this.leaveRoom.asObservable();
   }
 
-  onNewMessage(): Observable<any> {
-    return this.newMessage.asObservable();
+  onRoomMessage(room: Room): Observable<Message> {
+    return this.newMessage
+      .asObservable()
+      .pipe(filter(message => message.room.id === room.id));
   }
 
   onEnterCS(): Observable<any> {
