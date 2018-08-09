@@ -6,6 +6,8 @@ import {LoginComponent} from './login/login.component';
 import {SidebarComponent} from './sidebar/sidebar.component';
 import {MessagesComponent} from './messages/messages.component';
 import {SendFieldComponent} from './send-field/send-field.component';
+import {EventBusService} from "./event-bus.service";
+import {ChatService} from "./chat.service";
 import {AppRoutingModule} from './app-routing.module';
 import {ChatComponent} from './chat/chat.component';
 import {RoomComponent} from "./room/room.component";
@@ -24,7 +26,10 @@ import {RoomComponent} from "./room/room.component";
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    EventBusService,
+    ChatService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
