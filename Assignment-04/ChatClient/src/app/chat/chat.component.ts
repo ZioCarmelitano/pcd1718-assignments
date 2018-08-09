@@ -1,4 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {ChatService} from "../chat.service";
 import {User} from "../user";
 
 @Component({
@@ -8,15 +9,11 @@ import {User} from "../user";
 })
 export class ChatComponent implements OnInit {
 
-  @Input()
   public user: User;
 
   constructor() {
-    this.user =
-      {
-        id: 0,
-        name: 'marco'
-      };
+    this.user = ChatService.user;
+    console.log("nome utente: " + this.user.name);
   }
 
   ngOnInit() {

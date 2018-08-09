@@ -13,6 +13,8 @@ import {Message} from "./message";
 })
 export class ChatService {
 
+  public static user: User;
+
   private static EVENTBUS = '/api/eventbus';
 
   private static SEND_ADDRESS = 'chat.to.server';

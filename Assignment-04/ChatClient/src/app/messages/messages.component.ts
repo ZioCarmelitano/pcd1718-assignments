@@ -27,32 +27,38 @@ export class MessagesComponent implements OnInit {
       {
         room: this.room,
         user: this.user,
-        message: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do"
+        content: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do",
+        userClock: 1
       },
       {
         room: this.room,
         user: this.user,
-        message: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do"
+        content: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do",
+        userClock: 1
       },
       {
         room: this.room,
         user: this.user,
-        message: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do"
+        content: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do",
+        userClock: 1
       },
       {
         room: this.room,
         user: this.user,
-        message: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do"
+        content: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do",
+        userClock: 1
       },
       {
         room: this.room,
         user: this.user,
-        message: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do"
+        content: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do",
+        userClock: 1
       },
       {
         room: this.room,
         user: this.user,
-       message: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do"
+        content: "How the hell am I supposed to get a jury to believe you when I am not even sure that I do",
+        userClock: 1
       }
     ]
   }

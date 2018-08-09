@@ -6,11 +6,14 @@ import {LoginComponent} from './login/login.component';
 import {SidebarComponent} from './sidebar/sidebar.component';
 import {MessagesComponent} from './messages/messages.component';
 import {SendFieldComponent} from './send-field/send-field.component';
+
 import {EventBusService} from "./event-bus.service";
 import {ChatService} from "./chat.service";
 import {AppRoutingModule} from './app-routing.module';
 import {ChatComponent} from './chat/chat.component';
 import {RoomComponent} from "./room/room.component";
+import {LoginFormComponent} from "./login-form/login-form.component";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -20,11 +23,13 @@ import {RoomComponent} from "./room/room.component";
     MessagesComponent,
     SendFieldComponent,
     ChatComponent,
+    LoginFormComponent,
     RoomComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [
     EventBusService,

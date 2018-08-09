@@ -1,7 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 import {Room} from '../room';
-import {User} from '../user';
+import {ChatUser} from "../chat-user";
+import {User} from "../user";
+import {ChatService} from "../chat.service";
 
 @Component({
   selector: 'app-sidebar',
