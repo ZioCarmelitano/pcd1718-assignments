@@ -1,13 +1,14 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
 
-import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { MessagesComponent } from './messages/messages.component';
-import { SendFieldComponent } from './send-field/send-field.component';
-import { AppRoutingModule } from './/app-routing.module';
-import { ChatComponent } from './chat/chat.component';
+import {AppComponent} from './app.component';
+import {LoginComponent} from './login/login.component';
+import {SidebarComponent} from './sidebar/sidebar.component';
+import {MessagesComponent} from './messages/messages.component';
+import {SendFieldComponent} from './send-field/send-field.component';
+import {AppRoutingModule} from './app-routing.module';
+import {ChatComponent} from './chat/chat.component';
+import {RoomComponent} from "./room/room.component";
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { ChatComponent } from './chat/chat.component';
     SidebarComponent,
     MessagesComponent,
     SendFieldComponent,
-    ChatComponent
+    ChatComponent,
+    RoomComponent
   ],
   imports: [
     BrowserModule,
@@ -25,4 +27,5 @@ import { ChatComponent } from './chat/chat.component';
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
