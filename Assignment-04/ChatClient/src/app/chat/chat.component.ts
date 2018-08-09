@@ -11,7 +11,13 @@ export class ChatComponent implements OnInit {
   @Input()
   public user: User;
 
-  constructor() { }
+  constructor() {
+    this.user =
+      {
+        id: 0,
+        name: 'marco'
+      };
+  }
 
   ngOnInit() {
   }
