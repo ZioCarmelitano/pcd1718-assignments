@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {User} from "../user";
 
 @Component({
   selector: 'app-index',
@@ -7,7 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class IndexComponent implements OnInit {
 
-  constructor() { }
+  @Input()
+  public user: User;
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
