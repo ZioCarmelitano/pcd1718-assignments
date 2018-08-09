@@ -1,3 +1,17 @@
-<p>
-  messages works!
-</p>
+<div class="contact-profile">
+        <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+        <p>{{user.name}}</p>
+        <div class="social-media">
+          <i class="fa fa-facebook" aria-hidden="true"></i>
+          <i class="fa fa-twitter" aria-hidden="true"></i>
+           <i class="fa fa-instagram" aria-hidden="true"></i>
+        </div>
+      </div>
+<div class="messages">
+  <ul>
+    <li [ngClass]="message.user.id == user.id ? 'sent': 'replies'" *ngFor="let message of messages">
+      <p>{{message.user.name}}</p>
+      <p>{{message.message}}</p>
+    </li>
+  </ul>
+</div>
