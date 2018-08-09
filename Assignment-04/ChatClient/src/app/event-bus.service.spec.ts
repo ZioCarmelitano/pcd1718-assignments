@@ -81,7 +81,7 @@ export class EventBusService {
     this.sockJS.onmessage = (e) => {
       const json = JSON.parse(e.data);
 
-      // define a reply function on the message itself
+      // define a reply function on the content itself
       if (json.replyAddress) {
         Object.defineProperty(json, 'reply', {
           value: function (message, headers, callback) {
@@ -98,18 +98,18 @@ export class EventBusService {
             handlers[i]({
               failureCode: json.failureCode,
               failureType: json.failureType,
-              message: json.message
+              content: json.content
             });
           } else {
             handlers[i](null, json);
           }
         }
       } else if (this.replyHandlers[json.address]) {
-        // Might be a reply message
+        // Might be a reply content
         const handler = this.replyHandlers[json.address];
         delete this.replyHandlers[json.address];
         if (json.type === 'err') {
-          handler({failureCode: json.failureCode, failureType: json.failureType, message: json.message});
+          handler({failureCode: json.failureCode, failureType: json.failureType, content: json.content});
         } else {
           handler(null, json);
         }
@@ -122,7 +122,7 @@ export class EventBusService {
           }
         } else {
           try {
-            console.warn('No handler found for message: ', json);
+            console.warn('No handler found for content: ', json);
           } catch (e) {
             // dev tools are disabled so we cannot use console on IE
           }
@@ -139,7 +139,7 @@ export class EventBusService {
   }
 
   /**
-   * Publish a message
+   * Publish a content
    *
    * @param {String} address
    * @param {Object} body
@@ -163,7 +163,7 @@ export class EventBusService {
   }
 
   /**
-   * Send a message
+   * Send a content
    *
    * @param {String} address
    * @param {Object} body
@@ -194,8 +194,8 @@ export class EventBusService {
     }
   }
 
-  /*sendWithTimeout<T>(address: string, message: any, timeout: number, replyHandler?: Function): EventBus {
-   return this.eventBus.sendWithTimeout(address, message, replyHandler);
+  /*sendWithTimeout<T>(address: string, content: any, timeout: number, replyHandler?: Function): EventBus {
+   return this.eventBus.sendWithTimeout(address, content, replyHandler);
    };
    setDefaultReplyTimeout(millis: number): EventBus {
    return this.eventBus.setDefaultReplyTimeout(millis);

@@ -2,6 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 
 import {Room} from '../room';
 import {ChatUser} from "../chat-user";
+import {User} from "../user";
+import {ChatService} from "../chat.service";
 
 @Component({
   selector: 'app-sidebar',
@@ -11,7 +13,7 @@ import {ChatUser} from "../chat-user";
 export class SidebarComponent implements OnInit {
 
   @Input()
-  public user: ChatUser;
+  public user: User;
 
   public rooms: Room[];
 
