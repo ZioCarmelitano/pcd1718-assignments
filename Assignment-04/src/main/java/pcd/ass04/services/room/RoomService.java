@@ -175,12 +175,14 @@ public final class RoomService extends AbstractVerticle {
         final Room room = Room.fromJson(ctx.getBodyAsJson());
 
         repository.save(room)
+                // findById? dovrebbe essere add room...
                 .flatMap(repository::findById)
                 .map(Object::toString)
                 .subscribe(
                         chunk -> {
                             csMap.put(room, Optional.empty());
                             ctx.response().end(chunk);
+                            System.out.println(chunk);
                         },
                         cause -> ctx.response()
                                 .setStatusCode(500)
