@@ -5,11 +5,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import pcd.ass03.ex2.actors.User
 import pcd.ass03.ex2.actors.User.Kill
-<<<<<<< HEAD:Assignment-03/src/main/scala/pcd/ass03/ex2/view/ChatView.scala
-import pcd.ass03.ex2.view.ChatView._
-=======
 import pcd.ass03.ex2.view.chat.ChatView.{appLogoPath, sendLogoPath}
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4:Assignment-03/src/main/scala/pcd/ass03/ex2/view/chat/ChatView.scala
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -82,17 +78,11 @@ class ChatView(username: String) extends PrimaryStage {
       bottom = commandContainer
     }
     onCloseRequest = _ => {
-<<<<<<< HEAD:Assignment-03/src/main/scala/pcd/ass03/ex2/view/ChatView.scala
-      user ! Kill
-      system terminate()
-      System exit 0
-=======
       implicit val timeout: Timeout = Timeout(2 seconds)
       val future = user ? Kill
       future
         .andThen { case _ => system terminate() }
         .onComplete(_ => System exit 0)
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4:Assignment-03/src/main/scala/pcd/ass03/ex2/view/chat/ChatView.scala
     }
   }
 

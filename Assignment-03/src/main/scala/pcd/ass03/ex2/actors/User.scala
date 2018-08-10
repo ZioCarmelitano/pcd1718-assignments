@@ -7,21 +7,13 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
-<<<<<<< HEAD
-import pcd.ass03.ex2.actors.User.{Kill, LockCheck, Matrix, Send}
-import pcd.ass03.ex2.view.ChatPresenter
-=======
 import pcd.ass03.ex2.actors.User.{apply => _, _}
 import pcd.ass03.ex2.view.chat.ChatPresenter
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
-<<<<<<< HEAD
-=======
 import scala.concurrent.duration._
 import scala.util.Success
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
 class User(private[this] val presenter: ChatPresenter) extends Actor with ActorLogging {
 
@@ -59,20 +51,6 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
   }
 
   override def receive: Receive = {
-<<<<<<< HEAD
-    case Users(actors) =>
-      // Create the new matrix initialized with zeros
-      matrix = (actors :+ self).toStream
-        .map {
-          x =>
-            x -> (actors :+ self).map {
-              _ -> 0
-            }.toMap
-        }
-        .toMap
-      log.info(s"$matrix")
-=======
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
     case Joined(user) =>
       log.info(s"User ${user.path.name} has joined the room")
@@ -107,22 +85,8 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
           deliverableMessage = holdBackQueue.find(_._2 == roomCounter + 1)
         }
       } else {
-<<<<<<< HEAD
-        pendingQueue = pendingQueue :+ Message(content, user, userMatrix)
-        log.info(s"Pending queue: $pendingQueue")
-      }
-      var deliverableMessage = pendingQueue.find(m => isDeliverable(m.user, m.userMatrix))
-      while (deliverableMessage.isDefined) {
-        val message = deliverableMessage.get
-        showMessage(message.content, message.user)
-        matrix = max(message.userMatrix)
-        pendingQueue = pendingQueue filterNot (_ == message)
-        log.info(s"Pending queue: $pendingQueue")
-        deliverableMessage = pendingQueue.find(m => isDeliverable(m.user, m.userMatrix))
-=======
         log.info(s"In else total order: $message")
         holdBackQueue += ((message, c))
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
       }
 
     case CommandNotUnderstood(command) =>
@@ -163,10 +127,7 @@ class User(private[this] val presenter: ChatPresenter) extends Actor with ActorL
       //context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
       log.info(s"Sending $content")
       room ! Room.createMessage(content)
-<<<<<<< HEAD
-=======
     //}
->>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
     case Kill => context.stop(self)
   }
