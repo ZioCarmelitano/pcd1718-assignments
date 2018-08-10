@@ -1,0 +1,20 @@
+<div id="sidepanel">
+  <div id="profile">
+    <div class="wrap">
+      <img id="profile-img" src="http://icons-for-free.com/icon/download-account_business_human_person_profile_seo_user_icon-410553.ico" class="online" alt="" />
+      <p>{{ user.name }}</p>
+    </div>
+  </div>
+  <div id="contacts">
+    <ul>
+      <li class="contact" *ngFor="let room of rooms">
+        <app-room [room]="room"></app-room>
+      </li>
+    </ul>
+  </div>
+  <div id="bottom-bar">
+    <button id="addroom"><i class="fa fa-user-plus fa-fw" aria-hidden="true"></i> <span>Add room</span></button>
+    <button id="exit" routerLink=""><i class="fa fa fa-sign-out fa-fw" aria-hidden="true"></i> <span>Exit</span></button>
+  </div>
+</div>
+

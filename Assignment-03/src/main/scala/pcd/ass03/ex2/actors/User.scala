@@ -3,24 +3,63 @@ package pcd.ass03.ex2.actors
 import java.io.File
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.pattern.ask
+import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
 import pcd.ass03.ex2.actors.Room._
+<<<<<<< HEAD
 import pcd.ass03.ex2.actors.User.{Kill, LockCheck, Matrix, Send}
 import pcd.ass03.ex2.view.ChatPresenter
+=======
+import pcd.ass03.ex2.actors.User.{apply => _, _}
+import pcd.ass03.ex2.view.chat.ChatPresenter
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext
+<<<<<<< HEAD
+=======
+import scala.concurrent.duration._
+import scala.util.Success
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
-class User(presenter: ChatPresenter) extends Actor with ActorLogging {
+class User(private[this] val presenter: ChatPresenter) extends Actor with ActorLogging {
 
   private[this] implicit val dispatcher: ExecutionContext = context.system.dispatcher
 
   private[this] lazy val room = context.actorSelection(Room.Path)
   private[this] var lock = false
 
-  private[this] var matrix = Matrix()
+  private[this] var clock: VectorClock = VectorClock()
+  private[this] var roomCounter = 0
+  private[this] var userCounter = 0
+
+  private[this] var holdBackQueue = mutable.PriorityQueue[(Message, Int)]()
+  private[this] implicit val holdBackOrdering: Ordering[(Message, Int)] = Ordering.by(_._2)
+
   private[this] var pendingQueue = List[Message]()
 
+  def causalMessageOrdering(message: Message): Unit = {
+    if (message.userClock == clock(message.user) + 1) {
+      log.info(s"Received causal order $message")
+      showMessage(message.content, message.user)
+      clock = clock + (message.user -> (clock(message.user) + 1))
+      var deliverableMessage = pendingQueue.find(x => x.userClock == clock(x.user) + 1)
+      while (deliverableMessage.isDefined) {
+        val msg = deliverableMessage.get
+        showMessage(msg.content, msg.user)
+        clock = clock + (msg.user -> (clock(msg.user) + 1))
+        pendingQueue = pendingQueue.filterNot(_ == msg)
+        deliverableMessage = pendingQueue.find(x => x.userClock == clock(x.user) + 1)
+      }
+    } else {
+      log.info(s"In else causal order: $message")
+      pendingQueue = pendingQueue :+ message
+    }
+  }
+
   override def receive: Receive = {
+<<<<<<< HEAD
     case Users(actors) =>
       // Create the new matrix initialized with zeros
       matrix = (actors :+ self).toStream
@@ -32,44 +71,43 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
         }
         .toMap
       log.info(s"$matrix")
+=======
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
     case Joined(user) =>
       log.info(s"User ${user.path.name} has joined the room")
       presenter.receiveInfo(s"User ${user.path.name} has joined the room")
-      val users = matrix.keySet + user
-      // Add a row for the newly joined user
-      matrix = matrix + (user -> users.map {
-        _ -> 0
-      }.toMap)
-      // Add a column for the newly joined user
-      matrix = matrix map {
-        x => (x._1, x._2 + (user -> 0))
-      }
-      log.info(s"$matrix")
+      clock = clock + (user -> 0)
+      user ! UserCounter(userCounter)
 
     case Left(user) =>
       log.info(s"User ${user.path.name} has left the room")
       presenter.receiveInfo(s"User ${user.path.name} has left the room")
-      // Delete the row corresponding to the user that has left
-      matrix = matrix filterNot {
-        _._1 == user
-      }
-      // Delete the columns corresponding to the user that has left
-      matrix = matrix.map {
-        x =>
-          (x._1, x._2.filterNot {
-            _._1 == user
-          })
-      }
-      log.info(s"$matrix")
+      clock = clock.filterKeys(_ != user)
 
-    case Commands(commands) => log.info(s"Commands are: $commands")
+    case Commands(availableCommands) =>
+      log.info(s"Commands are: $availableCommands")
+      presenter.receiveInfo("Available commands are:\n" + availableCommands.mkString("\n"))
 
-    case Message(content, user, userMatrix) =>
-      if (isDeliverable(user, userMatrix)) {
-        showMessage(content, user)
-        matrix = max(userMatrix)
+    case RoomCounter(c) => roomCounter = c
+
+    case UserCounter(c) => clock = clock + (sender -> c)
+
+    case (message: Message, c: Int) =>
+      if (c == roomCounter + 1) {
+        log.info(s"Received total order $message")
+        roomCounter += 1
+        causalMessageOrdering(message)
+        var deliverableMessage = holdBackQueue.find(_._2 == roomCounter + 1)
+        while (deliverableMessage.isDefined) {
+          val (message, _) = deliverableMessage.get
+          roomCounter += 1
+          causalMessageOrdering(message)
+          holdBackQueue = holdBackQueue.filterNot(_._1 == message)
+          deliverableMessage = holdBackQueue.find(_._2 == roomCounter + 1)
+        }
       } else {
+<<<<<<< HEAD
         pendingQueue = pendingQueue :+ Message(content, user, userMatrix)
         log.info(s"Pending queue: $pendingQueue")
       }
@@ -81,6 +119,10 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
         pendingQueue = pendingQueue filterNot (_ == message)
         log.info(s"Pending queue: $pendingQueue")
         deliverableMessage = pendingQueue.find(m => isDeliverable(m.user, m.userMatrix))
+=======
+        log.info(s"In else total order: $message")
+        holdBackQueue += ((message, c))
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
       }
 
     case CommandNotUnderstood(command) =>
@@ -101,49 +143,43 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
       log.warning(s"Could not send message, critical section is held by ${user.path.name}")
       presenter.receiveInfo(s"Could not send message, critical section is held by ${user.path.name}")
 
-    case LockCheck => sender ! lock
+    case LockCheck =>
+      val presenter = sender
 
-    case NoCriticalSection => log.error("The room is not in a critical section state")
+      implicit val timeout: Timeout = 2 seconds
+      val future = room ? LockCheck
+      future.onComplete {
+        case Success(NoCriticalSection) => presenter ! NoCriticalSection
+        case Success(c: CriticalSection) => presenter ! c
+      }
+
+    case NoCriticalSection =>
+      log.error("The room is not in a critical section state")
+      presenter.receiveInfo("The room is not in a critical section state")
+
     case Send(content) =>
-      // Update the the row corresponding the user that sends the message
-      matrix = matrix + (self -> matrix(self).map {
-        x => x._1 -> (x._2 + 1)
-      })
-      implicit val userMatrix: Matrix = matrix
-      /*context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
-        log.info(s"Sending $content")
-        room ! Room.createMessage(content)
-      } */
+      if (!(Room.commands.commands contains content)) userCounter += 1
+      implicit val counter: Int = userCounter
+      //context.system.scheduler.scheduleOnce((1 + Random.nextInt(10)) seconds) {
       log.info(s"Sending $content")
       room ! Room.createMessage(content)
+<<<<<<< HEAD
+=======
+    //}
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4
 
     case Kill => context.stop(self)
   }
 
-  private def showMessage(content: String, user: ActorRef) = {
+  private[this] def showMessage(content: String, user: ActorRef): Unit = {
     log.info(s"${user.path.name} said: $content")
     presenter.receive(content, user.path)
   }
 
-  // W[j, i] == M[j, i] and \forall k != j, M[k, i] >= W[k, i]
-  private def isDeliverable(user: ActorRef, userMatrix: Matrix) = {
-    userMatrix(user)(self) == matrix(user)(self) + 1 && matrix.toStream.filterNot(_._1 == user)
-      .forall {
-        case (k, _) => matrix(k)(self) >= userMatrix(k)(self)
-      }
+  override def preStart(): Unit = {
+    room ! Join
+    clock = clock + (self -> 0)
   }
-
-  private[this] def max(userMatrix: Matrix): Map[ActorRef, Map[ActorRef, Int]] =
-    matrix.toStream
-      .map {
-        case (k, v) => k -> (v.toSeq ++ userMatrix(k).toSeq).toStream
-          .groupBy(_._1)
-          .mapValues(_.map(_._2).max)
-          .map(identity)
-      }
-      .toMap
-
-  override def preStart(): Unit = room ! Join
 
   override def postStop(): Unit = room ! Leave
 
@@ -151,13 +187,15 @@ class User(presenter: ChatPresenter) extends Actor with ActorLogging {
 
 object User {
 
-  type Matrix = Map[ActorRef, Map[ActorRef, Int]]
+  type VectorClock = Map[ActorRef, Int]
 
-  def Matrix(): Matrix = Map[ActorRef, Map[ActorRef, Int]]()
+  def VectorClock(): VectorClock = Map[ActorRef, Int]()
 
   def apply(chatPresenter: ChatPresenter): Props = props(chatPresenter)
 
   def props(chatPresenter: ChatPresenter): Props = Props(new User(chatPresenter))
+
+  final case class UserCounter(counter: Int)
 
   final case class Send(content: String)
 

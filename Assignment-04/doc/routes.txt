@@ -1,0 +1,125 @@
+User
+
+/users          GET         Restituisce la lista degli utenti
+
+Response
+[
+    {
+        id: Long,
+        name: String
+    }
+]
+
+/users          POST        Crea un nuovo utente
+
+Request
+{
+    name: String
+}
+
+/users/:id      GET         Restituisce le informazioni di un utente dato il suo identificativo
+
+Response
+{
+    id: Long,
+    name: String
+}
+
+/users/:id      PUT|PATCH   Modifica le informazioni di un utente dato il suo identificativo
+
+Request
+{
+    name: String
+}
+
+/users/:id      DELETE      Elimina un utente dato il suo identificativo
+
+{
+    id: Long
+}
+
+Room
+
+/rooms                              GET         Restituisce la lista delle stanze
+
+Response
+[
+    {
+        id: Long,
+        name: String
+    }
+]
+
+/rooms                              POST        Crea una nuova stanza
+
+Request
+{
+    name: String
+}
+
+/rooms/:id                          GET         Restituisce le informazioni di una stanza dato il suo identificativo
+
+Response
+{
+    id: Long,
+    name: String
+}
+
+/rooms/:id                          PUT|PATCH   Modifica le informazioni di una stanza dato il suo identificativo
+
+Request
+{
+    name: String
+}
+
+/rooms/:id                          DELETE      Elimina una stanza dato il suo identificativo
+
+{
+    id: Long
+}
+
+/rooms/:roomId/join                 POST        Utente che si aggiunge alla stanza
+
+{
+    user: User
+}
+
+/rooms/:roomId/leave/:userId        DELETE      Utente che esce dalla stanza
+
+/rooms/:roomId/messages             POST        Salva un messaggio inviato ad un utente alla stanza specificata
+
+Request
+{
+    user: User,
+    content: String,
+    userClock: Integer
+}
+
+/rooms/:roomId/cs                   GET         Restituisce true se la sezione è acquisita da un utente, in caso contrario false
+
+Response
+{
+    held: Boolean
+    user: User?
+}
+
+/rooms/:roomId/cs/enter             POST        Utente che acquisisce la sezione critica
+
+Request
+{
+    user: User
+}
+
+/rooms/:roomId/cs/exit/:userId      DELETE      Utente che rilascia la sezione critica
+
+
+WEBAPP
+
+/messages   POST    Visualizza un nuovo messaggio ai client
+
+Request
+{
+    user: User,
+    content: String,
+    userClock: Integer
+}

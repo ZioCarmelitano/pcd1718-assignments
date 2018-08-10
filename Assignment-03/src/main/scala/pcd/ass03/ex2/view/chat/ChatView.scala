@@ -1,9 +1,15 @@
-package pcd.ass03.ex2.view
+package pcd.ass03.ex2.view.chat
 
 import akka.actor.{ActorRef, ActorSystem}
+import akka.pattern.ask
+import akka.util.Timeout
 import pcd.ass03.ex2.actors.User
 import pcd.ass03.ex2.actors.User.Kill
+<<<<<<< HEAD:Assignment-03/src/main/scala/pcd/ass03/ex2/view/ChatView.scala
 import pcd.ass03.ex2.view.ChatView._
+=======
+import pcd.ass03.ex2.view.chat.ChatView.{appLogoPath, sendLogoPath}
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4:Assignment-03/src/main/scala/pcd/ass03/ex2/view/chat/ChatView.scala
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -12,11 +18,13 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.text.Font
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 /* It defines the structure of the chat view. */
 class ChatView(username: String) extends PrimaryStage {
 
-  private val appTitle = username + " Chat Room"
+  private val appTitle = username + " - Chat Room"
 
   /* GUI Components creation */
   private val messageField: TextField = new TextField {
@@ -74,9 +82,17 @@ class ChatView(username: String) extends PrimaryStage {
       bottom = commandContainer
     }
     onCloseRequest = _ => {
+<<<<<<< HEAD:Assignment-03/src/main/scala/pcd/ass03/ex2/view/ChatView.scala
       user ! Kill
       system terminate()
       System exit 0
+=======
+      implicit val timeout: Timeout = Timeout(2 seconds)
+      val future = user ? Kill
+      future
+        .andThen { case _ => system terminate() }
+        .onComplete(_ => System exit 0)
+>>>>>>> a77f4224e998e2f818ec17bad8feea708411a7d4:Assignment-03/src/main/scala/pcd/ass03/ex2/view/chat/ChatView.scala
     }
   }
 

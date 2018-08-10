@@ -1,6 +1,6 @@
-package pcd.ass03.ex2.view
+package pcd.ass03.ex2.view.login
 
-import pcd.ass03.ex2.view.ChatView.appLogoPath
+import pcd.ass03.ex2.view.login.LoginView.loginLogoPath
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
@@ -11,12 +11,12 @@ import scalafx.scene.layout.BorderPane
 class LoginView extends PrimaryStage {
 
   /* GUI components creation */
-  private val usernameLabel = new Label("Username")
+  private val usernameLabel = new Label(text = "Username")
   private val userField: TextField = new TextField {
     prefWidth = 200
     margin = Insets(topRightBottomLeft = 10)
   }
-  private val loginButton: Button = new Button("Login")
+  private val loginButton: Button = new Button(text = "Login")
 
   /* Login presenter creation */
   private val loginPresenter: LoginPresenter = new LoginPresenter(userField)
@@ -39,9 +39,15 @@ class LoginView extends PrimaryStage {
   }
 
   /* GUI components listeners settings */
-  userField.onAction = (_) => loginPresenter.login()
-  loginButton.onAction = (_) => loginPresenter.login()
+  userField.onAction = _ => loginPresenter.login()
+  loginButton.onAction = _ => loginPresenter.login()
 
   /* Logo image setting in Login stage */
-  this getIcons() add new Image(appLogoPath)
+  this getIcons() add new Image(loginLogoPath)
+}
+
+/* LoginView Companion Object*/
+object LoginView {
+  //file paths
+  val loginLogoPath = "/ex2/logo.png"
 }

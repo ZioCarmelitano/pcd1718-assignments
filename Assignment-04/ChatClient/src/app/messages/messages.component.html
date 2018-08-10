@@ -1,0 +1,11 @@
+<div class="messages">
+  <ul>
+    <br>
+    <span class="welcome-message">Welcome to Reactive Service Chat!</span><br>
+    <span class="welcome-message"> You can start to write your messages using the above message field.</span>
+    <li [ngClass]="message.user.id == user.id ? 'sent': 'replies'" *ngFor="let message of messages">
+      <p>{{message.user.name}}</p>
+      <p>{{message.content}}</p>
+    </li>
+  </ul>
+</div>

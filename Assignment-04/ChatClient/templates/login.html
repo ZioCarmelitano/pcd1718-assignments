@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <link href="assets/login.css" rel="stylesheet">
+    <script src="assets/login.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <title>Login</title>
+  </head>
+  <body>
+  <!--
+      you can substitue the span of reauth email for a input with the email and
+      include the remember me checkbox
+      -->
+      <div class="container">
+          <div class="card card-container">
+              <img class="profile-img-card" src="https://servotech.in/wp-content/uploads/2016/10/user-icon-placeholder.png" alt="User image" />
+              <p id="profile-name" class="profile-name-card"></p>
+              <form class="form-signin">
+                  <span id="reauth-email" class="reauth-email"></span>
+                  <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                  <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                  <div id="remember" class="checkbox">
+                      <label>
+                          <input type="checkbox" value="remember-me"> Remember me
+                      </label>
+                  </div>
+                  <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
+              </form><!-- /form -->
+              <a href="#" class="forgot-password">
+                  Forgot the password?
+              </a>
+          </div><!-- /card-container -->
+      </div><!-- /container -->
+  </body>
+</html>
