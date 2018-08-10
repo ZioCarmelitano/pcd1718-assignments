@@ -7,6 +7,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
@@ -19,8 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static io.vertx.core.http.HttpMethod.PATCH;
-import static io.vertx.core.http.HttpMethod.PUT;
+import static io.vertx.core.http.HttpMethod.*;
 
 public final class UserService extends AbstractVerticle {
 
@@ -46,6 +47,19 @@ public final class UserService extends AbstractVerticle {
         discovery = ServiceDiscovery.create(vertx);
 
         final Router apiRouter = Router.router(vertx);
+
+        apiRouter.route().handler(BodyHandler.create());
+
+        apiRouter.route().handler(CorsHandler.create("*")
+                .allowedMethod(GET)
+                .allowedMethod(POST)
+                .allowedMethod(PATCH)
+                .allowedMethod(PUT)
+                .allowedMethod(DELETE)
+                .allowedHeader("Access-Control-Allow-Method")
+                .allowedHeader("Access-Control-Allow-Origin")
+                .allowedHeader("Access-Control-Allow-Credentials")
+                .allowedHeader("Content-Type"));
 
         apiRouter.get("/users")
                 .produces("application/json")
@@ -75,6 +89,7 @@ public final class UserService extends AbstractVerticle {
 
         router.mountSubRouter("/api", apiRouter);
 
+
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
@@ -88,6 +103,7 @@ public final class UserService extends AbstractVerticle {
                         });
                         System.out.println("HTTP server started at http://" + host + ":" + port);
                         this.userRepository = InMemoryUserRepository.getInstance();
+                        System.out.println(this.userRepository);
                     } else {
                         System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
                     }
@@ -116,6 +132,7 @@ public final class UserService extends AbstractVerticle {
 
     private void store(RoutingContext ctx) {
         JsonObject userToStoreJson = ctx.getBodyAsJson();
+        System.out.println("storing " + userToStoreJson);
         User userStored = this.userRepository.store(new User(userToStoreJson.getString("name")));
         ctx.response().end(userStored.toJson().encodePrettily());
     }

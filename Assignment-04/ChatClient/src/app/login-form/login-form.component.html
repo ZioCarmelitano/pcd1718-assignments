@@ -1,0 +1,12 @@
+<form class="form-signin">
+  <!-- <span id="reauth-email" class="reauth-email"></span> -->
+  <input type="name" name="name" id="name" class="form-control" placeholder="Username"
+         (input)="user.name = $event.target.value" required autofocus>
+  <!-- <input type="password" id="inputPassword" class="form-control" placeholder="Password" required> -->
+  <div id="remember" class="checkbox">
+    <label>
+      <input type="hidden" value="remember-me">
+    </label>
+  </div>
+  <button (click)="login()" routerLink="chat" class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
+</form>

@@ -13,6 +13,10 @@ import {Message} from "./message";
 })
 export class ChatService {
 
+  public user: User;
+
+  public room: Room;
+
   private static EVENTBUS = '/api/eventbus';
 
   private static SEND_ADDRESS = 'chat.to.server';
@@ -149,49 +153,54 @@ export class ChatService {
     });
   }
 
-  sendJoinRoom(room: Room, user: User) {
+  sendJoinRoom() {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'joinRoom',
       request: {
-        roomId: room.id,
-        user
+        roomId: this.room.id,
+        user: this.user
       }
     });
   }
 
-  sendLeaveRoom(room: Room, user: User) {
+  sendLeaveRoom() {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'leaveRoom',
       request: {
-        roomId: room.id,
-        user
+        roomId: this.room.id,
+        user: this.user
       }
     });
   }
 
-  sendNewMessage(message: Message) {
+  sendNewMessage(message: string) {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'newMessage',
-      request: message
+      request: {
+        room: this.room,
+        user: this.user,
+        content: message,
+        userClock: 0
+      }
     });
   }
 
-  sendEnterCS(room: Room, user: User) {
+  sendEnterCS() {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'enterCS',
       request: {
-        roomId: room.id,
-        user
+        roomId: this.room.id,
+        user: this.user
       }
     });
   }
 
-  sendExitCS(room: Room, user: User) {
+  sendExitCS() {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'exitCS',
       request: {
-        roomId: room.id,
-        user
+        roomId: this.room.id,
+        user: this.user
       }
     });
   }
@@ -228,10 +237,10 @@ export class ChatService {
     return this.leaveRoom.asObservable();
   }
 
-  onRoomMessage(room: Room): Observable<Message> {
+  onNewMessage(): Observable<Message> {
     return this.newMessage
       .asObservable()
-      .pipe(filter(message => message.room.id === room.id));
+      .pipe(filter(message => this.room && message.room.id === this.room.id));
   }
 
   onEnterCS(): Observable<any> {

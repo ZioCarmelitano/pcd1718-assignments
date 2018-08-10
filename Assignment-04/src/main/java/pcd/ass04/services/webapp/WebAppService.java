@@ -9,12 +9,16 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 
+import static io.vertx.core.http.HttpMethod.*;
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
 public final class WebAppService extends AbstractVerticle {
@@ -82,6 +86,21 @@ public final class WebAppService extends AbstractVerticle {
 
         apiRouter.route("/eventbus/*").handler(sockJSHandler());
 
+        apiRouter.route().handler(BodyHandler.create());
+
+        router.route().handler(StaticHandler.create());
+
+        apiRouter.route().handler(CorsHandler.create("*")
+                .allowedMethod(GET)
+                .allowedMethod(POST)
+                .allowedMethod(PATCH)
+                .allowedMethod(PUT)
+                .allowedMethod(DELETE)
+                .allowedHeader("Access-Control-Allow-Method")
+                .allowedHeader("Access-Control-Allow-Origin")
+                .allowedHeader("Access-Control-Allow-Credentials")
+                .allowedHeader("Content-Type"));
+
         final EventBus eventBus = vertx.eventBus();
 
         eventBus.<JsonObject>consumer(CHAT_TO_SERVER, msg -> {
@@ -92,12 +111,14 @@ public final class WebAppService extends AbstractVerticle {
             final Long roomId = getRoomId(request);
             final Long userId = getUserId(request);
 
+            System.out.println("Request: " + request + "fine request");
+
             switch (type) {
                 case "newUser":
-                    userClient.post("/users")
-                            .sendJsonObject(request, ar -> {
+                    userClient.post("/api/users")
+                            .sendJson(request, ar -> {
                                 if (ar.succeeded()) {
-                                    System.out.println("Message (newUser) sent correctly");
+                                    System.out.println("Message (newUser) sent correctly" + " " + ar.result().bodyAsString());
                                     final JsonObject response = ar.result().bodyAsJsonObject();
                                     eventBus.publish(NEW_USER, response);
                                 } else {
@@ -106,7 +127,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "deleteUser":
-                    userClient.delete("/users/" + userId)
+                    userClient.delete("/api/users/" + userId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (deleteUser) sent correctly");
@@ -116,24 +137,25 @@ public final class WebAppService extends AbstractVerticle {
                                 }
                             });
                     break;
-                case "getRooms":
-                    roomClient.get("/rooms")
+                case "rooms":
+                    roomClient.get("/api/rooms")
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (getRooms) sent correctly");
                                     final JsonArray response = ar.result().bodyAsJsonArray();
                                     eventBus.publish(ROOMS, response);
                                 } else {
-                                    System.out.println("Error, message (getRooms) was not sent correctly");
+                                    System.out.println("Error, message (rooms) was not sent correctly");
                                 }
                             });
                     break;
                 case "newRoom":
-                    roomClient.post("/rooms")
-                            .send(ar -> {
+                    roomClient.post("/api/rooms")
+                            .sendJson(request, ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (newRoom) sent correctly");
                                     final JsonObject response = ar.result().bodyAsJsonObject();
+                                    System.out.println("response: " + response);
                                     eventBus.publish(NEW_ROOM, response);
                                 } else {
                                     System.out.println("Error, message (newRoom) was not sent correctly");
@@ -141,7 +163,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "getRoom":
-                    roomClient.get("/rooms/" + roomId)
+                    roomClient.get("/api/rooms/" + roomId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (getRoom) sent correctly");
@@ -153,7 +175,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "deleteRoom":
-                    roomClient.delete("/rooms/" + roomId)
+                    roomClient.delete("/api/rooms/" + roomId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (deleteRoom) sent correctly");
@@ -164,8 +186,8 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "joinRoom":
-                    roomClient.post("/rooms/" + roomId + "/join")
-                            .sendJsonObject(request, ar -> {
+                    roomClient.post("/api/rooms/" + roomId + "/join")
+                            .sendJson(request, ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (addUserToRoom) sent correctly");
                                     eventBus.publish(JOIN_ROOM, request);
@@ -175,7 +197,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "leaveRoom":
-                    roomClient.delete("/rooms/" + roomId + "/leave/" + userId)
+                    roomClient.delete("/api/rooms/" + roomId + "/leave/" + userId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (exitUserFromRoom) sent correctly");
@@ -186,8 +208,8 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "newMessage":
-                    roomClient.post("/rooms/" + roomId + "/messages")
-                            .sendJsonObject(request, ar -> {
+                    roomClient.post("/api/rooms/" + roomId + "/messages")
+                            .sendJson(request, ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (saveMessageInRoom) sent correctly");
                                     eventBus.publish(NEW_MESSAGE, ar.result().bodyAsJsonObject());
@@ -197,8 +219,8 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "enterCS":
-                    roomClient.post("/rooms/" + roomId + "/cs/enter")
-                            .sendJsonObject(request.getJsonObject("user"), ar -> {
+                    roomClient.post("/api/rooms/" + roomId + "/cs/enter")
+                            .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (enterCriticalSection) sent correctly");
                                     eventBus.publish(ENTER_CS, request);
@@ -208,7 +230,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "exitCS":
-                    roomClient.delete("/rooms/" + roomId + "/cs/exit/" + request.getJsonObject("user").getString("id")).send(ar -> {
+                    roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + request.getJsonObject("user").getString("id")).send(ar -> {
                         if (ar.succeeded()) {
                             System.out.println("Message (exitCriticalSection) sent correctly");
                             eventBus.publish(EXIT_CS, request);
@@ -242,24 +264,28 @@ public final class WebAppService extends AbstractVerticle {
     }
 
     private static Long getRoomId(JsonObject request) {
-        if (request.containsKey("roomId")) {
-            return request.getLong("roomId");
-        } else if (request.containsKey("room")) {
-            final JsonObject room = request.getJsonObject("room");
-            if (room.containsKey("id")) {
-                return room.getLong("id");
+        if (request != null) {
+            if (request.containsKey("roomId")) {
+                return request.getLong("roomId");
+            } else if (request.containsKey("room")) {
+                final JsonObject room = request.getJsonObject("room");
+                if (room.containsKey("id")) {
+                    return room.getLong("id");
+                }
             }
         }
         return null;
     }
 
     private static Long getUserId(JsonObject request) {
-        if (request.containsKey("userId")) {
-            return request.getLong("userId");
-        } else if (request.containsKey("user")) {
-            final JsonObject user = request.getJsonObject("user");
-            if (user.containsKey("id")) {
-                return user.getLong("id");
+        if (request != null) {
+            if (request.containsKey("userId")) {
+                return request.getLong("userId");
+            } else if (request.containsKey("user")) {
+                final JsonObject user = request.getJsonObject("user");
+                if (user.containsKey("id")) {
+                    return user.getLong("id");
+                }
             }
         }
         return null;
