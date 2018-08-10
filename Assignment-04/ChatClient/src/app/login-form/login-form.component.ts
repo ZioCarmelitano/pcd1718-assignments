@@ -16,9 +16,11 @@ export class LoginFormComponent implements OnInit {
 
   ngOnInit() {
     this.user = new ChatUser("...");
+    this.service.onNewUser().subscribe(newUser => this.service.user = newUser);
   }
 
   login() {
-    ChatService.user = this.user;
+    this.service.sendNewUser(this.user);
+    this.service.user = this.user;
   }
 }

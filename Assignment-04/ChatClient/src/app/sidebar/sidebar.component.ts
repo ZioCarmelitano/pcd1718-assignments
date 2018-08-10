@@ -1,7 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 import {Room} from '../room';
-import {ChatUser} from "../chat-user";
 import {User} from "../user";
 import {ChatService} from "../chat.service";
 
@@ -12,29 +11,31 @@ import {ChatService} from "../chat.service";
 })
 export class SidebarComponent implements OnInit {
 
-  @Input()
   public user: User;
 
-  public rooms: Room[];
+  public rooms: Room[] = [];
 
-  constructor() {
+  constructor(private service: ChatService) {
   }
 
   ngOnInit() {
-    this.rooms = [
-      {
-        id: 1,
-        name: 'Aula A'
-      },
-      {
-        id: 2,
-        name: 'Aula B'
-      },
-      {
-        id: 3,
-        name: 'Aula C'
-      }
-    ];
+    this.user = this.service.user;
+
+    this.service.sendRooms();
+
+    let roomSub = this.service.onRooms().subscribe(rooms => {
+      this.rooms = rooms;
+      roomSub.unsubscribe();
+    });
+
+    this.service.onNewRoom().subscribe(room => this.rooms.push(room));
+  }
+
+
+  addRoom() {
+    console.log("addRoom called");
+    let name = "Room " + (this.rooms.length + 1);
+    this.service.sendNewRoom({name: name});
   }
 
 }
