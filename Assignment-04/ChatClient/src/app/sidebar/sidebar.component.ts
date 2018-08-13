@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 
 import {Room} from '../room';
-import {User} from "../user";
-import {ChatService} from "../chat.service";
+import {User} from '../user';
+import {ChatService} from '../chat.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -23,7 +23,7 @@ export class SidebarComponent implements OnInit {
 
     this.service.sendRooms();
 
-    let roomSub = this.service.onRooms().subscribe(rooms => {
+    const roomSub = this.service.onRooms().subscribe(rooms => {
       this.rooms = rooms;
       roomSub.unsubscribe();
     });
@@ -31,10 +31,9 @@ export class SidebarComponent implements OnInit {
     this.service.onNewRoom().subscribe(room => this.rooms.push(room));
   }
 
-
   addRoom() {
-    console.log("addRoom called");
-    let name = "Room " + (this.rooms.length + 1);
+    console.log('addRoom called');
+    const name = 'Room ' + (this.rooms.length + 1);
     this.service.sendNewRoom({name: name});
   }
 

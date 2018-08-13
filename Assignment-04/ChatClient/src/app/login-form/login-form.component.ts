@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {ChatUser} from "../chat-user";
-import {ChatService} from "../chat.service";
+import {ChatUser} from '../chat-user';
+import {ChatService} from '../chat.service';
 
 @Component({
   selector: 'app-login-form',
@@ -15,7 +15,7 @@ export class LoginFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.user = new ChatUser("...");
+    this.user = new ChatUser('...');
     this.service.onNewUser().subscribe(newUser => this.service.user = newUser);
   }
 

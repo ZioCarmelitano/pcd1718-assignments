@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ChatService} from "../chat.service";
+import {ChatService} from '../chat.service';
 
 @Component({
   selector: 'app-send-field',
@@ -14,22 +14,22 @@ export class SendFieldComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.message = "";
+    this.message = '';
   }
 
   send() {
-    switch (this.message){
-      case ":enter-cs":
+    switch (this.message) {
+      case ':enter-cs':
         this.service.sendEnterCS();
         break;
 
-      case ":exit-cs":
+      case ':exit-cs':
         this.service.sendExitCS();
         break;
 
       default:
         this.service.sendNewMessage(this.message);
     }
-    this.message = "";
+    this.message = '';
   }
 }

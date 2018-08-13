@@ -1,21 +1,17 @@
 import {Injectable} from '@angular/core';
-import {EventBusService} from "./event-bus.service";
-import {User} from "./user";
+import {EventBusService} from './event-bus.service';
+import {User} from './user';
 
 import {Observable, Subject} from 'rxjs';
-import {Room} from "./room";
+import {Room} from './room';
 
 import {filter} from 'rxjs/operators';
-import {Message} from "./message";
+import {Message} from './message';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-
-  public user: User;
-
-  public room: Room;
 
   private static EVENTBUS = '/api/eventbus';
 
@@ -33,6 +29,9 @@ export class ChatService {
   private static NEW_MESSAGE = ChatService.EVENT_BUS_PREFIX + '.newMessage';
   private static ENTER_CS = ChatService.EVENT_BUS_PREFIX + '.enterCS';
   private static EXIT_CS = ChatService.EVENT_BUS_PREFIX + '.exitCS';
+
+  public user: User;
+  public room: Room;
 
   private newUser: Subject<User>;
   private deleteUser: Subject<number>;
