@@ -172,13 +172,13 @@ export class ChatService {
     });
   }
 
-  sendNewMessage(message: string) {
+  sendNewMessage(content: string) {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'newMessage',
       request: {
         room: this.room,
         user: this.user,
-        content: message,
+        content,
         userClock: 0
       }
     });
