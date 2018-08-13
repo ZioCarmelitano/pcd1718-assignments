@@ -8,28 +8,26 @@ import {ChatService} from '../chat.service';
 })
 export class SendFieldComponent implements OnInit {
 
-  message: string;
+  public content: string;
 
   constructor(private service: ChatService) {
   }
 
   ngOnInit() {
-    this.message = '';
+    this.content = '';
   }
 
   send() {
-    switch (this.message) {
+    switch (this.content) {
       case ':enter-cs':
         this.service.sendEnterCS();
         break;
-
       case ':exit-cs':
         this.service.sendExitCS();
         break;
-
       default:
-        this.service.sendNewMessage(this.message);
+        this.service.sendNewMessage(this.content);
     }
-    this.message = '';
+    this.content = '';
   }
 }

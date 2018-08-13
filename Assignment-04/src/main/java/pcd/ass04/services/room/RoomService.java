@@ -42,6 +42,7 @@ public final class RoomService extends AbstractVerticle {
     // Critical section
     private final Map<Room, Optional<User>> csMap = new HashMap<>();
     private OptionalLong csTimerId = OptionalLong.empty();
+    private WebClient webAppClient;
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -56,11 +57,18 @@ public final class RoomService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+            if (ar.succeeded()) {
+                webAppClient = ar.result();
+                System.out.println("Got webapp WebClient");
+            } else {
+                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
+            }
+        });
+
         final Router apiRouter = Router.router(vertx);
 
-        apiRouter.route()
-                .handler(BodyHandler.create());
-
+        apiRouter.route().handler(BodyHandler.create());
         apiRouter.route().handler(CorsHandler.create("*")
                 .allowedMethod(GET)
                 .allowedMethod(POST)
@@ -259,7 +267,6 @@ public final class RoomService extends AbstractVerticle {
         final JsonObject body = ctx.getBodyAsJson();
         final String content = body.getString("content");
         final User user = User.fromJson(body.getJsonObject("user"));
-        final long userClock = body.getLong("userClock");
 
         repository.findById(id)
                 .map(room -> {
@@ -311,7 +318,18 @@ public final class RoomService extends AbstractVerticle {
                         throw new IllegalStateException("Critical section is already held by " + csUser.get().getName());
                     }
                     csMap.put(room, Optional.of(user));
-                    final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> csMap.put(room, Optional.empty()));
+                        final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> {
+                        csMap.put(room, Optional.empty());
+                        csTimerId = OptionalLong.empty();
+                        webAppClient.post("/api/messages")
+                                .sendJson(room, ar -> {
+                                    if (ar.succeeded()) {
+                                        System.out.println("Sent timeout expired");
+                                    } else {
+                                        System.err.println("Could not send timeout expired: " + ar.cause().getMessage());
+                                    }
+                                });
+                    });
                     csTimerId = OptionalLong.of(tid);
                     return room;
                 })

@@ -34,7 +34,12 @@ export class SidebarComponent implements OnInit {
   addRoom() {
     console.log('addRoom called');
     const name = 'Room ' + (this.rooms.length + 1);
-    this.service.sendNewRoom({name: name});
+    this.service.sendNewRoom({name});
+  }
+
+  exit() {
+    this.service.sendLeaveRoom();
+    this.service.sendDeleteUser();
   }
 
 }
