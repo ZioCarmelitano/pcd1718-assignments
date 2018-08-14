@@ -1,6 +1,6 @@
 <div class="message-input">
   <div class="wrap">
-    <input type="text" placeholder="Write your message..." (input)="message = $event.target.value"/>
+    <input type="text" placeholder="Write your message..." [value]="content" (input)="content = $event.target.value" (keyup.enter)="send()" />
     <button class="submit" (click)="send()"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
   </div>
 </div>

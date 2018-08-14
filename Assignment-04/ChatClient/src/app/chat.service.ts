@@ -1,21 +1,17 @@
-import {Injectable} from '@angular/core';
-import {EventBusService} from "./event-bus.service";
-import {User} from "./user";
+import { Injectable } from '@angular/core';
+import { EventBusService } from './event-bus.service';
+import { User } from './user';
 
-import {Observable, Subject} from 'rxjs';
-import {Room} from "./room";
+import { Observable, Subject } from 'rxjs';
+import { Room } from './room';
 
-import {filter} from 'rxjs/operators';
-import {Message} from "./message";
+import { filter } from 'rxjs/operators';
+import { Message } from './message';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-
-  public user: User;
-
-  public room: Room;
 
   private static EVENTBUS = '/api/eventbus';
 
@@ -33,6 +29,16 @@ export class ChatService {
   private static NEW_MESSAGE = ChatService.EVENT_BUS_PREFIX + '.newMessage';
   private static ENTER_CS = ChatService.EVENT_BUS_PREFIX + '.enterCS';
   private static EXIT_CS = ChatService.EVENT_BUS_PREFIX + '.exitCS';
+  private static TIMEOUT_EXPIRED = ChatService.EVENT_BUS_PREFIX + '.timeoutExpired';
+
+  public user: User = {
+    id: 0,
+    name: ''
+  };
+  public room: Room = {
+    id: 0,
+    name: ''
+  };
 
   private newUser: Subject<User>;
   private deleteUser: Subject<number>;
@@ -42,9 +48,10 @@ export class ChatService {
   private deleteRoom: Subject<number>;
   private joinRoom: Subject<any>;
   private leaveRoom: Subject<any>;
-  private newMessage: Subject<Message>;
+  private newMessage: Subject<any>;
   private enterCS: Subject<any>;
   private exitCS: Subject<any>;
+  private timeoutExpired: Subject<Room>;
 
   constructor(private eventBus: EventBusService) {
     eventBus.connect(ChatService.EVENTBUS);
@@ -57,9 +64,10 @@ export class ChatService {
     this.deleteRoom = new Subject<number>();
     this.joinRoom = new Subject<any>();
     this.leaveRoom = new Subject<any>();
-    this.newMessage = new Subject<Message>();
+    this.newMessage = new Subject<any>();
     this.enterCS = new Subject<any>();
     this.exitCS = new Subject<any>();
+    this.timeoutExpired = new Subject<Room>();
 
     eventBus.registerHandler(ChatService.NEW_USER, (err, msg) => {
       this.newUser.next(msg.body);
@@ -104,6 +112,10 @@ export class ChatService {
     eventBus.registerHandler(ChatService.EXIT_CS, (err, msg) => {
       this.exitCS.next(msg.body);
     });
+
+    eventBus.registerHandler(ChatService.TIMEOUT_EXPIRED, (err, msg) => {
+      this.timeoutExpired.next(msg.body);
+    });
   }
 
   sendNewUser(user: User) {
@@ -113,13 +125,15 @@ export class ChatService {
     });
   }
 
-  sendDeleteUser(user: User) {
+  sendDeleteUser() {
     this.eventBus.send(ChatService.SEND_ADDRESS, {
       type: 'deleteUser',
       request: {
-        userId: user.id
+        userId: this.user.id
       }
     });
+    this.user.id = 0;
+    this.user.name = '';
   }
 
   sendRooms() {
@@ -164,25 +178,31 @@ export class ChatService {
   }
 
   sendLeaveRoom() {
-    this.eventBus.send(ChatService.SEND_ADDRESS, {
-      type: 'leaveRoom',
-      request: {
-        roomId: this.room.id,
-        user: this.user
-      }
-    });
+    if (this.room) {
+      this.eventBus.send(ChatService.SEND_ADDRESS, {
+        type: 'leaveRoom',
+        request: {
+          roomId: this.room.id,
+          user: this.user
+        }
+      });
+    }
+    this.room.id = 0;
+    this.room.name = '';
   }
 
-  sendNewMessage(message: string) {
-    this.eventBus.send(ChatService.SEND_ADDRESS, {
-      type: 'newMessage',
-      request: {
-        room: this.room,
-        user: this.user,
-        content: message,
-        userClock: 0
-      }
-    });
+  sendNewMessage(content: string) {
+    if (this.room.id > 0) {
+      this.eventBus.send(ChatService.SEND_ADDRESS, {
+        type: 'newMessage',
+        request: {
+          room: this.room,
+          user: this.user,
+          content,
+          userClock: 0
+        }
+      });
+    }
   }
 
   sendEnterCS() {
@@ -237,7 +257,7 @@ export class ChatService {
     return this.leaveRoom.asObservable();
   }
 
-  onNewMessage(): Observable<Message> {
+  onNewMessage(): Observable<any> {
     return this.newMessage
       .asObservable()
       .pipe(filter(message => this.room && message.room.id === this.room.id));
@@ -249,6 +269,10 @@ export class ChatService {
 
   onExitCS(): Observable<any> {
     return this.exitCS.asObservable();
+  }
+
+  onTimeoutExpired(): Observable<Room> {
+    return this.timeoutExpired.asObservable();
   }
 
 }

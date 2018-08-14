@@ -27,7 +27,6 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public Single<Room> findById(Long id) {
         return Single.fromCallable(() -> {
-            System.out.println("Map Room: " + this.roomMap);
             final Optional<Room> room = roomMap.keySet().stream()
                     .filter(r -> Objects.equals(r.getId(), id))
                     .findFirst();
