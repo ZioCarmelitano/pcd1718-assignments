@@ -195,7 +195,7 @@ public final class WebAppService extends AbstractVerticle {
                             .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (joinRoom) sent correctly");
-                                    eventBus.publish(JOIN_ROOM, request);
+                                    eventBus.publish(JOIN_ROOM, request.mergeIn(ar.result().bodyAsJsonObject()));
                                 } else {
                                     System.out.println("Error, message (addUserToRoom) was not sent correctly");
                                 }

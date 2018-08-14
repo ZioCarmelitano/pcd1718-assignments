@@ -1,12 +1,14 @@
-import { Injectable } from '@angular/core';
-import { EventBusService } from './event-bus.service';
-import { User } from './user';
+import {Injectable} from '@angular/core';
+import {EventBusService} from './event-bus.service';
+import {User} from './user';
 
-import { Observable, Subject } from 'rxjs';
-import { Room } from './room';
+import {Observable, Subject} from 'rxjs';
+import {Room} from './room';
 
-import { filter } from 'rxjs/operators';
-import { Message } from './message';
+import {filter, map} from 'rxjs/operators';
+import {Message} from './message';
+import PriorityQueue from "ts-priority-queue/src/PriorityQueue";
+import {remove} from "lodash";
 
 @Injectable({
   providedIn: 'root'
@@ -40,12 +42,19 @@ export class ChatService {
     name: ''
   };
 
+  private clock = new Map<User, number>();
+  private globalCounter = 0;
+  private userClock = 0;
+
+  private holdBackQueue = new PriorityQueue<Message>({comparator: (a, b) => a.globalCounter - b.globalCounter});
+  private pendingQueue: Message[] = [];
+
   private newUser: Subject<User>;
   private deleteUser: Subject<number>;
   private rooms: Subject<Room[]>;
   private newRoom: Subject<Room>;
   private getRoom: Subject<Room>;
-  private deleteRoom: Subject<number>;
+  private deleteRoom: Subject<any>;
   private joinRoom: Subject<any>;
   private leaveRoom: Subject<any>;
   private newMessage: Subject<any>;
@@ -61,7 +70,7 @@ export class ChatService {
     this.rooms = new Subject<Room[]>();
     this.newRoom = new Subject<Room>();
     this.getRoom = new Subject<Room>();
-    this.deleteRoom = new Subject<number>();
+    this.deleteRoom = new Subject<any>();
     this.joinRoom = new Subject<any>();
     this.leaveRoom = new Subject<any>();
     this.newMessage = new Subject<any>();
@@ -94,15 +103,52 @@ export class ChatService {
     });
 
     eventBus.registerHandler(ChatService.JOIN_ROOM, (err, msg) => {
-      this.joinRoom.next(msg.body);
+      let message = msg.body;
+      if (this.room.id === message.roomId) {
+        if (this.user.id === message.user.id) {
+          this.userClock = 0;
+          this.globalCounter = message.globalCounter;
+          message.usersClock.forEach(json => this.clock.set(json.user, json.userClock));
+        }
+        this.clock.set(message.user, 0);
+      }
+      this.joinRoom.next(message);
     });
 
     eventBus.registerHandler(ChatService.LEAVE_ROOM, (err, msg) => {
-      this.leaveRoom.next(msg.body);
+      let message = msg.body;
+      if (this.room.id === message.roomId) {
+        if (this.user.id === message.user.id) {
+          this.userClock = 0;
+          this.globalCounter = 0;
+        }
+        this.clock.delete(message.user);
+      }
+      this.leaveRoom.next(message);
     });
 
     eventBus.registerHandler(ChatService.NEW_MESSAGE, (err, msg) => {
-      this.newMessage.next(msg.body);
+      let message = msg.body;
+      if (message.globalCounter) {
+        if (message.globalCounter == this.globalCounter + 1) {
+          console.log("Received total order " + message);
+          this.globalCounter++;
+          this.causalMessageOrdering(message);
+          if (this.holdBackQueue.length > 0) {
+            let deliverableMessage = this.holdBackQueue.peek();
+            while (this.holdBackQueue.length > 0 && deliverableMessage.globalCounter === this.globalCounter + 1) {
+              this.globalCounter++;
+              this.causalMessageOrdering(deliverableMessage);
+              this.holdBackQueue.dequeue();
+              deliverableMessage = this.holdBackQueue.peek();
+            }
+          }
+        }
+      } else {
+        console.log("In else total order: " + message);
+        this.holdBackQueue.queue(message);
+      }
+      //this.newMessage.next(msg.body);
     });
 
     eventBus.registerHandler(ChatService.ENTER_CS, (err, msg) => {
@@ -246,7 +292,7 @@ export class ChatService {
   }
 
   onDeleteRoom(): Observable<number> {
-    return this.deleteRoom.asObservable();
+    return this.deleteRoom.asObservable().pipe(map(response => response.roomId));
   }
 
   onJoinRoom(): Observable<any> {
@@ -273,6 +319,25 @@ export class ChatService {
 
   onTimeoutExpired(): Observable<Room> {
     return this.timeoutExpired.asObservable();
+  }
+
+  causalMessageOrdering(message: Message) {
+    if (message.userClock == this.clock.get(message.user) + 1) {
+      console.log("Received causal order " + message);
+      this.newMessage.next(message);
+      this.clock.set(message.user, message.userClock);
+      let deliverableMessage = this.pendingQueue.find(x => x.userClock == this.clock.get(x.user) + 1);
+      while (deliverableMessage) {
+        this.newMessage.next(deliverableMessage);
+        this.clock.set(message.user, message.userClock);
+        remove(this.pendingQueue, message => message === deliverableMessage);
+        deliverableMessage = this.pendingQueue.find(x => x.userClock == this.clock.get(x.user) + 1);
+      }
+    } else {
+      console.log("In else causal order: " + message);
+      this.pendingQueue.push(message);
+    }
+
   }
 
 }

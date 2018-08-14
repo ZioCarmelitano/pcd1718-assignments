@@ -59,6 +59,13 @@ export class MessagesComponent implements OnInit {
         this.messages.push('Critical section timeout expired');
       }
     });
+    this.service.onDeleteRoom().subscribe(roomId => {
+      if (roomId === this.room.id) {
+        this.messages = [];
+        this.service.sendLeaveRoom();
+      }
+    });
+
   }
 
 }
