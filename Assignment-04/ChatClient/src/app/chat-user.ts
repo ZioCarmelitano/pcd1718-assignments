@@ -1,6 +1,6 @@
-import {User} from "./user";
+import {User} from './user';
 
-export class ChatUser implements User{
+export class ChatUser implements User {
   constructor(
     public name: string,
     public id?: number
