@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -37,9 +38,11 @@ public final class WebAppService extends AbstractVerticle {
     private static final String NEW_MESSAGE = CHAT_TO_CLIENT + ".newMessage";
     private static final String ENTER_CS = CHAT_TO_CLIENT + ".enterCS";
     private static final String EXIT_CS = CHAT_TO_CLIENT + ".exitCS";
+    private static final String TIMEOUT_EXPIRED = CHAT_TO_CLIENT + ".timeoutExpired";
 
     private ServiceDiscovery discovery;
     private Record record;
+    private EventBus eventBus;
 
     private String host;
     private int port;
@@ -79,15 +82,11 @@ public final class WebAppService extends AbstractVerticle {
             }
         });
 
-        final Router router = Router.router(vertx);
         final Router apiRouter = Router.router(vertx);
 
-        router.mountSubRouter("/api", apiRouter);
+        final Router router = Router.router(vertx);
 
-        apiRouter.route("/eventbus/*").handler(sockJSHandler());
-
-        apiRouter.route().handler(BodyHandler.create());
-
+        router.route().handler(BodyHandler.create());
         router.route().handler(StaticHandler.create());
 
         apiRouter.route().handler(CorsHandler.create("*")
@@ -101,7 +100,13 @@ public final class WebAppService extends AbstractVerticle {
                 .allowedHeader("Access-Control-Allow-Credentials")
                 .allowedHeader("Content-Type"));
 
-        final EventBus eventBus = vertx.eventBus();
+        apiRouter.route("/eventbus/*").handler(sockJSHandler());
+
+        apiRouter.post("/messages").handler(this::messages);
+
+        router.mountSubRouter("/api", apiRouter);
+
+        eventBus = vertx.eventBus();
 
         eventBus.<JsonObject>consumer(CHAT_TO_SERVER, msg -> {
             final JsonObject message = msg.body();
@@ -111,7 +116,7 @@ public final class WebAppService extends AbstractVerticle {
             final Long roomId = getRoomId(request);
             final Long userId = getUserId(request);
 
-            System.out.println("Request: " + request + "fine request");
+            System.out.println("Request: " + request);
 
             switch (type) {
                 case "newUser":
@@ -187,9 +192,9 @@ public final class WebAppService extends AbstractVerticle {
                     break;
                 case "joinRoom":
                     roomClient.post("/api/rooms/" + roomId + "/join")
-                            .sendJson(request, ar -> {
+                            .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
-                                    System.out.println("Message (addUserToRoom) sent correctly");
+                                    System.out.println("Message (joinRoom) sent correctly");
                                     eventBus.publish(JOIN_ROOM, request);
                                 } else {
                                     System.out.println("Error, message (addUserToRoom) was not sent correctly");
@@ -212,7 +217,10 @@ public final class WebAppService extends AbstractVerticle {
                             .sendJson(request, ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (saveMessageInRoom) sent correctly");
-                                    eventBus.publish(NEW_MESSAGE, ar.result().bodyAsJsonObject());
+                                    System.out.println("Response: " + ar.result().bodyAsString());
+                                    eventBus.publish(NEW_MESSAGE, ar.result().bodyAsJsonObject()
+                                            .put("user", request.getJsonObject("user"))
+                                            .put("room", request.getJsonObject("room")));
                                 } else {
                                     System.out.println("Error, message (saveMessageInRoom) was not sent correctly");
                                 }
@@ -230,7 +238,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "exitCS":
-                    roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + request.getJsonObject("user").getString("id")).send(ar -> {
+                    roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + userId).send(ar -> {
                         if (ar.succeeded()) {
                             System.out.println("Message (exitCriticalSection) sent correctly");
                             eventBus.publish(EXIT_CS, request);
@@ -249,7 +257,7 @@ public final class WebAppService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("gui-service", host, port, "/api"), ar1 -> {
+                        discovery.publish(HttpEndpoint.createRecord("webapp-service", host, port, "/api"), ar1 -> {
                             if (ar1.succeeded()) {
                                 record = ar1.result();
                             } else {
@@ -261,6 +269,25 @@ public final class WebAppService extends AbstractVerticle {
                         System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
                     }
                 });
+    }
+
+    @Override
+    public void stop() {
+        discovery.unpublish(record.getRegistration(),
+                ar -> {
+                    if (ar.succeeded()) {
+                        System.out.println("Record " + record.getName() + " withdrawn successfully");
+                    } else {
+                        System.out.println("Could not withdraw record " + record.getName());
+                    }
+                });
+        discovery.close();
+    }
+
+    private void messages(RoutingContext ctx) {
+        eventBus.publish(TIMEOUT_EXPIRED, ctx.getBodyAsJson());
+        ctx.response().end();
+        System.out.println("Timeout expired");
     }
 
     private static Long getRoomId(JsonObject request) {
@@ -291,19 +318,6 @@ public final class WebAppService extends AbstractVerticle {
         return null;
     }
 
-    @Override
-    public void stop() {
-        discovery.unpublish(record.getRegistration(),
-                ar -> {
-                    if (ar.succeeded()) {
-                        System.out.println("Record " + record.getName() + " withdrawn successfully");
-                    } else {
-                        System.out.println("Could not withdraw record " + record.getName());
-                    }
-                });
-        discovery.close();
-    }
-
     private SockJSHandler sockJSHandler() {
         // Allow events for the designated addresses in/out of the event bus bridge
         BridgeOptions opts = new BridgeOptions()
@@ -319,7 +333,8 @@ public final class WebAppService extends AbstractVerticle {
                 .addOutboundPermitted(new PermittedOptions().setAddress(NEW_MESSAGE))
                 .addOutboundPermitted(new PermittedOptions().setAddress(DELETE_ROOM))
                 .addOutboundPermitted(new PermittedOptions().setAddress(ENTER_CS))
-                .addOutboundPermitted(new PermittedOptions().setAddress(EXIT_CS));
+                .addOutboundPermitted(new PermittedOptions().setAddress(EXIT_CS))
+                .addOutboundPermitted(new PermittedOptions().setAddress(TIMEOUT_EXPIRED));
 
         // Create the event bus bridge and add it to the router.
         return SockJSHandler.create(vertx).bridge(opts);

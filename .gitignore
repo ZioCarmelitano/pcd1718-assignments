@@ -347,7 +347,7 @@ hs_err_pid*
 
 ## Gradle
 .gradle
-/build/
+Assignment-0[1-4]/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -365,14 +365,11 @@ gradle-app.setting
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
-<<<<<<< HEAD
-=======
 .idea/workspace.xml
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
 
->>>>>>> 4c776939512807cf0c6c65ce03647df43955b324
 .idea
 *.iml
 
@@ -406,3 +403,5 @@ fabric.properties
 !libs/**/*.jar
 
 /release/
+
+.vertx/

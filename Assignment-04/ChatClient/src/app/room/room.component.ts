@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Room} from "../room";
-import {ChatService} from "../chat.service";
+import {Room} from '../room';
+import {ChatService} from '../chat.service';
 
 @Component({
   selector: 'app-room',
@@ -19,8 +19,10 @@ export class RoomComponent implements OnInit {
   }
 
   setCurrentRoom() {
+    console.log(this.room);
     this.service.sendLeaveRoom();
-    this.service.room = this.room;
+    this.service.room.id = this.room.id;
+    this.service.room.name = this.room.name;
     this.service.sendJoinRoom();
   }
 
