@@ -7,7 +7,7 @@ import {Room} from './room';
 
 import {filter, map} from 'rxjs/operators';
 import {Message} from './message';
-import PriorityQueue from "ts-priority-queue/src/PriorityQueue";
+import {PriorityQueue} from 'typescript-collections';
 import {remove} from "lodash";
 
 @Injectable({
@@ -42,11 +42,12 @@ export class ChatService {
     name: ''
   };
 
-  private clock = new Map<User, number>();
+  //Map<idUser, userClock>
+  private clock = new Map<number, number>();
   private globalCounter = 0;
   private userClock = 0;
 
-  private holdBackQueue = new PriorityQueue<Message>({comparator: (a, b) => a.globalCounter - b.globalCounter});
+  private holdBackQueue = new PriorityQueue<Message>((a, b) => a.globalCounter - b.globalCounter);
   private pendingQueue: Message[] = [];
 
   private newUser: Subject<User>;
@@ -104,13 +105,18 @@ export class ChatService {
 
     eventBus.registerHandler(ChatService.JOIN_ROOM, (err, msg) => {
       let message = msg.body;
+      console.log("chatService JOIN_ROOM: ");
+      console.log(message);
       if (this.room.id === message.roomId) {
         if (this.user.id === message.user.id) {
           this.userClock = 0;
           this.globalCounter = message.globalCounter;
-          message.usersClock.forEach(json => this.clock.set(json.user, json.userClock));
+          message.usersClock.forEach(json => this.clock.set(json.user.id, json.userClock));
+        } else {
+          this.clock.set(message.user.id, 0);
         }
-        this.clock.set(message.user, 0);
+        console.log("vettore dei clock");
+        console.log(this.clock);
       }
       this.joinRoom.next(message);
     });
@@ -122,7 +128,7 @@ export class ChatService {
           this.userClock = 0;
           this.globalCounter = 0;
         }
-        this.clock.delete(message.user);
+        this.clock.delete(message.user.id);
       }
       this.leaveRoom.next(message);
     });
@@ -134,19 +140,22 @@ export class ChatService {
           console.log("Received total order " + message);
           this.globalCounter++;
           this.causalMessageOrdering(message);
-          if (this.holdBackQueue.length > 0) {
-            let deliverableMessage = this.holdBackQueue.peek();
-            while (this.holdBackQueue.length > 0 && deliverableMessage.globalCounter === this.globalCounter + 1) {
+          let deliverableMessage = this.holdBackQueue.peek();
+          while (deliverableMessage && deliverableMessage.globalCounter === this.globalCounter + 1) {
               this.globalCounter++;
               this.causalMessageOrdering(deliverableMessage);
               this.holdBackQueue.dequeue();
               deliverableMessage = this.holdBackQueue.peek();
-            }
           }
+        }else {
+          console.log("In else total order: " + message);
+          this.holdBackQueue.enqueue(message);
         }
       } else {
-        console.log("In else total order: " + message);
-        this.holdBackQueue.queue(message);
+        console.log("Error");
+        if (this.room.id === message.room.id && this.user.id === message.user.id) {
+            this.userClock--;
+        }
       }
       //this.newMessage.next(msg.body);
     });
@@ -239,15 +248,19 @@ export class ChatService {
 
   sendNewMessage(content: string) {
     if (this.room.id > 0) {
-      this.eventBus.send(ChatService.SEND_ADDRESS, {
-        type: 'newMessage',
-        request: {
-          room: this.room,
-          user: this.user,
-          content,
-          userClock: 0
-        }
-      });
+      this.userClock++;
+      const userClock = this.userClock;
+      //setTimeout(() => {
+        this.eventBus.send(ChatService.SEND_ADDRESS, {
+          type: 'newMessage',
+          request: {
+            room: this.room,
+            user: this.user,
+            content,
+            userClock
+          }
+        });
+      //}, (1 + Math.random() * (5 - 1)) * 1000);
     }
   }
 
@@ -322,19 +335,23 @@ export class ChatService {
   }
 
   causalMessageOrdering(message: Message) {
-    if (message.userClock == this.clock.get(message.user) + 1) {
+    console.log(message.user.name);
+    console.log("message clock: " + message.userClock);
+    console.log("vector clock: " + this.clock.get(message.user.id));
+    if (message.userClock === (this.clock.get(message.user.id) + 1)) {
       console.log("Received causal order " + message);
       this.newMessage.next(message);
-      this.clock.set(message.user, message.userClock);
-      let deliverableMessage = this.pendingQueue.find(x => x.userClock == this.clock.get(x.user) + 1);
+      this.clock.set(message.user.id, message.userClock);
+      let deliverableMessage = this.pendingQueue.find(x => x.userClock === (this.clock.get(x.user.id) + 1));
       while (deliverableMessage) {
         this.newMessage.next(deliverableMessage);
-        this.clock.set(message.user, message.userClock);
-        remove(this.pendingQueue, message => message === deliverableMessage);
-        deliverableMessage = this.pendingQueue.find(x => x.userClock == this.clock.get(x.user) + 1);
+        this.clock.set(deliverableMessage.user.id, deliverableMessage.userClock);
+        remove(this.pendingQueue, message => message.globalCounter === deliverableMessage.globalCounter);
+        deliverableMessage = this.pendingQueue.find(x => x.userClock === (this.clock.get(x.user.id) + 1));
       }
     } else {
-      console.log("In else causal order: " + message);
+      console.log("In else causal order: ");
+      console.log(message);
       this.pendingQueue.push(message);
     }
 

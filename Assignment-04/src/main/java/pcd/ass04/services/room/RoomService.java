@@ -247,10 +247,16 @@ public final class RoomService extends AbstractVerticle {
         repository.findById(roomId)
                 .flatMap(room -> {
                     JsonObject response = new JsonObject();
+                    if (!this.userCounterMap.containsKey(room)) {
+                        HashMap<User, Long> usersCounter = new HashMap<>();
+                        this.userCounterMap.put(room, usersCounter);
+                    }
+                    this.userCounterMap.get(room).put(user, 0L);
                     response.put("usersClock", new JsonArray(this.userCounterMap.get(room).entrySet().stream()
                             .map(e -> new JsonObject().put("user", e.getKey().toJson()).put("userClock", e.getValue()))
                             .collect(Collectors.toList())));
                     response.put("globalCounter", counterMap.get(room));
+                    System.out.println("web service join: " + response.toString());
                     return repository.addUser(room, user).andThen(Single.just(response));
                 })
                 .map(Object::toString)
@@ -288,8 +294,9 @@ public final class RoomService extends AbstractVerticle {
                     if (csUser.isPresent() && !csUser.get().equals(user)) {
                         throw new IllegalStateException("The user who tried to send the message is not the user in critical section");
                     }
+                    this.userCounterMap.get(room).computeIfPresent(user, (k,v) -> body.getLong("userClock"));
                     counterMap.computeIfPresent(room, (k,v) -> v + 1);
-                    return body.put("globalCounter", counterMap.get(room));
+                    return body.put("globalCounter", counterMap.get(room)).put("userClock", this.userCounterMap.get(room).get(user));
                 })
                 .map(Object::toString)
                 .subscribe(
