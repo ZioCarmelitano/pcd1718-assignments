@@ -6,6 +6,8 @@ if [ "$#" != 2 ]; then
 fi
 
 case $1 in
+    -h|--healthcheck)
+        service=healthcheck
     -r|--room)
         service=room
         ;;

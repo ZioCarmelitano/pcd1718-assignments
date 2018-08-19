@@ -53,6 +53,16 @@ export class ChatService {
   private exitCS: Subject<any>;
   private timeoutExpired: Subject<Room>;
 
+  private static resetUser(user: User) {
+    user.id = 0;
+    user.name = '';
+  }
+
+  private static resetRoom(room: Room) {
+    room.id = 0;
+    room.name = '';
+  }
+
   constructor(private eventBus: EventBusService) {
     eventBus.connect(ChatService.EVENTBUS);
 
@@ -132,8 +142,7 @@ export class ChatService {
         userId: this.user.id
       }
     });
-    this.user.id = 0;
-    this.user.name = '';
+    ChatService.resetUser(this.user);
   }
 
   sendRooms() {
@@ -187,8 +196,7 @@ export class ChatService {
         }
       });
     }
-    this.room.id = 0;
-    this.room.name = '';
+    ChatService.resetRoom(this.room);
   }
 
   sendNewMessage(content: string) {
