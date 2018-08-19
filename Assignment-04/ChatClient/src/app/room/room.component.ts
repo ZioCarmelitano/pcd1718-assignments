@@ -19,11 +19,16 @@ export class RoomComponent implements OnInit {
   }
 
   setCurrentRoom() {
-    console.log(this.room);
+    console.log("setCurrentRoom: " + this.room);
     this.service.sendLeaveRoom();
     this.service.room.id = this.room.id;
     this.service.room.name = this.room.name;
     this.service.sendJoinRoom();
+  }
+
+  deleteRoom() {
+    console.log("deleteRoom: " + this.room);
+    this.service.sendDeleteRoom(this.room);
   }
 
 }
