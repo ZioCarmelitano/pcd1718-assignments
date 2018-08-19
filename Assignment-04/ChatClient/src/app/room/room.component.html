@@ -1,5 +1,7 @@
 <div class="wrap">
   <div class="meta">
-    <p class="name" (click)="setCurrentRoom()">{{ room.name }}</p>
+    <p class="name" (click)="setCurrentRoom()">{{ room.name }}
+      <i class="fa fa-close pull-right" (click)="deleteRoom(); $event.stopPropagation();"></i>
+    </p>
   </div>
 </div>

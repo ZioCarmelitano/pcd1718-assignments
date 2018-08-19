@@ -6,4 +6,5 @@ export interface Message {
   user: User;
   content: string;
   userClock: number;
+  globalCounter: number;
 }
