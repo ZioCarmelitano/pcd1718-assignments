@@ -7,6 +7,8 @@ import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
@@ -44,7 +46,9 @@ public final class RoomService extends AbstractVerticle {
     // Critical section
     private final Map<Room, Optional<User>> csMap = new HashMap<>();
     private OptionalLong csTimerId = OptionalLong.empty();
+
     private WebClient webAppClient;
+    private WebClient healthCheckClient;
 
     private final Map<Room, Long> counterMap = new HashMap<>();
     private final Map<Room, Map<User, Long>> userCounterMap = new HashMap<>();
@@ -62,14 +66,8 @@ public final class RoomService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
-            if (ar.succeeded()) {
-                webAppClient = ar.result();
-                System.out.println("Got webapp WebClient");
-            } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
-            }
-        });
+        getHealthCheckClient();
+        getWebAppClient();
 
         final Router apiRouter = Router.router(vertx);
 
@@ -138,13 +136,21 @@ public final class RoomService extends AbstractVerticle {
 
         final Router router = Router.router(vertx);
 
+        final HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx);
+
+        healthCheckHandler.register("health-check-procedure", future -> future.complete(Status.OK()));
+
+        router.get("/health*")
+                .produces("application/json")
+                .handler(healthCheckHandler);
+
         router.mountSubRouter("/api", apiRouter);
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("room-service", host, port, "/api"), ar1 -> {
+                        discovery.publish(HttpEndpoint.createRecord("room-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
                                 record = ar1.result();
                             } else {
@@ -188,7 +194,6 @@ public final class RoomService extends AbstractVerticle {
         final Room room = Room.fromJson(ctx.getBodyAsJson());
 
         repository.save(room)
-                // findById? dovrebbe essere add room...
                 .flatMap(repository::findById)
                 .map(Object::toString)
                 .subscribe(
@@ -387,6 +392,28 @@ public final class RoomService extends AbstractVerticle {
                         cause -> ctx.response()
                                 .setStatusCode(500)
                                 .end(new JsonObject().put("error", cause.getMessage()).toString()));
+    }
+
+    private void getWebAppClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+            if (ar.succeeded()) {
+                webAppClient = ar.result();
+                System.out.println("Got webapp WebClient");
+            } else {
+                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
+            }
+        });
+    }
+
+    private void getHealthCheckClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
+            if (ar.succeeded()) {
+                healthCheckClient = ar.result();
+                System.out.println("Got healthcheck WebClient");
+            } else {
+                System.err.println("Could not retrieve healthcheck client: " + ar.cause().getMessage());
+            }
+        });
     }
 
 }

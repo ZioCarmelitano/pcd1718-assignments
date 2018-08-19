@@ -5,6 +5,8 @@ import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -89,12 +91,19 @@ public final class UserService extends AbstractVerticle {
 
         router.mountSubRouter("/api", apiRouter);
 
+        final HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx);
+
+        healthCheckHandler.register("health-check-procedure", future -> future.complete(Status.OK()));
+
+        router.get("/health*")
+                .produces("application/json")
+                .handler(healthCheckHandler);
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("user-service", host, port, "/api"), ar1 -> {
+                        discovery.publish(HttpEndpoint.createRecord("user-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
                                 record = ar1.result();
                             } else {

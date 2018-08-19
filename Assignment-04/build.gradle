@@ -33,7 +33,8 @@ dependencies {
 
     // Micro services
     compile group: 'io.vertx', name: 'vertx-service-discovery', version: vertxVersion
-    // compile group: 'io.vertx', name: 'vertx-circuit-breaker', version: vertxVersion
+    compile group: 'io.vertx', name: 'vertx-circuit-breaker', version: vertxVersion
+    compile group: 'io.vertx', name: 'vertx-health-check', version: vertxVersion
 
     // RxJava
     compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: rxJava2Version
