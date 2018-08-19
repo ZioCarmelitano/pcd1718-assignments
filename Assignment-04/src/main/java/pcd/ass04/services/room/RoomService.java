@@ -1,11 +1,14 @@
 package pcd.ass04.services.room;
 
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
@@ -23,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.stream.Collectors;
 
 import static io.vertx.core.http.HttpMethod.*;
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
@@ -42,7 +46,12 @@ public final class RoomService extends AbstractVerticle {
     // Critical section
     private final Map<Room, Optional<User>> csMap = new HashMap<>();
     private OptionalLong csTimerId = OptionalLong.empty();
+
     private WebClient webAppClient;
+    private WebClient healthCheckClient;
+
+    private final Map<Room, Long> counterMap = new HashMap<>();
+    private final Map<Room, Map<User, Long>> userCounterMap = new HashMap<>();
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -57,14 +66,8 @@ public final class RoomService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
-            if (ar.succeeded()) {
-                webAppClient = ar.result();
-                System.out.println("Got webapp WebClient");
-            } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
-            }
-        });
+        getHealthCheckClient();
+        getWebAppClient();
 
         final Router apiRouter = Router.router(vertx);
 
@@ -133,13 +136,21 @@ public final class RoomService extends AbstractVerticle {
 
         final Router router = Router.router(vertx);
 
+        final HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx);
+
+        healthCheckHandler.register("health-check-procedure", future -> future.complete(Status.OK()));
+
+        router.get("/health*")
+                .produces("application/json")
+                .handler(healthCheckHandler);
+
         router.mountSubRouter("/api", apiRouter);
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("room-service", host, port, "/api"), ar1 -> {
+                        discovery.publish(HttpEndpoint.createRecord("room-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
                                 record = ar1.result();
                             } else {
@@ -183,12 +194,12 @@ public final class RoomService extends AbstractVerticle {
         final Room room = Room.fromJson(ctx.getBodyAsJson());
 
         repository.save(room)
-                // findById? dovrebbe essere add room...
                 .flatMap(repository::findById)
                 .map(Object::toString)
                 .subscribe(
                         chunk -> {
                             csMap.put(room, Optional.empty());
+                            counterMap.put(room, 0L);
                             ctx.response().end(chunk);
                             System.out.println(chunk);
                         },
@@ -223,7 +234,7 @@ public final class RoomService extends AbstractVerticle {
     private void destroy(RoutingContext ctx) {
         final long id = Long.parseLong(ctx.request().getParam("id"));
         repository.findById(id)
-                .map(csMap::remove)
+                .map(room -> {csMap.remove(room); counterMap.remove(room); return room;})
                 .flatMap(v -> repository.deleteById(id))
                 .subscribe(
                         roomId -> {
@@ -239,7 +250,21 @@ public final class RoomService extends AbstractVerticle {
         final User user = User.fromJson(ctx.getBodyAsJson());
 
         repository.findById(roomId)
-                .flatMapCompletable(room -> repository.addUser(room, user))
+                .flatMap(room -> {
+                    JsonObject response = new JsonObject();
+                    if (!this.userCounterMap.containsKey(room)) {
+                        HashMap<User, Long> usersCounter = new HashMap<>();
+                        this.userCounterMap.put(room, usersCounter);
+                    }
+                    this.userCounterMap.get(room).put(user, 0L);
+                    response.put("usersClock", new JsonArray(this.userCounterMap.get(room).entrySet().stream()
+                            .map(e -> new JsonObject().put("user", e.getKey().toJson()).put("userClock", e.getValue()))
+                            .collect(Collectors.toList())));
+                    response.put("globalCounter", counterMap.get(room));
+                    System.out.println("web service join: " + response.toString());
+                    return repository.addUser(room, user).andThen(Single.just(response));
+                })
+                .map(Object::toString)
                 .subscribe(
                         ctx.response()::end,
                         cause -> ctx.response()
@@ -274,7 +299,9 @@ public final class RoomService extends AbstractVerticle {
                     if (csUser.isPresent() && !csUser.get().equals(user)) {
                         throw new IllegalStateException("The user who tried to send the message is not the user in critical section");
                     }
-                    return body;
+                    this.userCounterMap.get(room).computeIfPresent(user, (k,v) -> body.getLong("userClock"));
+                    counterMap.computeIfPresent(room, (k,v) -> v + 1);
+                    return body.put("globalCounter", counterMap.get(room)).put("userClock", this.userCounterMap.get(room).get(user));
                 })
                 .map(Object::toString)
                 .subscribe(
@@ -365,6 +392,28 @@ public final class RoomService extends AbstractVerticle {
                         cause -> ctx.response()
                                 .setStatusCode(500)
                                 .end(new JsonObject().put("error", cause.getMessage()).toString()));
+    }
+
+    private void getWebAppClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+            if (ar.succeeded()) {
+                webAppClient = ar.result();
+                System.out.println("Got webapp WebClient");
+            } else {
+                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
+            }
+        });
+    }
+
+    private void getHealthCheckClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
+            if (ar.succeeded()) {
+                healthCheckClient = ar.result();
+                System.out.println("Got healthcheck WebClient");
+            } else {
+                System.err.println("Could not retrieve healthcheck client: " + ar.cause().getMessage());
+            }
+        });
     }
 
 }

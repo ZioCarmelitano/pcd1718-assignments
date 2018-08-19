@@ -7,6 +7,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
@@ -49,6 +51,7 @@ public final class WebAppService extends AbstractVerticle {
 
     private WebClient roomClient;
     private WebClient userClient;
+    private WebClient healthCheckClient;
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -63,24 +66,9 @@ public final class WebAppService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "room-" +
-                "service"), ar -> {
-            if (ar.succeeded()) {
-                roomClient = ar.result();
-                System.out.println("Got room WebClient");
-            } else {
-                System.err.println("Could not retrieve room client: " + ar.cause().getMessage());
-            }
-        });
-
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "user-service"), ar -> {
-            if (ar.succeeded()) {
-                userClient = ar.result();
-                System.out.println("Got user WebClient");
-            } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
-            }
-        });
+        getHealthCheckClient();
+        getRoomClient();
+        getUserClient();
 
         final Router apiRouter = Router.router(vertx);
 
@@ -105,6 +93,14 @@ public final class WebAppService extends AbstractVerticle {
         apiRouter.post("/messages").handler(this::messages);
 
         router.mountSubRouter("/api", apiRouter);
+
+        final HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx);
+
+        healthCheckHandler.register("health-check-procedure", future -> future.complete(Status.OK()));
+
+        router.get("/health*")
+                .produces("application/json")
+                .handler(healthCheckHandler);
 
         eventBus = vertx.eventBus();
 
@@ -195,7 +191,7 @@ public final class WebAppService extends AbstractVerticle {
                             .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (joinRoom) sent correctly");
-                                    eventBus.publish(JOIN_ROOM, request);
+                                    eventBus.publish(JOIN_ROOM, request.mergeIn(ar.result().bodyAsJsonObject()));
                                 } else {
                                     System.out.println("Error, message (addUserToRoom) was not sent correctly");
                                 }
@@ -257,7 +253,7 @@ public final class WebAppService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("webapp-service", host, port, "/api"), ar1 -> {
+                        discovery.publish(HttpEndpoint.createRecord("webapp-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
                                 record = ar1.result();
                             } else {
@@ -338,6 +334,39 @@ public final class WebAppService extends AbstractVerticle {
 
         // Create the event bus bridge and add it to the router.
         return SockJSHandler.create(vertx).bridge(opts);
+    }
+
+    private void getRoomClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "room-service"), ar -> {
+            if (ar.succeeded()) {
+                roomClient = ar.result();
+                System.out.println("Got room WebClient");
+            } else {
+                System.err.println("Could not retrieve room client: " + ar.cause().getMessage());
+            }
+        });
+    }
+
+    private void getUserClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "user-service"), ar -> {
+            if (ar.succeeded()) {
+                userClient = ar.result();
+                System.out.println("Got user WebClient");
+            } else {
+                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
+            }
+        });
+    }
+
+    private void getHealthCheckClient() {
+        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
+            if (ar.succeeded()) {
+                healthCheckClient = ar.result();
+                System.out.println("Got healthcheck WebClient");
+            } else {
+                System.err.println("Could not retrieve healthcheck client: " + ar.cause().getMessage());
+            }
+        });
     }
 
 }
