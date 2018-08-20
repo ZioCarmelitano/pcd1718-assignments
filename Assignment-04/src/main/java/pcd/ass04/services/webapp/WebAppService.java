@@ -116,19 +116,19 @@ public final class WebAppService extends AbstractVerticle {
 
             switch (type) {
                 case "newUser":
-                    userClient.post("/api/users")
-                            .sendJson(request, ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (newUser) sent correctly" + " " + ar.result().bodyAsString());
-                                    final JsonObject response = ar.result().bodyAsJsonObject();
-                                    eventBus.publish(NEW_USER, response);
-                                } else {
-                                    System.out.println("Error, message (newUser) was not sent correctly");
-                                }
-                            });
+                    this.checkHealth("user", () -> userClient.post("/api/users")
+                                .sendJson(request, ar -> {
+                                    if (ar.succeeded()) {
+                                        System.out.println("Message (newUser) sent correctly" + " " + ar.result().bodyAsString());
+                                        final JsonObject response = ar.result().bodyAsJsonObject();
+                                        eventBus.publish(NEW_USER, response);
+                                    } else {
+                                        System.out.println("Error, message (newUser) was not sent correctly");
+                                    }
+                                }));
                     break;
                 case "deleteUser":
-                    userClient.delete("/api/users/" + userId)
+                    this.checkHealth("user", () -> userClient.delete("/api/users/" + userId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (deleteUser) sent correctly");
@@ -136,10 +136,10 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (deleteUser) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "rooms":
-                    roomClient.get("/api/rooms")
+                    this.checkHealth("room", () -> roomClient.get("/api/rooms")
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (getRooms) sent correctly");
@@ -148,10 +148,10 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (rooms) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "newRoom":
-                    roomClient.post("/api/rooms")
+                    this.checkHealth("room", () -> roomClient.post("/api/rooms")
                             .sendJson(request, ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (newRoom) sent correctly");
@@ -161,10 +161,10 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (newRoom) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "getRoom":
-                    roomClient.get("/api/rooms/" + roomId)
+                    this.checkHealth("room", () -> roomClient.get("/api/rooms/" + roomId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (getRoom) sent correctly");
@@ -173,10 +173,10 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (getRoom) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "deleteRoom":
-                    roomClient.delete("/api/rooms/" + roomId)
+                    this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (deleteRoom) sent correctly");
@@ -184,10 +184,10 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (deleteRoom) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "joinRoom":
-                    roomClient.post("/api/rooms/" + roomId + "/join")
+                    this.checkHealth("room", () -> roomClient.post("/api/rooms/" + roomId + "/join")
                             .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (joinRoom) sent correctly");
@@ -195,10 +195,10 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (addUserToRoom) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "leaveRoom":
-                    roomClient.delete("/api/rooms/" + roomId + "/leave/" + userId)
+                    this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId + "/leave/" + userId)
                             .send(ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (exitUserFromRoom) sent correctly");
@@ -206,7 +206,7 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (exitUserFromRoom) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "newMessage":
                     roomClient.post("/api/rooms/" + roomId + "/messages")
@@ -223,7 +223,7 @@ public final class WebAppService extends AbstractVerticle {
                             });
                     break;
                 case "enterCS":
-                    roomClient.post("/api/rooms/" + roomId + "/cs/enter")
+                    this.checkHealth("room", () -> roomClient.post("/api/rooms/" + roomId + "/cs/enter")
                             .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (enterCriticalSection) sent correctly");
@@ -231,17 +231,17 @@ public final class WebAppService extends AbstractVerticle {
                                 } else {
                                     System.out.println("Error, message (enterCriticalSection) was not sent correctly");
                                 }
-                            });
+                            }));
                     break;
                 case "exitCS":
-                    roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + userId).send(ar -> {
+                    this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + userId).send(ar -> {
                         if (ar.succeeded()) {
                             System.out.println("Message (exitCriticalSection) sent correctly");
                             eventBus.publish(EXIT_CS, request);
                         } else {
                             System.out.println("Error, message (exitCriticalSection) was not sent correctly");
                         }
-                    });
+                    }));
                     break;
                 default:
                     System.out.println("The type of the message (" + message.getString("type") + ") has not been recognized");
@@ -369,4 +369,14 @@ public final class WebAppService extends AbstractVerticle {
         });
     }
 
+    private void checkHealth(String serviceName, Runnable successBlock) {
+        healthCheckClient.get("/health/" + serviceName)
+                .send(ar -> {
+                    if (ar.succeeded() && ar.result().statusCode() == 200) {
+                        successBlock.run();
+                    } else {
+                        throw new RuntimeException(serviceName + " service is not available!");
+                    }
+                });
+    }
 }
