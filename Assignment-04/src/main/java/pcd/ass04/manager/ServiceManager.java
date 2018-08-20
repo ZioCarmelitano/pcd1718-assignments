@@ -44,7 +44,6 @@ public class ServiceManager extends AbstractVerticle {
         port = config.getInteger("port");
 
         serviceName = config.getString("serviceName");
-
         filter = new JsonObject().put("name", serviceName + "-service");
     }
 
