@@ -54,8 +54,6 @@ public final class RoomService extends AbstractVerticle {
     private final Map<Room, Long> counterMap = new HashMap<>();
     private final Map<Room, Map<User, Long>> userCounterMap = new HashMap<>();
 
-    private final Map<Room, Long> counterMap = new HashMap<>();
-    private final Map<Room, Map<User, Long>> userCounterMap = new HashMap<>();
 
     @Override
     public void init(Vertx vertx, Context context) {
