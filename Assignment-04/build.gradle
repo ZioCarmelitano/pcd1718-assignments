@@ -45,9 +45,6 @@ dependencies {
 
 task fatJar(type: Jar) {
     baseName = project.name
-    manifest {
-        attributes 'Main-Class': 'pcd.ass04.Launcher'
-    }
     from {
         configurations.compile.collect {
             it.isDirectory() ? it : zipTree(it)
