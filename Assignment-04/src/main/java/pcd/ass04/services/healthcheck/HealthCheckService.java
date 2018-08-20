@@ -81,6 +81,14 @@ public class HealthCheckService extends AbstractVerticle {
 
         router.mountSubRouter("/health", healthRouter);
 
+        final HealthCheckHandler healthCheckHandler = HealthCheckHandler.create(vertx);
+
+        healthCheckHandler.register("health-check-procedure", future -> future.complete(Status.OK()));
+
+        router.get("/health*")
+                .produces("application/json")
+                .handler(healthCheckHandler);
+
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
@@ -100,7 +108,6 @@ public class HealthCheckService extends AbstractVerticle {
     }
 
     private void roomHealthCheckProcedure(Future<Status> future) {
-        System.out.println("Room health check procedure");
         if (roomClient == null) {
             future.complete(Status.KO());
         } else {
@@ -121,7 +128,6 @@ public class HealthCheckService extends AbstractVerticle {
     }
 
     private void userHealthCheckProcedure(Future<Status> future) {
-        System.out.println("User health check procedure");
         if (userClient == null) {
             future.complete(Status.KO());
         } else {
@@ -142,7 +148,6 @@ public class HealthCheckService extends AbstractVerticle {
     }
 
     private void webAppHealthCheckProcedure(Future<Status> future) {
-        System.out.println("WebApp health check procedure");
         if (webAppClient == null) {
             future.complete(Status.KO());
         } else {
