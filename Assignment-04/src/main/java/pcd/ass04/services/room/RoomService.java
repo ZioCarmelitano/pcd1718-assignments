@@ -4,6 +4,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -348,14 +349,14 @@ public final class RoomService extends AbstractVerticle {
                         final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> {
                         csMap.put(room, Optional.empty());
                         csTimerId = OptionalLong.empty();
-                        webAppClient.post("/api/messages")
+                        checkHealth("webapp", () -> webAppClient.post("/api/messages")
                                 .sendJson(room, ar -> {
                                     if (ar.succeeded()) {
                                         System.out.println("Sent timeout expired");
                                     } else {
                                         System.err.println("Could not send timeout expired: " + ar.cause().getMessage());
                                     }
-                                });
+                                }));
                     });
                     csTimerId = OptionalLong.of(tid);
                     return room;
@@ -414,6 +415,17 @@ public final class RoomService extends AbstractVerticle {
                 System.err.println("Could not retrieve healthcheck client: " + ar.cause().getMessage());
             }
         });
+    }
+
+    private void checkHealth(String serviceName, Runnable successBlock) {
+        healthCheckClient.get("/health/" + serviceName)
+                .send(ar -> {
+                    if (ar.succeeded() && ar.result().statusCode() == 200) {
+                        successBlock.run();
+                    } else {
+                        throw new RuntimeException(serviceName + " service is not available!");
+                    }
+                });
     }
 
 }
