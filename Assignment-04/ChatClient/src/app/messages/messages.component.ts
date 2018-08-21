@@ -40,7 +40,7 @@ export class MessagesComponent implements OnInit {
       }
     });
     this.service.onLeaveRoom().subscribe(data => {
-      if (this.room.id != 0 && (data.roomId === this.room.id)) {
+      if (this.room.id !== 0 && (data.roomId === this.room.id)) {
         this.messages.push(data.user.name + ' left the room');
       }
     });
