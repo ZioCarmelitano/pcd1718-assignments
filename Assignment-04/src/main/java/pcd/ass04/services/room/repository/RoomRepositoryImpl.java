@@ -83,7 +83,7 @@ public class RoomRepositoryImpl implements RoomRepository {
             }
 
             Optional<User> user = users.stream()
-                    .filter(Predicate.isEqual(id))
+                    .filter(u -> Objects.equals(u.getId(), id))
                     .findFirst();
 
             if (user.isPresent()) {
