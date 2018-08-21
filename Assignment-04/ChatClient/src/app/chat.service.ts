@@ -1,14 +1,14 @@
-import {Injectable} from '@angular/core';
-import {EventBusService} from './event-bus.service';
-import {User} from './user';
+import { Injectable } from '@angular/core';
+import { EventBusService } from './event-bus.service';
+import { User } from './user';
 
-import {Observable, Subject} from 'rxjs';
-import {Room} from './room';
+import { Observable, Subject } from 'rxjs';
+import { Room } from './room';
 
-import {filter, map} from 'rxjs/operators';
-import {Message} from './message';
-import {PriorityQueue} from 'typescript-collections';
-import {remove} from "lodash";
+import { filter, map } from 'rxjs/operators';
+import { Message } from './message';
+import { PriorityQueue } from 'typescript-collections';
+import { remove } from "lodash";
 
 @Injectable({
   providedIn: 'root'
@@ -152,10 +152,10 @@ export class ChatService {
           this.causalMessageOrdering(message);
           let deliverableMessage = this.holdBackQueue.peek();
           while (deliverableMessage && deliverableMessage.globalCounter === this.globalCounter + 1) {
-              this.globalCounter++;
-              this.causalMessageOrdering(deliverableMessage);
-              this.holdBackQueue.dequeue();
-              deliverableMessage = this.holdBackQueue.peek();
+            this.globalCounter++;
+            this.causalMessageOrdering(deliverableMessage);
+            this.holdBackQueue.dequeue();
+            deliverableMessage = this.holdBackQueue.peek();
           }
         } else {
           console.log("In else total order: " + message);
@@ -164,18 +164,28 @@ export class ChatService {
       } else {
         console.log("Error: " + message.error);
         if (this.room.id === message.room.id && this.user.id === message.user.id) {
-            this.userClock--;
+          this.userClock--;
         }
       }
       //this.newMessage.next(msg.body);
     });
 
     eventBus.registerHandler(ChatService.ENTER_CS, (err, msg) => {
-      this.enterCS.next(msg.body);
+      let message = msg.body;
+      console.log('Enter CS');
+      console.log(message);
+      if (!message.error) {
+        this.enterCS.next(message);
+      }
     });
 
     eventBus.registerHandler(ChatService.EXIT_CS, (err, msg) => {
-      this.exitCS.next(msg.body);
+      let message = msg.body;
+      console.log('Exit CS');
+      console.log(message);
+      if (!message.error) {
+        this.exitCS.next(message);
+      }
     });
 
     eventBus.registerHandler(ChatService.TIMEOUT_EXPIRED, (err, msg) => {
@@ -259,15 +269,15 @@ export class ChatService {
       this.userClock++;
       const userClock = this.userClock;
       //setTimeout(() => {
-        this.eventBus.send(ChatService.SEND_ADDRESS, {
-          type: 'newMessage',
-          request: {
-            room: this.room,
-            user: this.user,
-            content,
-            userClock
-          }
-        });
+      this.eventBus.send(ChatService.SEND_ADDRESS, {
+        type: 'newMessage',
+        request: {
+          room: this.room,
+          user: this.user,
+          content,
+          userClock
+        }
+      });
       //}, (1 + Math.random() * (5 - 1)) * 1000);
     }
   }
