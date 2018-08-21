@@ -2,6 +2,7 @@ package pcd.ass04.services.webapp;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
