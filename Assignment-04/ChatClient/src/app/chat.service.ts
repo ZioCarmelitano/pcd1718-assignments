@@ -146,7 +146,7 @@ export class ChatService {
     eventBus.registerHandler(ChatService.NEW_MESSAGE, (err, msg) => {
       let message = msg.body;
       if (message.globalCounter) {
-        if (message.globalCounter == this.globalCounter + 1) {
+        if (message.globalCounter === this.globalCounter + 1) {
           console.log("Received total order " + message);
           this.globalCounter++;
           this.causalMessageOrdering(message);
@@ -157,12 +157,12 @@ export class ChatService {
               this.holdBackQueue.dequeue();
               deliverableMessage = this.holdBackQueue.peek();
           }
-        }else {
+        } else {
           console.log("In else total order: " + message);
           this.holdBackQueue.enqueue(message);
         }
       } else {
-        console.log("Error");
+        console.log("Error: " + message.error);
         if (this.room.id === message.room.id && this.user.id === message.user.id) {
             this.userClock--;
         }

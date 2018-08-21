@@ -17,10 +17,11 @@ ext {
 
     rxJava2Version = '2.2.0'
 
-    vertxVersion = '3.5.1'
+    vertxVersion = '3.5.2'
 
     junit4Version = '4.12'
 
+    childprocessVertxExtVersion = '1.2.2'
 }
 
 dependencies {
@@ -33,12 +34,14 @@ dependencies {
 
     // Micro services
     compile group: 'io.vertx', name: 'vertx-service-discovery', version: vertxVersion
-    compile group: 'io.vertx', name: 'vertx-circuit-breaker', version: vertxVersion
+//    compile group: 'io.vertx', name: 'vertx-circuit-breaker', version: vertxVersion
     compile group: 'io.vertx', name: 'vertx-health-check', version: vertxVersion
+
+    compile group: 'com.julienviet', name: 'childprocess-vertx-ext', version: childprocessVertxExtVersion
 
     // RxJava
     compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: rxJava2Version
-    // compile group: 'io.vertx', name: 'vertx-rx-java2', version: vertxVersion
+//  compile group: 'io.vertx', name: 'vertx-rx-java2', version: vertxVersion
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
