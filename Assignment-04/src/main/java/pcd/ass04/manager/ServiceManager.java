@@ -8,9 +8,11 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import pcd.ass04.util.ServiceDiscoveryUtils;
 
+import com.julienviet.childprocess.Process;
+
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.FileSystems;
+import java.util.Arrays;
 
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClientOnce;
 
@@ -49,6 +51,8 @@ public class ServiceManager extends AbstractVerticle {
 
     @Override
     public void start() {
+        System.out.println(serviceName + " manager started!");
+
         discovery = ServiceDiscovery.create(vertx);
 
         vertx.setPeriodic(2_000, tid -> {
@@ -77,7 +81,7 @@ public class ServiceManager extends AbstractVerticle {
                                     status = Status.NOT_AVAILABLE;
                                     client = null;
                                     if (process != null) {
-                                        process.destroyForcibly();
+                                        process.kill(true);
                                         process = null;
                                     }
                                 }
@@ -93,19 +97,20 @@ public class ServiceManager extends AbstractVerticle {
     }
 
     private void deployService() {
-        try {
-            final String separator = FileSystems.getDefault().getSeparator();
-            process = new ProcessBuilder(
-                    "java",
-                    "-cp",
-                    "build" + separator + "libs" + separator + "Assignment-04-1.0.jar",
-                    "pcd.ass04.ServiceLauncher",
-                    serviceName,
-                    Integer.toString(port))
-                    .start();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        final String separator = FileSystems.getDefault().getSeparator();
+
+        Process.create(vertx, "java", Arrays.asList(
+                "-cp",
+                "build" + separator + "libs" + separator + "Assignment-04-1.0.jar",
+                "pcd.ass04.ServiceLauncher",
+                serviceName,
+                Integer.toString(port)))
+                .start(process -> {
+                    process.stdout().handler(buffer -> System.out.println(serviceName + " process wrote: " + buffer));
+                    System.out.println(serviceName + " process started, PID: " + process.pid());
+
+                    this.process = process;
+                });
     }
 
     @Override

@@ -228,6 +228,10 @@ public final class WebAppService extends AbstractVerticle {
                             .sendJson(request.getJsonObject("user"), ar -> {
                                 if (ar.succeeded()) {
                                     System.out.println("Message (enterCriticalSection) sent correctly");
+                                    final JsonObject response = ar.result().bodyAsJsonObject();
+                                    if (response != null)
+                                        request.mergeIn(response);
+                                    System.out.println("Response: " + request);
                                     eventBus.publish(ENTER_CS, request);
                                 } else {
                                     System.out.println("Error, message (enterCriticalSection) was not sent correctly");
@@ -238,6 +242,10 @@ public final class WebAppService extends AbstractVerticle {
                     this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + userId).send(ar -> {
                         if (ar.succeeded()) {
                             System.out.println("Message (exitCriticalSection) sent correctly");
+                            final JsonObject response = ar.result().bodyAsJsonObject();
+                            if (response != null)
+                                request.mergeIn(response);
+                            System.out.println("Response: " + request);
                             eventBus.publish(EXIT_CS, request);
                         } else {
                             System.out.println("Error, message (exitCriticalSection) was not sent correctly");
