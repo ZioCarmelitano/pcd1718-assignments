@@ -1,9 +1,9 @@
 package pcd.ass04.services.user;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
@@ -11,29 +11,24 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
-import pcd.ass04.services.user.exceptions.UserNotFoundException;
-import pcd.ass04.services.user.model.User;
+import pcd.ass04.ServiceVerticle;
 import pcd.ass04.services.user.repositories.InMemoryUserRepository;
 import pcd.ass04.services.user.repositories.UserRepository;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
+import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.vertx.core.http.HttpMethod.*;
+import static pcd.ass04.services.user.Channels.*;
 
-public final class UserService extends AbstractVerticle {
-
-    private ServiceDiscovery discovery;
-    private Record record;
+public final class UserService extends ServiceVerticle {
 
     private String host;
     private int port;
 
-    private UserRepository userRepository;
+    private static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -46,7 +41,9 @@ public final class UserService extends AbstractVerticle {
 
     @Override
     public void start() {
-        discovery = ServiceDiscovery.create(vertx);
+        eventBus = vertx.eventBus();
+
+        deployUserWorkers();
 
         final Router apiRouter = Router.router(vertx);
 
@@ -103,78 +100,81 @@ public final class UserService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("user-service", host, port, "/"), ar1 -> {
+                        publishRecord(HttpEndpoint.createRecord("user-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
-                                record = ar1.result();
+                                System.out.println("UserService record published with success!");
                             } else {
                                 System.err.println("Could not publish record: " + ar1.cause().getMessage());
                             }
                         });
                         System.out.println("HTTP server started at http://" + host + ":" + port);
-                        this.userRepository = InMemoryUserRepository.getInstance();
-                        System.out.println(this.userRepository);
                     } else {
                         System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
                     }
                 });
     }
 
-    @Override
-    public void stop() {
-        discovery.unpublish(record.getRegistration(),
-                ar -> {
-                    if (ar.succeeded()) {
-                        System.out.println("Record " + record.getName() + " withdrawn successfully");
-                    } else {
-                        System.out.println("Could not withdraw record " + record.getName());
-                    }
-                });
-        discovery.close();
-    }
-
     private void index(RoutingContext ctx) {
-        List<User> users = this.userRepository.getAll();
-        JsonArray userArray = new JsonArray();
-        users.stream().map(User::toJson).forEach(userArray::add);
-        ctx.response().end(userArray.encodePrettily());
+        send(INDEX, ctx);
     }
 
     private void store(RoutingContext ctx) {
-        JsonObject userToStoreJson = ctx.getBodyAsJson();
-        System.out.println("storing " + userToStoreJson);
-        User userStored = this.userRepository.store(new User(userToStoreJson.getString("name")));
-        ctx.response().end(userStored.toJson().encodePrettily());
+        send(STORE, ctx);
     }
 
     private void show(RoutingContext ctx) {
-        long userId = Long.valueOf(ctx.request().getParam("id"));
-        Optional<User> user = this.userRepository.get(userId);
-        if (user.isPresent()) {
-            ctx.response().end(user.get().toJson().encodePrettily());
-        } else {
-            ctx.response().setStatusCode(NOT_FOUND.code()).end("User to show not found");
-        }
+        send(SHOW, ctx);
     }
 
     private void update(RoutingContext ctx) {
-        JsonObject userToUpdateJson = ctx.getBodyAsJson();
-        long userToUpdateId = Long.parseLong(ctx.request().getParam("id"));
-        try {
-            User userUpdated = this.userRepository.update(new User(userToUpdateId, userToUpdateJson.getString("name")));
-            ctx.response().end(userUpdated.toJson().encodePrettily());
-        } catch (UserNotFoundException e) {
-            ctx.response().setStatusCode(NOT_FOUND.code()).end("User to update not found");
-        }
+        send(UPDATE, ctx);
     }
 
     private void destroy(RoutingContext ctx) {
-        long userId = Long.valueOf(ctx.request().getParam("id"));
-        try {
-            this.userRepository.destroy(userId);
-            ctx.response().end(new JsonObject().put("id", userId).encodePrettily());
-        } catch (UserNotFoundException e) {
-            ctx.response().setStatusCode(NOT_FOUND.code()).end("User to delete not found");
-        }
+        send(DESTROY, ctx);
     }
 
+    private void deployUserWorkers() {
+        final DeploymentOptions options = new DeploymentOptions()
+                .setWorker(true)
+                .setInstances(1);
+
+        final UserRepository repository = InMemoryUserRepository.getInstance();
+
+        vertx.deployVerticle(() -> new UserWorker(repository), options);
+    }
+
+
+    private void send(String channel, RoutingContext ctx) {
+        final JsonObject params = JsonObject.mapFrom(ctx.pathParams());
+        System.out.println("Params: " + params);
+
+        final JsonObject request = getRequest(ctx);
+        System.out.println("Request: " + request);
+
+        eventBus.send(channel, new JsonObject()
+                .put("params", params)
+                .put("request", request), ar -> {
+            if (ar.succeeded()) {
+                final Object response = ar.result().body();
+                System.out.println("Response: " + response);
+                ctx.response().end(response.toString());
+            } else {
+                System.out.println("Error: " + ar.cause().getMessage());
+                final String message = ar.cause().getMessage();
+                ctx.response()
+                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
+                        .end(new JsonObject().put("error", message).toString());
+            }
+        });
+    }
+
+    private static JsonObject getRequest(RoutingContext ctx) {
+        final HttpMethod method = ctx.request().method();
+        if (METHODS_WITH_BODY.contains(method)) {
+            return ctx.getBodyAsJson();
+        } else {
+            return new JsonObject();
+        }
+    }
 }
