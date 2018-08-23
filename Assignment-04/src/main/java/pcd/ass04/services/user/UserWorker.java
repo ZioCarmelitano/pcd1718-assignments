@@ -1,9 +1,8 @@
 package pcd.ass04.services.user;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import pcd.ass04.ServiceVerticle;
 import pcd.ass04.services.user.exceptions.UserNotFoundException;
 import pcd.ass04.services.user.model.User;
 import pcd.ass04.services.user.repositories.UserRepository;
@@ -14,9 +13,9 @@ import java.util.Optional;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static pcd.ass04.services.user.Channels.*;
 
-final class UserWorker extends AbstractVerticle {
+final class UserWorker extends ServiceVerticle {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     UserWorker(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -24,8 +23,6 @@ final class UserWorker extends AbstractVerticle {
 
     @Override
     public void start() {
-
-        final EventBus eventBus = vertx.eventBus();
 
         eventBus.<JsonObject>consumer(INDEX, msg -> {
             List<User> users = this.userRepository.getAll();

@@ -18,7 +18,6 @@ public class HealthCheckService extends ServiceVerticle {
 
     private WebClient roomClient;
     private WebClient userClient;
-    private WebClient webAppClient;
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -95,6 +94,10 @@ public class HealthCheckService extends ServiceVerticle {
     }
 
     private void roomHealthCheckProcedure(Future<Status> future) {
+        healthCheckProcedure(future, roomClient);
+    }
+
+    private void healthCheckProcedure(Future<Status> future, WebClient roomClient) {
         if (roomClient == null) {
             future.complete(Status.KO());
         } else {
@@ -115,43 +118,11 @@ public class HealthCheckService extends ServiceVerticle {
     }
 
     private void userHealthCheckProcedure(Future<Status> future) {
-        if (userClient == null) {
-            future.complete(Status.KO());
-        } else {
-            userClient.get("/health")
-                    .send(ar -> {
-                        if (ar.succeeded()) {
-                            final int statusCode = ar.result().statusCode();
-                            if (statusCode == 200) {
-                                future.complete(Status.OK());
-                            } else {
-                                future.complete(Status.KO());
-                            }
-                        } else {
-                            future.fail(ar.cause());
-                        }
-                    });
-        }
+        healthCheckProcedure(future, userClient);
     }
 
     private void webAppHealthCheckProcedure(Future<Status> future) {
-        if (webAppClient == null) {
-            future.complete(Status.KO());
-        } else {
-            webAppClient.get("/health")
-                    .send(ar -> {
-                        if (ar.succeeded()) {
-                            final int statusCode = ar.result().statusCode();
-                            if (statusCode == 200) {
-                                future.complete(Status.OK());
-                            } else {
-                                future.complete(Status.KO());
-                            }
-                        } else {
-                            future.fail(ar.cause());
-                        }
-                    });
-        }
+        healthCheckProcedure(future, webAppClient);
     }
 
     private void getRoomClient() {
@@ -175,16 +146,4 @@ public class HealthCheckService extends ServiceVerticle {
             }
         });
     }
-
-    private void getWebAppClient() {
-        getWebClient(10_000, new JsonObject().put("name", "webapp-service"), ar -> {
-            if (ar.succeeded()) {
-                webAppClient = ar.result();
-                System.out.println("Got webapp WebClient");
-            } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
-            }
-        });
-    }
-
 }

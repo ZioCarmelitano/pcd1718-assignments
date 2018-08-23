@@ -17,6 +17,8 @@ public abstract class ServiceVerticle extends AbstractVerticle {
 
     private ServiceDiscovery discovery;
 
+    protected WebClient webAppClient;
+
     private final List<Record> records;
 
     protected ServiceVerticle() {
@@ -33,7 +35,7 @@ public abstract class ServiceVerticle extends AbstractVerticle {
 
     @Override
     public void stop() {
-            records.forEach(this::accept);
+        records.forEach(this::accept);
         discovery.close();
     }
 
@@ -52,6 +54,17 @@ public abstract class ServiceVerticle extends AbstractVerticle {
 
     protected void getWebClient(long delay, JsonObject filter, Handler<AsyncResult<WebClient>> resultHandler) {
         getWebClientInternal(delay, filter, false, resultHandler);
+    }
+
+    protected void getWebAppClient() {
+        getWebClient(10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+            if (ar.succeeded()) {
+                webAppClient = ar.result();
+                System.out.println("Got webapp WebClient");
+            } else {
+                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
+            }
+        });
     }
 
     private void getWebClientInternal(long delay, JsonObject filter, boolean once, Handler<AsyncResult<WebClient>> resultHandler) {
@@ -76,4 +89,5 @@ public abstract class ServiceVerticle extends AbstractVerticle {
             }
         });
     }
+
 }

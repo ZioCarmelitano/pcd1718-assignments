@@ -1,10 +1,8 @@
 package pcd.ass04.services.user;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
@@ -13,9 +11,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
+import pcd.ass04.ServiceVerticle;
 import pcd.ass04.services.user.repositories.InMemoryUserRepository;
 import pcd.ass04.services.user.repositories.UserRepository;
 
@@ -26,15 +23,10 @@ import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERR
 import static io.vertx.core.http.HttpMethod.*;
 import static pcd.ass04.services.user.Channels.*;
 
-public final class UserService extends AbstractVerticle {
-
-    private ServiceDiscovery discovery;
-    private Record record;
+public final class UserService extends ServiceVerticle {
 
     private String host;
     private int port;
-
-    private EventBus eventBus;
 
     private static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
 
@@ -50,7 +42,6 @@ public final class UserService extends AbstractVerticle {
     @Override
     public void start() {
         eventBus = vertx.eventBus();
-        discovery = ServiceDiscovery.create(vertx);
 
         deployUserWorkers();
 
@@ -109,9 +100,9 @@ public final class UserService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("user-service", host, port, "/"), ar1 -> {
+                        publishRecord(HttpEndpoint.createRecord("user-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
-                                record = ar1.result();
+                                System.out.println("UserService record published with success!");
                             } else {
                                 System.err.println("Could not publish record: " + ar1.cause().getMessage());
                             }
@@ -121,19 +112,6 @@ public final class UserService extends AbstractVerticle {
                         System.err.println("Could not start HTTP server: " + ar.cause().getMessage());
                     }
                 });
-    }
-
-    @Override
-    public void stop() {
-        discovery.unpublish(record.getRegistration(),
-                ar -> {
-                    if (ar.succeeded()) {
-                        System.out.println("Record " + record.getName() + " withdrawn successfully");
-                    } else {
-                        System.out.println("Could not withdraw record " + record.getName());
-                    }
-                });
-        discovery.close();
     }
 
     private void index(RoutingContext ctx) {
