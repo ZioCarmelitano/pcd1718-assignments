@@ -8,7 +8,6 @@ import pcd.ass04.services.room.domain.User;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Predicate;
 
 public class RoomRepositoryImpl implements RoomRepository {
 
@@ -103,7 +102,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                 throw new IllegalArgumentException("Room '" + room.getName() + "' does not exist!");
             }
 
-            users.add(user);
+            users.remove(user);
         });
     }
 
