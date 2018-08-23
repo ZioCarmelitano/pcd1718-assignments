@@ -28,7 +28,6 @@ final class RoomWorker extends ServiceVerticle {
     private final Map<Room, Map<User, Long>> userCounterMap;
 
     private WebClient healthCheckClient;
-    private WebClient webAppClient;
 
     RoomWorker(RoomRepository repository, Map<Room, Optional<User>> csMap, Map<Room, OptionalLong> timerIdMap, Map<Room, Long> counterMap, Map<Room, Map<User, Long>> userCounterMap) {
         this.repository = repository;
@@ -274,17 +273,6 @@ final class RoomWorker extends ServiceVerticle {
                     .subscribe(
                             () -> msg.reply(new JsonObject()),
                             cause -> msg.fail(500, cause.getMessage()));
-        });
-    }
-
-    private void getWebAppClient() {
-        getWebClient(10_000, new JsonObject().put("name", "webapp-service"), ar -> {
-            if (ar.succeeded()) {
-                webAppClient = ar.result();
-                System.out.println("Got webapp WebClient");
-            } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
-            }
         });
     }
 
