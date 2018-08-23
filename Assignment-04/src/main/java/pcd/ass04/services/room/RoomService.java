@@ -4,8 +4,10 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
-import io.vertx.core.Handler;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
@@ -23,18 +25,17 @@ import pcd.ass04.services.room.domain.User;
 import pcd.ass04.services.room.repository.RoomRepository;
 import pcd.ass04.services.room.repository.RoomRepositoryImpl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.vertx.core.http.HttpMethod.*;
+import static pcd.ass04.services.room.Channels.*;
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
 public final class RoomService extends AbstractVerticle {
 
     private static final long CRITICAL_SECTION_TIMEOUT = 30_000;
+    public static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
 
     private ServiceDiscovery discovery;
     private Record record;
@@ -42,18 +43,7 @@ public final class RoomService extends AbstractVerticle {
     private String host;
     private int port;
 
-    private final RoomRepository repository = new RoomRepositoryImpl();
-
-    // Critical section
-    private final Map<Room, Optional<User>> csMap = new HashMap<>();
-    private OptionalLong csTimerId = OptionalLong.empty();
-
-    private WebClient webAppClient;
-    private WebClient healthCheckClient;
-
-    private final Map<Room, Long> counterMap = new HashMap<>();
-    private final Map<Room, Map<User, Long>> userCounterMap = new HashMap<>();
-
+    private EventBus eventBus;
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -66,10 +56,10 @@ public final class RoomService extends AbstractVerticle {
 
     @Override
     public void start() {
+        eventBus = vertx.eventBus();
         discovery = ServiceDiscovery.create(vertx);
 
-        getHealthCheckClient();
-        getWebAppClient();
+        deployWorkers();
 
         final Router apiRouter = Router.router(vertx);
 
@@ -166,6 +156,20 @@ public final class RoomService extends AbstractVerticle {
                 });
     }
 
+    private void deployWorkers() {
+        final DeploymentOptions options = new DeploymentOptions()
+                .setWorker(true)
+                .setInstances(10);
+
+        final RoomRepository repository = new RoomRepositoryImpl();
+        final Map<Room, Optional<User>> csMap = Collections.synchronizedMap(new HashMap<>());
+        final Map<Room, OptionalLong> timerIdMap = Collections.synchronizedMap(new HashMap<>());
+        final Map<Room, Long> counterMap = Collections.synchronizedMap(new HashMap<>());
+        final Map<Room, Map<User, Long>> userCounterMap = Collections.synchronizedMap(new HashMap<>());
+
+        vertx.deployVerticle(() -> new RoomWorker(repository, csMap, timerIdMap, counterMap, userCounterMap), options);
+    }
+
     @Override
     public void stop() {
         discovery.unpublish(record.getRegistration(),
@@ -180,253 +184,80 @@ public final class RoomService extends AbstractVerticle {
     }
 
     private void index(RoutingContext ctx) {
-        repository.findAll()
-                .map(Room::toJson)
-                .toList()
-                .map(JsonArray::new)
-                .map(Object::toString)
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", new JsonObject().put("error", cause.getMessage()).toString()).toString()));
+        send(INDEX, ctx);
     }
 
     private void store(RoutingContext ctx) {
-        final Room room = Room.fromJson(ctx.getBodyAsJson());
-
-        repository.save(room)
-                .flatMap(repository::findById)
-                .map(Object::toString)
-                .subscribe(
-                        chunk -> {
-                            csMap.put(room, Optional.empty());
-                            counterMap.put(room, 0L);
-                            ctx.response().end(chunk);
-                            System.out.println(chunk);
-                        },
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(STORE, ctx);
     }
 
     private void show(RoutingContext ctx) {
-        final long id = Long.parseLong(ctx.request().getParam("id"));
-        repository.findById(id)
-                .map(Object::toString)
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(SHOW, ctx);
 
     }
 
     private void update(RoutingContext ctx) {
-        repository.save(Room.fromJson(ctx.getBodyAsJson()))
-                .flatMap(repository::findById)
-                .map(Object::toString)
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(UPDATE, ctx);
     }
 
     private void destroy(RoutingContext ctx) {
-        final long id = Long.parseLong(ctx.request().getParam("id"));
-        repository.findById(id)
-                .map(room -> {csMap.remove(room); counterMap.remove(room); return room;})
-                .flatMap(v -> repository.deleteById(id))
-                .subscribe(
-                        roomId -> {
-                            ctx.response().end(new JsonObject().put("id", roomId).toString());
-                        },
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(DESTROY, ctx);
     }
 
     private void join(RoutingContext ctx) {
-        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
-        final User user = User.fromJson(ctx.getBodyAsJson());
-
-        repository.findById(roomId)
-                .flatMap(room -> {
-                    JsonObject response = new JsonObject();
-                    if (!this.userCounterMap.containsKey(room)) {
-                        HashMap<User, Long> usersCounter = new HashMap<>();
-                        this.userCounterMap.put(room, usersCounter);
-                    }
-                    this.userCounterMap.get(room).put(user, 0L);
-                    response.put("usersClock", new JsonArray(this.userCounterMap.get(room).entrySet().stream()
-                            .map(e -> new JsonObject().put("user", e.getKey().toJson()).put("userClock", e.getValue()))
-                            .collect(Collectors.toList())));
-                    response.put("globalCounter", counterMap.get(room));
-                    System.out.println("web service join: " + response.toString());
-                    return repository.addUser(room, user).andThen(Single.just(response));
-                })
-                .map(Object::toString)
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(JOIN, ctx);
     }
 
     private void leave(RoutingContext ctx) {
-        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
-        final long userId = Long.parseLong(ctx.request().getParam("userId"));
-
-        repository.findById(roomId)
-                .flatMapCompletable(room -> repository.findUserById(room, userId)
-                        .flatMapCompletable(user -> repository.removeUser(room, user)))
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(LEAVE, ctx);
     }
 
     private void messages(RoutingContext ctx) {
-        final long id = Long.parseLong(ctx.request().getParam("roomId"));
-
-        final JsonObject body = ctx.getBodyAsJson();
-        final String content = body.getString("content");
-        final User user = User.fromJson(body.getJsonObject("user"));
-
-        repository.findById(id)
-                .map(room -> {
-                    final Optional<User> csUser = csMap.get(room);
-                    if (csUser.isPresent() && !csUser.get().equals(user)) {
-                        throw new IllegalStateException("The user who tried to send the message is not the user in critical section");
-                    }
-                    this.userCounterMap.get(room).computeIfPresent(user, (k,v) -> body.getLong("userClock"));
-                    counterMap.computeIfPresent(room, (k,v) -> v + 1);
-                    return body.put("globalCounter", counterMap.get(room)).put("userClock", this.userCounterMap.get(room).get(user));
-                })
-                .map(Object::toString)
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(MESSAGES, ctx);
     }
 
     private void status(RoutingContext ctx) {
-        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
-
-        repository.findById(roomId)
-                .subscribe(room -> {
-                            final JsonObject response = new JsonObject();
-
-                            response.put("held", false);
-                            response.putNull("user");
-
-                            csMap.get(room).ifPresent(user -> {
-                                response.put("held", true);
-                                response.put("user", user.toJson());
-                            });
-
-                            ctx.response().end(response.toString());
-                        },
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(STATUSCS, ctx);
     }
 
     private void enter(RoutingContext ctx) {
-        final long id = Long.parseLong(ctx.request().getParam("roomId"));
-        final User user = User.fromJson(ctx.getBodyAsJson());
-
-        repository.findById(id)
-                .map(room -> {
-                    final Optional<User> csUser = csMap.get(room);
-
-                    if (csUser.isPresent()) {
-                        throw new IllegalStateException("Critical section is already held by " + csUser.get().getName());
-                    }
-                    csMap.put(room, Optional.of(user));
-                        final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> {
-                        csMap.put(room, Optional.empty());
-                        csTimerId = OptionalLong.empty();
-                        checkHealth("webapp", () -> webAppClient.post("/api/messages")
-                                .sendJson(room, ar -> {
-                                    if (ar.succeeded()) {
-                                        System.out.println("Sent timeout expired");
-                                    } else {
-                                        System.err.println("Could not send timeout expired: " + ar.cause().getMessage());
-                                    }
-                                }));
-                    });
-                    csTimerId = OptionalLong.of(tid);
-                    return room;
-                })
-                .subscribe(
-                        room -> ctx.response().end(),
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(ENTERCS, ctx);
     }
 
     private void exit(RoutingContext ctx) {
-        final long roomId = Long.parseLong(ctx.request().getParam("roomId"));
-        final long userId = Long.parseLong(ctx.request().getParam("userId"));
-
-        repository.findById(roomId)
-                .flatMapCompletable(room -> repository.findUserById(room, userId)
-                        .flatMapCompletable(user -> Completable.fromAction(() -> {
-                            final Optional<User> csUserOpt = csMap.get(room);
-                            if (!csUserOpt.isPresent()) {
-                                throw new IllegalStateException("Critical section is not held by a user");
-                            } else {
-                                if (csUserOpt.get().equals(user)) {
-                                    csMap.put(room, Optional.empty());
-                                    csTimerId.ifPresent(vertx::cancelTimer);
-                                    csTimerId = OptionalLong.empty();
-                                } else {
-                                    throw new RuntimeException("The user who tried to release the critical section is not the user who acquired it");
-                                }
-                            }
-                        })))
-                .subscribe(
-                        ctx.response()::end,
-                        cause -> ctx.response()
-                                .setStatusCode(500)
-                                .end(new JsonObject().put("error", cause.getMessage()).toString()));
+        send(EXITCS, ctx);
     }
 
-    private void getWebAppClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+    private void send(String channel, RoutingContext ctx) {
+        final JsonObject params = JsonObject.mapFrom(ctx.pathParams());
+        System.out.println("Params: " + params);
+
+        final JsonObject request = getRequest(ctx);
+        System.out.println("Request: " + request);
+        eventBus.send(channel, new JsonObject()
+                .put("params", params)
+                .put("request", request), ar -> {
             if (ar.succeeded()) {
-                webAppClient = ar.result();
-                System.out.println("Got webapp WebClient");
+                final Object response = ar.result().body();
+                System.out.println("Response: " + response);
+                ctx.response().end(response.toString());
             } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
+                System.out.println("Error: " + ar.cause().getMessage());
+                final String message = ar.cause().getMessage();
+                ctx.response()
+                        .setStatusCode(500)
+                        .end(new JsonObject().put("error", message).toString());
             }
         });
     }
 
-    private void getHealthCheckClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
-            if (ar.succeeded()) {
-                healthCheckClient = ar.result();
-                System.out.println("Got healthcheck WebClient");
-            } else {
-                System.err.println("Could not retrieve healthcheck client: " + ar.cause().getMessage());
-            }
-        });
-    }
-
-    private void checkHealth(String serviceName, Runnable successBlock) {
-        healthCheckClient.get("/health/" + serviceName)
-                .send(ar -> {
-                    if (ar.succeeded() && ar.result().statusCode() == 200) {
-                        successBlock.run();
-                    } else {
-                        throw new RuntimeException(serviceName + " service is not available!");
-                    }
-                });
+    private static JsonObject getRequest(RoutingContext ctx) {
+        final HttpMethod method = ctx.request().method();
+        if (METHODS_WITH_BODY.contains(method)) {
+            return ctx.getBodyAsJson();
+        } else {
+            return new JsonObject();
+        }
     }
 
 }
