@@ -2,7 +2,6 @@ package pcd.ass04.services.room;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -40,20 +39,17 @@ final class RoomWorker extends ServiceVerticle {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         getWebAppClient();
         getHealthCheckClient();
 
-        eventBus.consumer(INDEX, msg -> {
-            repository.findAll()
-                    .map(Room::toJson)
-                    .toList()
-                    .map(JsonArray::new)
-                    .subscribe(
-                            msg::reply,
-                            cause -> msg.fail(500, cause.getMessage()));
-
-        });
+        eventBus.consumer(INDEX, msg -> repository.findAll()
+                .map(Room::toJson)
+                .toList()
+                .map(JsonArray::new)
+                .subscribe(
+                        msg::reply,
+                        cause -> msg.fail(500, cause.getMessage())));
 
         eventBus.<JsonObject>consumer(STORE, msg -> {
             final JsonObject body = msg.body();

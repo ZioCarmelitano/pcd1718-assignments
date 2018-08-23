@@ -32,14 +32,8 @@ public abstract class ServiceVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void stop() throws Exception {
-        records.forEach(record -> {
-            discovery.unpublish(record.getRegistration(), ar -> {
-                        if (ar.succeeded()) {
-                            records.remove(record);
-                        }
-                    });
-        });
+    public void stop() {
+            records.forEach(this::accept);
         discovery.close();
     }
 
@@ -53,22 +47,21 @@ public abstract class ServiceVerticle extends AbstractVerticle {
     }
 
     protected void getWebClientOnce(long delay, JsonObject filter, Handler<AsyncResult<WebClient>> resultHandler) {
-        getWebClientOnce(delay, filter, resultHandler);
+        getWebClientInternal(delay, filter, true, resultHandler);
     }
 
     protected void getWebClient(long delay, JsonObject filter, Handler<AsyncResult<WebClient>> resultHandler) {
-        getWebClient(delay, filter, resultHandler);
+        getWebClientInternal(delay, filter, false, resultHandler);
     }
 
-    private void getWebClient(long delay, JsonObject filter, boolean once, Handler<AsyncResult<WebClient>> resultHandler) {
-        final Handler<Long> tidHandler = tid -> {
+    private void getWebClientInternal(long delay, JsonObject filter, boolean once, Handler<AsyncResult<WebClient>> resultHandler) {
+        final Handler<Long> tidHandler = tid ->
             HttpEndpoint.getWebClient(discovery, filter, ar -> {
                 resultHandler.handle(ar);
                 if (ar.succeeded()) {
                     vertx.cancelTimer(tid);
                 }
             });
-        };
         if (once) {
             vertx.setTimer(delay, tidHandler);
         } else {
@@ -76,4 +69,11 @@ public abstract class ServiceVerticle extends AbstractVerticle {
         }
     }
 
+    private void accept(Record record) {
+        discovery.unpublish(record.getRegistration(), ar -> {
+            if (ar.succeeded()) {
+                records.remove(record);
+            }
+        });
+    }
 }

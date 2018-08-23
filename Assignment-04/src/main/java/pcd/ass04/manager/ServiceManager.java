@@ -1,24 +1,17 @@
 package pcd.ass04.manager;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.servicediscovery.ServiceDiscovery;
-import pcd.ass04.util.ServiceDiscoveryUtils;
+import pcd.ass04.ServiceVerticle;
 
 import com.julienviet.childprocess.Process;
 
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.util.Arrays;
 
-import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClientOnce;
-
-public class ServiceManager extends AbstractVerticle {
-
-    private ServiceDiscovery discovery;
+public class ServiceManager extends ServiceVerticle {
 
     private int port;
     private String serviceName;
@@ -53,12 +46,10 @@ public class ServiceManager extends AbstractVerticle {
     public void start() {
         System.out.println(serviceName + " manager started!");
 
-        discovery = ServiceDiscovery.create(vertx);
-
         vertx.setPeriodic(2_000, tid -> {
             switch (status) {
                 case TRY_RETRIEVE:
-                    getWebClientOnce(vertx, discovery, 10_000, filter, ar -> {
+                    getWebClientOnce(10_000, filter, ar -> {
                         if (ar.succeeded()) {
                             client = ar.result();
                             System.out.println("Got " + serviceName + " WebClient");
@@ -113,13 +104,8 @@ public class ServiceManager extends AbstractVerticle {
                 });
     }
 
-    @Override
-    public void stop() throws Exception {
-        discovery.close();
-    }
-
     private void getWebClient() {
-        ServiceDiscoveryUtils.getWebClient(vertx, discovery, 10_000, filter, ar -> {
+        getWebClient(10_000, filter, ar -> {
             if (ar.succeeded()) {
                 client = ar.result();
                 System.out.println("Got " + serviceName + " WebClient");

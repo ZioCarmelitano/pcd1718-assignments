@@ -25,7 +25,7 @@ import static pcd.ass04.services.room.Channels.*;
 
 public final class RoomService extends ServiceVerticle {
 
-    public static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
+    private static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
 
     private String host;
     private int port;

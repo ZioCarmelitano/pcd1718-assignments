@@ -1,6 +1,5 @@
 package pcd.ass04.services.healthcheck;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -9,18 +8,10 @@ import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
+import pcd.ass04.ServiceVerticle;
 
-import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
-
-public class HealthCheckService extends AbstractVerticle {
-
-    private ServiceDiscovery discovery;
-    private Record record;
-
-    private WebClient webClient;
+public class HealthCheckService extends ServiceVerticle {
 
     private String host;
     private int port;
@@ -39,9 +30,7 @@ public class HealthCheckService extends AbstractVerticle {
     }
 
     @Override
-    public void start() throws Exception {
-        discovery = ServiceDiscovery.create(vertx);
-
+    public void start() {
         getRoomClient();
         getUserClient();
         getWebAppClient();
@@ -91,9 +80,9 @@ public class HealthCheckService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("healthcheck-service", host, port, "/"), ar1 -> {
+                        publishRecord(HttpEndpoint.createRecord("healthcheck-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
-                                record = ar1.result();
+                                System.out.println("WebApp record published with success!");
                             } else {
                                 System.err.println("Could not publish record: " + ar1.cause().getMessage());
                             }
@@ -165,13 +154,8 @@ public class HealthCheckService extends AbstractVerticle {
         }
     }
 
-    @Override
-    public void stop() throws Exception {
-        discovery.close();
-    }
-
     private void getRoomClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "room-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "room-service"), ar -> {
             if (ar.succeeded()) {
                 roomClient = ar.result();
                 System.out.println("Got room WebClient");
@@ -182,7 +166,7 @@ public class HealthCheckService extends AbstractVerticle {
     }
 
     private void getUserClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "user-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "user-service"), ar -> {
             if (ar.succeeded()) {
                 userClient = ar.result();
                 System.out.println("Got user WebClient");
@@ -193,7 +177,7 @@ public class HealthCheckService extends AbstractVerticle {
     }
 
     private void getWebAppClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "webapp-service"), ar -> {
             if (ar.succeeded()) {
                 webAppClient = ar.result();
                 System.out.println("Got webapp WebClient");
