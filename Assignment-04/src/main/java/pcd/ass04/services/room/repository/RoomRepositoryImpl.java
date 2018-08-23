@@ -21,6 +21,7 @@ public class RoomRepositoryImpl implements RoomRepository {
 
     @Override
     public Observable<Room> findAll() {
+        System.out.println("RoomRepository#findAll");
         return Observable.fromIterable(roomMap.keySet());
     }
 
