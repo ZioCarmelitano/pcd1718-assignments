@@ -13,7 +13,7 @@ final class Channels {
     static final String LEAVE = ROOM_CHANNEL + ".leave";
     static final String MESSAGES = ROOM_CHANNEL + ".messages";
     static final String STATUSCS = ROOM_CHANNEL + ".status";
-    static final String EXITCS = ROOM_CHANNEL + ".enterCS";
-    static final String ENTERCS = ROOM_CHANNEL + ".exitCS";
+    static final String ENTERCS = ROOM_CHANNEL + ".enterCS";
+    static final String EXITCS = ROOM_CHANNEL + ".exitCS";
 
 }

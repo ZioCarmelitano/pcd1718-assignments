@@ -2,12 +2,11 @@ package pcd.ass04.services.room;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.servicediscovery.ServiceDiscovery;
+import pcd.ass04.ServiceVerticle;
 import pcd.ass04.services.room.domain.Room;
 import pcd.ass04.services.room.domain.User;
 import pcd.ass04.services.room.repository.RoomRepository;
@@ -16,13 +15,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pcd.ass04.services.room.Channels.*;
-import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
-final class RoomWorker extends AbstractVerticle {
+final class RoomWorker extends ServiceVerticle {
 
     private static final long CRITICAL_SECTION_TIMEOUT = 30_000;
-
-    private ServiceDiscovery discovery;
 
     private final RoomRepository repository;
 
@@ -45,10 +41,6 @@ final class RoomWorker extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        discovery = ServiceDiscovery.create(vertx);
-
-        final EventBus eventBus = vertx.eventBus();
-
         getWebAppClient();
         getHealthCheckClient();
 
@@ -224,7 +216,7 @@ final class RoomWorker extends AbstractVerticle {
                             cause -> msg.fail(500, cause.getMessage()));
         });
 
-        eventBus.<JsonObject>consumer(ENTERCS, msg -> {
+        eventBus.<JsonObject>consumer(EXITCS, msg -> {
             final JsonObject body = msg.body();
             final JsonObject request = body.getJsonObject("request");
             final JsonObject params = body.getJsonObject("params");
@@ -260,7 +252,7 @@ final class RoomWorker extends AbstractVerticle {
                             cause -> msg.fail(500, cause.getMessage()));
         });
 
-        eventBus.<JsonObject>consumer(EXITCS, msg -> {
+        eventBus.<JsonObject>consumer(ENTERCS, msg -> {
             final JsonObject body = msg.body();
             final JsonObject params = body.getJsonObject("params");
 
@@ -290,7 +282,7 @@ final class RoomWorker extends AbstractVerticle {
     }
 
     private void getWebAppClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "webapp-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "webapp-service"), ar -> {
             if (ar.succeeded()) {
                 webAppClient = ar.result();
                 System.out.println("Got webapp WebClient");
@@ -301,7 +293,7 @@ final class RoomWorker extends AbstractVerticle {
     }
 
     private void getHealthCheckClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
             if (ar.succeeded()) {
                 healthCheckClient = ar.result();
                 System.out.println("Got healthcheck WebClient");
