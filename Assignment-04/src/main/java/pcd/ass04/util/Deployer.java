@@ -39,7 +39,7 @@ public final class Deployer {
         });
     }
 
-    public static Supplier<Verticle> getService(String serviceName) {
+    private static Supplier<Verticle> getService(String serviceName) {
         switch (serviceName) {
             case "room":
                 return RoomService::new;

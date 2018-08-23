@@ -1,6 +1,5 @@
 package pcd.ass04.util;
 
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 

@@ -19,19 +19,14 @@ public class User {
         return user;
     }
 
-    public User() {
-    }
-
-    public User(long id, String name) {
-        this.id = id;
-        this.name = name;
+    private User() {
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    private void setId(long id) {
         this.id = id;
     }
 
@@ -39,7 +34,7 @@ public class User {
         return name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 

@@ -19,12 +19,7 @@ public class Room {
         return room;
     }
 
-    public Room() {
-    }
-
-    public Room(long id, String name) {
-        this.id = id;
-        this.name = name;
+    private Room() {
     }
 
     public Long getId() {
@@ -48,8 +43,8 @@ public class Room {
         if (this == o) return true;
         if (!(o instanceof Room)) return false;
         Room room = (Room) o;
-        return getId() == room.getId() &&
-                Objects.equals(getName(), room.getName());
+        return Objects.equals(getId(), room.getId())
+                && Objects.equals(getName(), room.getName());
     }
 
     @Override

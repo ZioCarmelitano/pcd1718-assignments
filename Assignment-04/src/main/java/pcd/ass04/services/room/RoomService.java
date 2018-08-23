@@ -1,49 +1,34 @@
 package pcd.ass04.services.room;
 
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
+import pcd.ass04.ServiceVerticle;
 import pcd.ass04.services.room.domain.Room;
 import pcd.ass04.services.room.domain.User;
 import pcd.ass04.services.room.repository.RoomRepository;
 import pcd.ass04.services.room.repository.RoomRepositoryImpl;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.vertx.core.http.HttpMethod.*;
 import static pcd.ass04.services.room.Channels.*;
-import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
-public final class RoomService extends AbstractVerticle {
+public final class RoomService extends ServiceVerticle {
 
-    private static final long CRITICAL_SECTION_TIMEOUT = 30_000;
-    public static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
-
-    private ServiceDiscovery discovery;
-    private Record record;
+    private static final List<HttpMethod> METHODS_WITH_BODY = Arrays.asList(POST, PUT, PATCH);
 
     private String host;
     private int port;
-
-    private EventBus eventBus;
 
     @Override
     public void init(Vertx vertx, Context context) {
@@ -56,9 +41,6 @@ public final class RoomService extends AbstractVerticle {
 
     @Override
     public void start() {
-        eventBus = vertx.eventBus();
-        discovery = ServiceDiscovery.create(vertx);
-
         deployWorkers();
 
         final Router apiRouter = Router.router(vertx);
@@ -142,9 +124,9 @@ public final class RoomService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("room-service", host, port, "/"), ar1 -> {
+                        publishRecord(HttpEndpoint.createRecord("room-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
-                                record = ar1.result();
+                                System.out.println("Record published with success!");
                             } else {
                                 System.err.println("Could not publish record: " + ar1.cause().getMessage());
                             }
@@ -170,19 +152,6 @@ public final class RoomService extends AbstractVerticle {
         vertx.deployVerticle(() -> new RoomWorker(repository, csMap, timerIdMap, counterMap, userCounterMap), options);
     }
 
-    @Override
-    public void stop() {
-        discovery.unpublish(record.getRegistration(),
-                ar -> {
-                    if (ar.succeeded()) {
-                        System.out.println("Record " + record.getName() + " withdrawn successfully");
-                    } else {
-                        System.out.println("Could not withdraw record " + record.getName());
-                    }
-                });
-        discovery.close();
-    }
-
     private void index(RoutingContext ctx) {
         send(INDEX, ctx);
     }
@@ -193,7 +162,6 @@ public final class RoomService extends AbstractVerticle {
 
     private void show(RoutingContext ctx) {
         send(SHOW, ctx);
-
     }
 
     private void update(RoutingContext ctx) {
