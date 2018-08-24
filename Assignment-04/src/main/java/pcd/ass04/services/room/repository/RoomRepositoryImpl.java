@@ -1,8 +1,5 @@
 package pcd.ass04.services.room.repository;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
 import pcd.ass04.services.room.domain.Room;
 import pcd.ass04.services.room.domain.User;
 import pcd.ass04.util.Utils;
@@ -32,7 +29,7 @@ public class RoomRepositoryImpl implements RoomRepository {
 
     @Override
     public Set<Room> findAll() {
-        return read(() ->  roomMap.keySet());
+        return read(roomMap::keySet);
     }
 
     @Override
