@@ -13,7 +13,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import pcd.ass04.ServiceVerticle;
-import pcd.ass04.services.user.repositories.InMemoryUserRepository;
+import pcd.ass04.services.user.repositories.UserRepositoryImpl;
 import pcd.ass04.services.user.repositories.UserRepository;
 
 import java.util.Arrays;
@@ -137,9 +137,9 @@ public final class UserService extends ServiceVerticle {
     private void deployUserWorkers() {
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
-                .setInstances(1);
+                .setInstances(10);
 
-        final UserRepository repository = InMemoryUserRepository.getInstance();
+        final UserRepository repository = UserRepositoryImpl.getInstance();
 
         vertx.deployVerticle(() -> new UserWorker(repository), options);
     }

@@ -1,7 +1,5 @@
 package pcd.ass04.services.room;
 
-import io.reactivex.Completable;
-import io.reactivex.Single;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -233,7 +231,7 @@ final class RoomWorker extends ServiceVerticle {
             final long roomId = Long.parseLong(params.getString("roomId"));
             final User user = User.fromJson(request);
 
-            try  {
+            try {
                 final Room room = repository.findById(roomId).get();
                 final Optional<User> csUser = csMap.get(room);
 
