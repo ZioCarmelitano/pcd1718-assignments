@@ -97,11 +97,19 @@ public class HealthCheckService extends ServiceVerticle {
         healthCheckProcedure(future, roomClient);
     }
 
-    private void healthCheckProcedure(Future<Status> future, WebClient roomClient) {
-        if (roomClient == null) {
+    private void userHealthCheckProcedure(Future<Status> future) {
+        healthCheckProcedure(future, userClient);
+    }
+
+    private void webAppHealthCheckProcedure(Future<Status> future) {
+        healthCheckProcedure(future, webAppClient);
+    }
+
+    private void healthCheckProcedure(Future<Status> future, WebClient client) {
+        if (client == null) {
             future.complete(Status.KO());
         } else {
-            roomClient.get("/health")
+            client.get("/health")
                     .send(ar -> {
                         if (ar.succeeded()) {
                             final int statusCode = ar.result().statusCode();
@@ -115,14 +123,6 @@ public class HealthCheckService extends ServiceVerticle {
                         }
                     });
         }
-    }
-
-    private void userHealthCheckProcedure(Future<Status> future) {
-        healthCheckProcedure(future, userClient);
-    }
-
-    private void webAppHealthCheckProcedure(Future<Status> future) {
-        healthCheckProcedure(future, webAppClient);
     }
 
     private void getRoomClient() {
@@ -146,4 +146,5 @@ public class HealthCheckService extends ServiceVerticle {
             }
         });
     }
+
 }
