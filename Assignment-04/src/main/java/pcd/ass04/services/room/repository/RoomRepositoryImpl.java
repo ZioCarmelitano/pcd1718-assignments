@@ -5,6 +5,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import pcd.ass04.services.room.domain.Room;
 import pcd.ass04.services.room.domain.User;
+import pcd.ass04.util.Utils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -105,7 +106,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     private <T> T read(Supplier<? extends T> operation) {
-        return get(readLock, operation);
+        return Utils.get(readLock, operation);
     }
 
     private void write(Runnable operation) {
@@ -116,16 +117,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     private <T> T write(Supplier<? extends T> operation) {
-        return get(writeLock, operation);
-    }
-
-    private static <T> T get(Lock lock, Supplier<? extends T> operation) {
-        try {
-            lock.lock();
-            return operation.get();
-        } finally {
-            lock.unlock();
-        }
+        return Utils.get(writeLock, operation);
     }
 
 }
