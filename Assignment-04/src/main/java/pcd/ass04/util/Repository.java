@@ -1,16 +1,16 @@
 package pcd.ass04.util;
 
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import java.util.Collection;
+import java.util.Optional;
 
 public interface Repository<T, ID> {
 
-    Observable<T> findAll();
+    <I extends Collection<? extends T>> I findAll();
 
-    Single<T> findById(ID id);
+    Optional<? extends T> findById(ID id);
 
-    Single<ID> save(T t);
+    ID save(T t);
 
-    Single<ID> deleteById(ID id);
+    ID deleteById(ID id);
 
 }

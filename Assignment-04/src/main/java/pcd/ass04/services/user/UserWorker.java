@@ -25,7 +25,7 @@ final class UserWorker extends ServiceVerticle {
     public void start() {
 
         eventBus.<JsonObject>consumer(INDEX, msg -> {
-            List<User> users = this.userRepository.getAll();
+            List<User> users = this.userRepository.getAllUsers();
             JsonArray userArray = new JsonArray();
             users.stream()
                     .map(User::toJson)
@@ -39,7 +39,7 @@ final class UserWorker extends ServiceVerticle {
             final JsonObject userToStoreJson = body.getJsonObject("request");
 
             System.out.println("Storing: " + userToStoreJson);
-            User userStored = this.userRepository.store(new User(userToStoreJson.getString("name")));
+            User userStored = this.userRepository.storeUser(new User(userToStoreJson.getString("name")));
 
             msg.reply(userStored.toJson());
         });
@@ -51,7 +51,7 @@ final class UserWorker extends ServiceVerticle {
 
             final long userId = Long.parseLong(params.getString("id"));
 
-            Optional<User> user = this.userRepository.get(userId);
+            Optional<User> user = this.userRepository.getUser(userId);
             if (user.isPresent()) {
                 msg.reply(user.get().toJson());
             } else {
@@ -67,10 +67,10 @@ final class UserWorker extends ServiceVerticle {
 
             long userToUpdateId = Long.parseLong(params.getString("id"));
             try {
-                User userUpdated = this.userRepository.update(new User(userToUpdateId, userToUpdateJson.getString("name")));
+                User userUpdated = this.userRepository.updateUser(new User(userToUpdateId, userToUpdateJson.getString("name")));
                 msg.reply(userUpdated.toJson());
             } catch (UserNotFoundException e) {
-                msg.fail(NOT_FOUND.code(), "User to update not found");
+                msg.fail(NOT_FOUND.code(), "User to updateUser not found");
             }
         });
 
@@ -81,7 +81,7 @@ final class UserWorker extends ServiceVerticle {
             final long userId = Long.parseLong(params.getString("id"));
 
             try {
-                this.userRepository.destroy(userId);
+                this.userRepository.destroyUser(userId);
                 msg.reply(new JsonObject().put("id", userId));
             } catch (UserNotFoundException e) {
                 msg.fail(NOT_FOUND.code(), "User to delete not found");
