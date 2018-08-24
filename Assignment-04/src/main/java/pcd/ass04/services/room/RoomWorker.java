@@ -187,15 +187,16 @@ final class RoomWorker extends ServiceVerticle {
                 final Optional<User> csUser = csMap.get(room);
                 System.out.println("CS user: " + csUser);
                 if (csUser.isPresent() && !csUser.get().equals(user)) {
-                    throw new IllegalStateException("The user who tried to send the message is not the user in critical section");
+                    msg.fail(500, "The user who tried to send the message is not the user in critical section");
+                } else {
+                    System.out.println("User is allowed to send the message");
+                    this.userCounterMap.get(room).computeIfPresent(user, (k, v) -> request.getLong("userClock"));
+                    System.out.println("Got user clock");
+                    counterMap.computeIfPresent(room, (k, v) -> v + 1);
+                    System.out.println("Updated room counter");
+                    request.put("globalCounter", counterMap.get(room)).put("userClock", this.userCounterMap.get(room).get(user));
+                    msg.reply(request);
                 }
-                System.out.println("User is allowed to send the message");
-                this.userCounterMap.get(room).computeIfPresent(user, (k, v) -> request.getLong("userClock"));
-                System.out.println("Got user clock");
-                counterMap.computeIfPresent(room, (k, v) -> v + 1);
-                System.out.println("Updated room counter");
-                request.put("globalCounter", counterMap.get(room)).put("userClock", this.userCounterMap.get(room).get(user));
-                msg.reply(request);
             } catch (final NoSuchElementException e) {
                 msg.fail(500, "Could not find room with ID " + roomId);
             }
@@ -237,23 +238,24 @@ final class RoomWorker extends ServiceVerticle {
                 final Optional<User> csUser = csMap.get(room);
 
                 if (csUser.isPresent()) {
-                    throw new IllegalStateException("Critical section is already held by " + csUser.get().getName());
+                    msg.fail(500, "Critical section is already held by " + csUser.get().getName());
+                } else {
+                    csMap.put(room, Optional.of(user));
+                    final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> {
+                        csMap.put(room, Optional.empty());
+                        timerIdMap.put(room, OptionalLong.empty());
+                        checkHealth("webapp", () -> webAppClient.post("/api/messages")
+                                .sendJson(room, ar -> {
+                                    if (ar.succeeded()) {
+                                        System.out.println("Sent timeout expired");
+                                    } else {
+                                        System.err.println("Could not send timeout expired: " + ar.cause().getMessage());
+                                    }
+                                }));
+                    });
+                    timerIdMap.put(room, OptionalLong.of(tid));
+                    msg.reply(new JsonObject());
                 }
-                csMap.put(room, Optional.of(user));
-                final long tid = vertx.setTimer(CRITICAL_SECTION_TIMEOUT, v -> {
-                    csMap.put(room, Optional.empty());
-                    timerIdMap.put(room, OptionalLong.empty());
-                    checkHealth("webapp", () -> webAppClient.post("/api/messages")
-                            .sendJson(room, ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Sent timeout expired");
-                                } else {
-                                    System.err.println("Could not send timeout expired: " + ar.cause().getMessage());
-                                }
-                            }));
-                });
-                timerIdMap.put(room, OptionalLong.of(tid));
-                msg.reply(new JsonObject());
             } catch (final NoSuchElementException e) {
                 msg.fail(500, "Could not find room with ID " + roomId);
             }
@@ -272,7 +274,7 @@ final class RoomWorker extends ServiceVerticle {
                     final User user = repository.findUserById(room, userId).get();
                     final Optional<User> csUserOpt = csMap.get(room);
                     if (!csUserOpt.isPresent()) {
-                        throw new IllegalStateException("Critical section is not held by a user");
+                        msg.fail(500, "Critical section is not held by a user");
                     } else {
                         if (csUserOpt.get().equals(user)) {
                             csMap.put(room, Optional.empty());
