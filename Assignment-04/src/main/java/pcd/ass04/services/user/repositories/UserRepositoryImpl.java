@@ -45,7 +45,7 @@ public class UserRepositoryImpl extends AbstractRepository<User, Long> implement
         Optional<User> userUpdated = write(() -> {
             Optional<User> userToUpdate = findUser(user.getId());
             if (userToUpdate.isPresent()) {
-                userToUpdate.get().setUsername(user.getUsername());
+                userToUpdate.get().setName(user.getName());
                 return userToUpdate;
             } else {
                 return Optional.empty();

@@ -19,7 +19,7 @@ public class RoomRepositoryImpl extends AbstractRepository<Room, Long> implement
 
     @Override
     public Set<Room> findAll() {
-        return read(() -> roomMap.keySet());
+        return read(roomMap::keySet);
     }
 
     @Override
@@ -91,4 +91,5 @@ public class RoomRepositoryImpl extends AbstractRepository<Room, Long> implement
             users.remove(user);
         });
     }
+
 }
