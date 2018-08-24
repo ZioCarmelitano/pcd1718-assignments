@@ -40,7 +40,7 @@ public class InMemoryUserRepository implements UserRepository {
     public synchronized User update(User user) throws UserNotFoundException {
         Optional<User> userToUpdate = findUser(user.getId());
         if (userToUpdate.isPresent()) {
-            userToUpdate.get().setUsername(user.getUsername());
+            userToUpdate.get().setName(user.getName());
             return userToUpdate.get();
         } else {
             throw new UserNotFoundException();

@@ -7,15 +7,15 @@ import java.util.Objects;
 public class User {
 
     private long id;
-    private String username;
+    private String name;
 
-    public User(String username) {
-        this.username = username;
+    public User(String name) {
+        this.name = name;
     }
 
-    public User(long id, String username) {
+    public User(long id, String name) {
         this.id = id;
-        this.username = username;
+        this.name = name;
     }
 
     public long getId() {
@@ -28,26 +28,26 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return id == user.id &&
-                Objects.equals(username, user.username);
+                Objects.equals(name, user.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username);
+        return Objects.hash(id, name);
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getName() {
+        return this.name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public JsonObject toJson() {
         return new JsonObject()
                 .put("id", id)
-                .put("username", username);
+                .put("name", name);
     }
 
     public void setId(long id) {
