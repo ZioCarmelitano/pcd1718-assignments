@@ -35,7 +35,11 @@ public abstract class ServiceVerticle extends AbstractVerticle {
 
     @Override
     public void stop() {
-        records.forEach(this::accept);
+        records.forEach(record -> discovery.unpublish(record.getRegistration(), ar -> {
+            if (ar.succeeded()) {
+                records.remove(record);
+            }
+        }));
         discovery.close();
     }
 
@@ -80,14 +84,6 @@ public abstract class ServiceVerticle extends AbstractVerticle {
         } else {
             vertx.setPeriodic(delay, tidHandler);
         }
-    }
-
-    private void accept(Record record) {
-        discovery.unpublish(record.getRegistration(), ar -> {
-            if (ar.succeeded()) {
-                records.remove(record);
-            }
-        });
     }
 
 }
