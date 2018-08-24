@@ -137,7 +137,7 @@ public final class UserService extends ServiceVerticle {
     private void deployUserWorkers() {
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
-                .setInstances(1);
+                .setInstances(10);
 
         final UserRepository repository = InMemoryUserRepository.getInstance();
 
