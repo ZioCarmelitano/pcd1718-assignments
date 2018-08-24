@@ -110,10 +110,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     private void write(Runnable operation) {
-        write(() -> {
-            operation.run();
-            return null;
-        });
+        Utils.get(writeLock, operation);
     }
 
     private <T> T write(Supplier<? extends T> operation) {
