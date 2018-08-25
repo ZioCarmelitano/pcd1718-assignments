@@ -10,7 +10,7 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
     private final Lock readLock;
     private final Lock writeLock;
 
-    public AbstractRepository() {
+    protected AbstractRepository() {
         final ReadWriteLock rwLock = new ReentrantReadWriteLock(true);
         readLock = rwLock.readLock();
         writeLock = rwLock.writeLock();
