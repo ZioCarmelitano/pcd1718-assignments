@@ -2,29 +2,19 @@ package pcd.ass04.services.room.repository;
 
 import pcd.ass04.services.room.domain.Room;
 import pcd.ass04.services.room.domain.User;
-import pcd.ass04.util.Utils;
+import pcd.ass04.util.AbstractRepository;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Supplier;
 
-public class RoomRepositoryImpl implements RoomRepository {
+public class RoomRepositoryImpl extends AbstractRepository<Room, Long> implements RoomRepository {
 
     private final AtomicLong counter = new AtomicLong(1);
     private final Map<Room, List<User>> roomMap;
 
-    private final Lock readLock;
-    private final Lock writeLock;
-
     public RoomRepositoryImpl() {
+        super();
         roomMap = new HashMap<>();
-
-        final ReadWriteLock rwLock = new ReentrantReadWriteLock();
-        readLock = rwLock.readLock();
-        writeLock = rwLock.writeLock();
     }
 
     @Override
@@ -100,18 +90,6 @@ public class RoomRepositoryImpl implements RoomRepository {
 
             users.remove(user);
         });
-    }
-
-    private <T> T read(Supplier<? extends T> operation) {
-        return Utils.get(readLock, operation);
-    }
-
-    private void write(Runnable operation) {
-        Utils.get(writeLock, operation);
-    }
-
-    private <T> T write(Supplier<? extends T> operation) {
-        return Utils.get(writeLock, operation);
     }
 
 }

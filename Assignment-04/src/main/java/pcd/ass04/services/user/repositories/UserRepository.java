@@ -2,19 +2,20 @@ package pcd.ass04.services.user.repositories;
 
 import pcd.ass04.services.user.model.User;
 import pcd.ass04.services.user.exceptions.UserNotFoundException;
+import pcd.ass04.util.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository {
+public interface UserRepository extends Repository<User, Long> {
 
-    List<User> getAll();
+    List<User> getAllUsers();
 
-    User store(User user);
+    User storeUser(User user);
 
-    Optional<User> get(long userId);
+    Optional<User> getUser(long userId);
 
-    User update(User user) throws UserNotFoundException;
+    User updateUser(User user) throws UserNotFoundException;
 
-    void destroy(long userId) throws UserNotFoundException;
+    Long destroyUser(long userId) throws UserNotFoundException;
 }
