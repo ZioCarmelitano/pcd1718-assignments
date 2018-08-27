@@ -47,10 +47,6 @@ public final class WebAppService extends AbstractVerticle {
     private String host;
     private int port;
 
-    private WebClient roomClient;
-    private WebClient userClient;
-    private WebClient healthCheckClient;
-
     @Override
     public void init(Vertx vertx, Context context) {
         super.init(vertx, context);
@@ -64,9 +60,7 @@ public final class WebAppService extends AbstractVerticle {
     public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
-        getHealthCheckClient();
-        getRoomClient();
-        getUserClient();
+        deployWorkers();
 
         final Router apiRouter = Router.router(vertx);
 
@@ -107,147 +101,41 @@ public final class WebAppService extends AbstractVerticle {
 
             final String type = message.getString("type");
             final JsonObject request = message.getJsonObject("request");
-            final Long roomId = getRoomId(request);
-            final Long userId = getUserId(request);
 
             System.out.println("Request: " + request);
 
             switch (type) {
                 case "newUser":
-                    this.checkHealth("user", () -> userClient.post("/api/users")
-                                .sendJson(request, ar -> {
-                                    if (ar.succeeded()) {
-                                        System.out.println("Message (newUser) sent correctly" + " " + ar.result().bodyAsString());
-                                        final JsonObject response = ar.result().bodyAsJsonObject();
-                                        eventBus.publish(NEW_USER, response);
-                                    } else {
-                                        System.out.println("Error, message (newUser) was not sent correctly");
-                                    }
-                                }));
+                    send(request, Channels.NEW_USER, NEW_USER);
                     break;
                 case "deleteUser":
-                    this.checkHealth("user", () -> userClient.delete("/api/users/" + userId)
-                            .send(ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (deleteUser) sent correctly");
-                                    eventBus.publish(DELETE_USER, request);
-                                } else {
-                                    System.out.println("Error, message (deleteUser) was not sent correctly");
-                                }
-                            }));
-                    break;
+                    send(request, Channels.DELETE_USER, DELETE_USER);
                 case "rooms":
-                    this.checkHealth("room", () -> roomClient.get("/api/rooms")
-                            .send(ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (getRooms) sent correctly");
-                                    final JsonArray response = ar.result().bodyAsJsonArray();
-                                    eventBus.publish(ROOMS, response);
-                                } else {
-                                    System.out.println("Error, message (rooms) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.ROOMS, ROOMS);
                     break;
                 case "newRoom":
-                    this.checkHealth("room", () -> roomClient.post("/api/rooms")
-                            .sendJson(request, ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (newRoom) sent correctly");
-                                    final JsonObject response = ar.result().bodyAsJsonObject();
-                                    System.out.println("response: " + response);
-                                    eventBus.publish(NEW_ROOM, response);
-                                } else {
-                                    System.out.println("Error, message (newRoom) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.NEW_ROOM, NEW_ROOM);
                     break;
                 case "getRoom":
-                    this.checkHealth("room", () -> roomClient.get("/api/rooms/" + roomId)
-                            .send(ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (getRoom) sent correctly");
-                                    final JsonObject response = ar.result().bodyAsJsonObject();
-                                    eventBus.publish(GET_ROOM, response);
-                                } else {
-                                    System.out.println("Error, message (getRoom) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.ROOM, GET_ROOM);
                     break;
                 case "deleteRoom":
-                    this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId)
-                            .send(ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (deleteRoom) sent correctly");
-                                    eventBus.publish(DELETE_ROOM, request);
-                                } else {
-                                    System.out.println("Error, message (deleteRoom) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.DELETE_ROOM, DELETE_ROOM);
                     break;
                 case "joinRoom":
-                    this.checkHealth("room", () -> roomClient.post("/api/rooms/" + roomId + "/join")
-                            .sendJson(request.getJsonObject("user"), ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (joinRoom) sent correctly");
-                                    eventBus.publish(JOIN_ROOM, request.mergeIn(ar.result().bodyAsJsonObject()));
-                                } else {
-                                    System.out.println("Error, message (addUserToRoom) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.JOIN, JOIN_ROOM);
                     break;
                 case "leaveRoom":
-                    this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId + "/leave/" + userId)
-                            .send(ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (exitUserFromRoom) sent correctly");
-                                    eventBus.publish(LEAVE_ROOM, request);
-                                } else {
-                                    System.out.println("Error, message (exitUserFromRoom) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.LEAVE, LEAVE_ROOM);
                     break;
                 case "newMessage":
-                    roomClient.post("/api/rooms/" + roomId + "/messages")
-                            .sendJson(request, ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (saveMessageInRoom) sent correctly");
-                                    System.out.println("Response: " + ar.result().bodyAsString());
-                                    eventBus.publish(NEW_MESSAGE, ar.result().bodyAsJsonObject()
-                                            .put("user", request.getJsonObject("user"))
-                                            .put("room", request.getJsonObject("room")));
-                                } else {
-                                    System.out.println("Error, message (saveMessageInRoom) was not sent correctly");
-                                }
-                            });
+                    send(request, Channels.MESSAGES, NEW_MESSAGE);
                     break;
                 case "enterCS":
-                    this.checkHealth("room", () -> roomClient.post("/api/rooms/" + roomId + "/cs/enter")
-                            .sendJson(request.getJsonObject("user"), ar -> {
-                                if (ar.succeeded()) {
-                                    System.out.println("Message (enterCriticalSection) sent correctly");
-                                    final JsonObject response = ar.result().bodyAsJsonObject();
-                                    if (response != null)
-                                        request.mergeIn(response);
-                                    System.out.println("Response: " + request);
-                                    eventBus.publish(ENTER_CS, request);
-                                } else {
-                                    System.out.println("Error, message (enterCriticalSection) was not sent correctly");
-                                }
-                            }));
+                    send(request, Channels.ENTERCS, ENTER_CS);
                     break;
                 case "exitCS":
-                    this.checkHealth("room", () -> roomClient.delete("/api/rooms/" + roomId + "/cs/exit/" + userId).send(ar -> {
-                        if (ar.succeeded()) {
-                            System.out.println("Message (exitCriticalSection) sent correctly");
-                            final JsonObject response = ar.result().bodyAsJsonObject();
-                            if (response != null)
-                                request.mergeIn(response);
-                            System.out.println("Response: " + request);
-                            eventBus.publish(EXIT_CS, request);
-                        } else {
-                            System.out.println("Error, message (exitCriticalSection) was not sent correctly");
-                        }
-                    }));
+                    send(request, Channels.EXITCS, EXIT_CS);
                     break;
                 default:
                     System.out.println("The type of the message (" + message.getString("type") + ") has not been recognized");
@@ -273,6 +161,26 @@ public final class WebAppService extends AbstractVerticle {
                 });
     }
 
+    private void send(JsonObject request, String requestChannel, String responseChannel) {
+        eventBus.send(requestChannel, request, ar -> {
+            if (ar.succeeded()) {
+                final Object response = ar.result().body();
+                System.out.println("Response: " + response);
+                eventBus.publish(responseChannel, response);
+            } else {
+                System.out.println("Error: " + ar.cause().getMessage());
+            }
+        });
+    }
+
+    private void deployWorkers() {
+        final DeploymentOptions options = new DeploymentOptions()
+                .setWorker(true)
+                .setInstances(10);
+
+        vertx.deployVerticle(() -> new WebAppWorker(), options);
+    }
+
     @Override
     public void stop() {
         discovery.unpublish(record.getRegistration(),
@@ -290,34 +198,6 @@ public final class WebAppService extends AbstractVerticle {
         eventBus.publish(TIMEOUT_EXPIRED, ctx.getBodyAsJson());
         ctx.response().end();
         System.out.println("Timeout expired");
-    }
-
-    private static Long getRoomId(JsonObject request) {
-        if (request != null) {
-            if (request.containsKey("roomId")) {
-                return request.getLong("roomId");
-            } else if (request.containsKey("room")) {
-                final JsonObject room = request.getJsonObject("room");
-                if (room.containsKey("id")) {
-                    return room.getLong("id");
-                }
-            }
-        }
-        return null;
-    }
-
-    private static Long getUserId(JsonObject request) {
-        if (request != null) {
-            if (request.containsKey("userId")) {
-                return request.getLong("userId");
-            } else if (request.containsKey("user")) {
-                final JsonObject user = request.getJsonObject("user");
-                if (user.containsKey("id")) {
-                    return user.getLong("id");
-                }
-            }
-        }
-        return null;
     }
 
     private SockJSHandler sockJSHandler() {
@@ -342,47 +222,4 @@ public final class WebAppService extends AbstractVerticle {
         return SockJSHandler.create(vertx).bridge(opts);
     }
 
-    private void getRoomClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "room-service"), ar -> {
-            if (ar.succeeded()) {
-                roomClient = ar.result();
-                System.out.println("Got room WebClient");
-            } else {
-                System.err.println("Could not retrieve room client: " + ar.cause().getMessage());
-            }
-        });
-    }
-
-    private void getUserClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "user-service"), ar -> {
-            if (ar.succeeded()) {
-                userClient = ar.result();
-                System.out.println("Got user WebClient");
-            } else {
-                System.err.println("Could not retrieve user client: " + ar.cause().getMessage());
-            }
-        });
-    }
-
-    private void getHealthCheckClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
-            if (ar.succeeded()) {
-                healthCheckClient = ar.result();
-                System.out.println("Got healthcheck WebClient");
-            } else {
-                System.err.println("Could not retrieve healthcheck client: " + ar.cause().getMessage());
-            }
-        });
-    }
-
-    private void checkHealth(String serviceName, Runnable successBlock) {
-        healthCheckClient.get("/health/" + serviceName)
-                .send(ar -> {
-                    if (ar.succeeded() && ar.result().statusCode() == 200) {
-                        successBlock.run();
-                    } else {
-                        throw new RuntimeException(serviceName + " service is not available!");
-                    }
-                });
-    }
 }
