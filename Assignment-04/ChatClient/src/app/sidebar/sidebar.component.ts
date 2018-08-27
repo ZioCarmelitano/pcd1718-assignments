@@ -42,6 +42,7 @@ export class SidebarComponent implements OnInit {
   exit() {
     this.service.sendLeaveRoom();
     this.service.sendDeleteUser();
+    this.service.sendExitCS();
   }
 
 }
