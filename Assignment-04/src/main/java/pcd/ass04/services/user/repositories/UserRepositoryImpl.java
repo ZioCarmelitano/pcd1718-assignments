@@ -44,36 +44,21 @@ public class UserRepositoryImpl extends AbstractRepository<User, Long> implement
     public User updateUser(User user) throws UserNotFoundException {
         Optional<User> userUpdated = write(() -> {
             Optional<User> userToUpdate = findUser(user.getId());
-            if (userToUpdate.isPresent()) {
-                userToUpdate.get().setName(user.getName());
-                return userToUpdate;
-            } else {
-                return Optional.empty();
-            }
+            userToUpdate.ifPresent(u -> u.setName(user.getName()));
+            return userToUpdate;
         });
-        if (userUpdated.isPresent()) {
-            return userUpdated.get();
-        } else {
-            throw new UserNotFoundException();
-        }
+        return userUpdated.orElseThrow(UserNotFoundException::new);
     }
 
     @Override
     public Long destroyUser(long userId) throws UserNotFoundException {
         Optional<User> userFound = write(() -> {
             Optional<User> userToUpdate = findUser(userId);
-            if (userToUpdate.isPresent()) {
-                this.users.remove(userToUpdate.get());
-                return userToUpdate;
-            } else {
-                return Optional.empty();
-            }
+            userToUpdate.ifPresent(this.users::remove);
+            return userToUpdate;
         });
-        if (userFound.isPresent()) {
-            return userFound.get().getId();
-        } else {
-            throw new UserNotFoundException();
-        }
+        return userFound.map(User::getId)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     @Override
