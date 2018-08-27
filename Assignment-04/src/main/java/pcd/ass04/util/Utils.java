@@ -3,7 +3,7 @@ package pcd.ass04.util;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Supplier;
 
-public final class Utils {
+final class Utils {
 
     public static void get(Lock lock, Runnable operation) {
         get(lock, () -> {

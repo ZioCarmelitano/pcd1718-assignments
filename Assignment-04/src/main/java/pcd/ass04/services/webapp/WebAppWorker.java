@@ -1,10 +1,8 @@
 package pcd.ass04.services.webapp;
 
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import pcd.ass04.ServiceVerticle;
 
 import static pcd.ass04.services.webapp.Channels.*;
@@ -17,8 +15,6 @@ final class WebAppWorker extends ServiceVerticle {
 
     @Override
     public void start() throws Exception {
-
-        final EventBus eventBus = vertx.eventBus();
 
         getRoomClient();
         getUserClient();
