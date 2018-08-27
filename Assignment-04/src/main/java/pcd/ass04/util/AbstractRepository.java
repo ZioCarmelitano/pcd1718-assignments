@@ -16,7 +16,7 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
         writeLock = rwLock.writeLock();
     }
 
-    protected <T> T read(Supplier<? extends T> operation) {
+    protected <U> U read(Supplier<? extends U> operation) {
         return Utils.get(readLock, operation);
     }
 
@@ -27,7 +27,8 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
         });
     }
 
-    protected <T> T write(Supplier<? extends T> operation) {
+    protected <U> U write(Supplier<? extends U> operation) {
         return Utils.get(writeLock, operation);
     }
+
 }
