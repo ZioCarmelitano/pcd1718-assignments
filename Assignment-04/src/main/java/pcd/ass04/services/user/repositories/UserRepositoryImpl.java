@@ -77,12 +77,11 @@ public class UserRepositoryImpl extends AbstractRepository<User, Long> implement
     }
 
     @Override
-    public Long deleteById(Long userId) {
+    public void deleteById(Long userId) {
         try {
-            return destroyUser(userId);
+            destroyUser(userId);
         } catch (UserNotFoundException e) {
             e.printStackTrace();
-            return 0L;
         }
     }
 
