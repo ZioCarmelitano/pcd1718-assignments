@@ -1,19 +1,13 @@
 package pcd.ass04.services.webapp;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.servicediscovery.ServiceDiscovery;
+import pcd.ass04.ServiceVerticle;
 
 import static pcd.ass04.services.webapp.Channels.*;
-import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
-final class WebAppWorker extends AbstractVerticle {
-
-    private ServiceDiscovery discovery;
+final class WebAppWorker extends ServiceVerticle {
 
     private WebClient roomClient;
     private WebClient userClient;
@@ -21,9 +15,6 @@ final class WebAppWorker extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        discovery = ServiceDiscovery.create(vertx);
-
-        final EventBus eventBus = vertx.eventBus();
 
         getRoomClient();
         getUserClient();
@@ -235,7 +226,7 @@ final class WebAppWorker extends AbstractVerticle {
     }
 
     private void getRoomClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "room-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "room-service"), ar -> {
             if (ar.succeeded()) {
                 roomClient = ar.result();
                 System.out.println("Got room WebClient");
@@ -246,7 +237,7 @@ final class WebAppWorker extends AbstractVerticle {
     }
 
     private void getUserClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "user-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "user-service"), ar -> {
             if (ar.succeeded()) {
                 userClient = ar.result();
                 System.out.println("Got user WebClient");
@@ -257,7 +248,7 @@ final class WebAppWorker extends AbstractVerticle {
     }
 
     private void getHealthCheckClient() {
-        getWebClient(vertx, discovery, 10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
+        getWebClient(10_000, new JsonObject().put("name", "healthcheck-service"), ar -> {
             if (ar.succeeded()) {
                 healthCheckClient = ar.result();
                 System.out.println("Got healthcheck WebClient");
