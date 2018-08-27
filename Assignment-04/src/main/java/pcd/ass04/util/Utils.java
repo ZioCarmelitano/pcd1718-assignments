@@ -12,6 +12,13 @@ final class Utils {
         });
     }
 
+    public static void get(Lock lock, Runnable operation) {
+        get(lock, () -> {
+            operation.run();
+            return null;
+        });
+    }
+
     public static <T> T get(Lock lock, Supplier<? extends T> operation) {
         try {
             lock.lock();
