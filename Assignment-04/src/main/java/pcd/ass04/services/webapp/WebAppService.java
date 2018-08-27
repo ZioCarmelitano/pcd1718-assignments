@@ -18,11 +18,12 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
+import pcd.ass04.ServiceVerticle;
 
 import static io.vertx.core.http.HttpMethod.*;
 import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
-public final class WebAppService extends AbstractVerticle {
+public final class WebAppService extends ServiceVerticle {
 
     private static final String CHAT_TO_SERVER = "chat.to.server";
     private static final String CHAT_TO_CLIENT = "chat.to.client";
@@ -40,10 +41,6 @@ public final class WebAppService extends AbstractVerticle {
     private static final String EXIT_CS = CHAT_TO_CLIENT + ".exitCS";
     private static final String TIMEOUT_EXPIRED = CHAT_TO_CLIENT + ".timeoutExpired";
 
-    private ServiceDiscovery discovery;
-    private Record record;
-    private EventBus eventBus;
-
     private String host;
     private int port;
 
@@ -58,7 +55,6 @@ public final class WebAppService extends AbstractVerticle {
 
     @Override
     public void start() {
-        discovery = ServiceDiscovery.create(vertx);
 
         deployWorkers();
 
@@ -93,8 +89,6 @@ public final class WebAppService extends AbstractVerticle {
         router.get("/health*")
                 .produces("application/json")
                 .handler(healthCheckHandler);
-
-        eventBus = vertx.eventBus();
 
         eventBus.<JsonObject>consumer(CHAT_TO_SERVER, msg -> {
             final JsonObject message = msg.body();
@@ -147,9 +141,9 @@ public final class WebAppService extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(port, host, ar -> {
                     if (ar.succeeded()) {
-                        discovery.publish(HttpEndpoint.createRecord("webapp-service", host, port, "/"), ar1 -> {
+                        publishRecord(HttpEndpoint.createRecord("webapp-service", host, port, "/"), ar1 -> {
                             if (ar1.succeeded()) {
-                                record = ar1.result();
+                                System.out.println("Record published with success!");
                             } else {
                                 System.err.println("Could not publish record: " + ar1.cause().getMessage());
                             }
@@ -179,19 +173,6 @@ public final class WebAppService extends AbstractVerticle {
                 .setInstances(10);
 
         vertx.deployVerticle(() -> new WebAppWorker(), options);
-    }
-
-    @Override
-    public void stop() {
-        discovery.unpublish(record.getRegistration(),
-                ar -> {
-                    if (ar.succeeded()) {
-                        System.out.println("Record " + record.getName() + " withdrawn successfully");
-                    } else {
-                        System.out.println("Could not withdraw record " + record.getName());
-                    }
-                });
-        discovery.close();
     }
 
     private void messages(RoutingContext ctx) {
