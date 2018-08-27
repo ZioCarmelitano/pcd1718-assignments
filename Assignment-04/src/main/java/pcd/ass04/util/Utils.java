@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 final class Utils {
 
-    public static void get(Lock lock, Runnable operation) {
+    public static void run(Lock lock, Runnable operation) {
         get(lock, () -> {
             operation.run();
             return null;

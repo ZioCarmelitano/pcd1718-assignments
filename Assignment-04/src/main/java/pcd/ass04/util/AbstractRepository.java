@@ -21,10 +21,7 @@ public abstract class AbstractRepository<T, ID> implements Repository<T, ID> {
     }
 
     protected void write(Runnable operation) {
-        write(() -> {
-            operation.run();
-            return null;
-        });
+        Utils.run(writeLock, operation);
     }
 
     protected <U> U write(Supplier<? extends U> operation) {
