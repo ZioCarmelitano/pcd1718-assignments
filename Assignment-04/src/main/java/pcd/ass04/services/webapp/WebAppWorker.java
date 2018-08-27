@@ -2,7 +2,6 @@ package pcd.ass04.services.webapp;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -20,7 +19,7 @@ final class WebAppWorker extends AbstractVerticle {
     private WebClient healthCheckClient;
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         discovery = ServiceDiscovery.create(vertx);
 
         final EventBus eventBus = vertx.eventBus();
@@ -29,18 +28,16 @@ final class WebAppWorker extends AbstractVerticle {
         getUserClient();
         getHealthCheckClient();
 
-        eventBus.<JsonObject>consumer(NEW_USER, msg -> {
-            this.checkHealth("user", () -> userClient.post("/api/users")
-                    .sendJson(msg.body(), ar -> {
-                        if (ar.succeeded()) {
-                            System.out.println("Message (newUser) sent correctly" + " " + ar.result().bodyAsString());
-                            final JsonObject response = ar.result().bodyAsJsonObject();
-                            msg.reply(response);
-                        } else {
-                            System.out.println("Error, message (newUser) was not sent correctly");
-                        }
-                    }));
-        });
+        eventBus.<JsonObject>consumer(NEW_USER, msg -> this.checkHealth("user", () -> userClient.post("/api/users")
+                .sendJson(msg.body(), ar -> {
+                    if (ar.succeeded()) {
+                        System.out.println("Message (newUser) sent correctly" + " " + ar.result().bodyAsString());
+                        final JsonObject response = ar.result().bodyAsJsonObject();
+                        msg.reply(response);
+                    } else {
+                        System.out.println("Error, message (newUser) was not sent correctly");
+                    }
+                })));
 
         eventBus.<JsonObject>consumer(DELETE_USER, msg -> {
             final JsonObject request = msg.body();
@@ -57,32 +54,28 @@ final class WebAppWorker extends AbstractVerticle {
                     }));
         });
 
-        eventBus.<JsonObject>consumer(ROOMS, msg -> {
-            this.checkHealth("room", () -> roomClient.get("/api/rooms")
-                    .send(ar -> {
-                        if (ar.succeeded()) {
-                            System.out.println("Message (getRooms) sent correctly");
-                            final JsonArray response = ar.result().bodyAsJsonArray();
-                            msg.reply(response);
-                        } else {
-                            System.out.println("Error, message (rooms) was not sent correctly");
-                        }
-                    }));
-        });
+        eventBus.<JsonObject>consumer(ROOMS, msg -> this.checkHealth("room", () -> roomClient.get("/api/rooms")
+                .send(ar -> {
+                    if (ar.succeeded()) {
+                        System.out.println("Message (getRooms) sent correctly");
+                        final JsonArray response = ar.result().bodyAsJsonArray();
+                        msg.reply(response);
+                    } else {
+                        System.out.println("Error, message (rooms) was not sent correctly");
+                    }
+                })));
 
-        eventBus.<JsonObject>consumer(NEW_ROOM, msg -> {
-            this.checkHealth("room", () -> roomClient.post("/api/rooms")
-                    .sendJson(msg.body(), ar -> {
-                        if (ar.succeeded()) {
-                            final JsonObject response = ar.result().bodyAsJsonObject();
-                            System.out.println("Message (newRoom) sent correctly");
-                            System.out.println("Response: " + response);
-                            msg.reply(response);
-                        } else {
-                            System.out.println("Error, message (newRoom) was not sent correctly");
-                        }
-                    }));
-        });
+        eventBus.<JsonObject>consumer(NEW_ROOM, msg -> this.checkHealth("room", () -> roomClient.post("/api/rooms")
+                .sendJson(msg.body(), ar -> {
+                    if (ar.succeeded()) {
+                        final JsonObject response = ar.result().bodyAsJsonObject();
+                        System.out.println("Message (newRoom) sent correctly");
+                        System.out.println("Response: " + response);
+                        msg.reply(response);
+                    } else {
+                        System.out.println("Error, message (newRoom) was not sent correctly");
+                    }
+                })));
 
         eventBus.<JsonObject>consumer(ROOM, msg -> {
             final JsonObject request = msg.body();
