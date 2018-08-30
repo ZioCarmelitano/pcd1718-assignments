@@ -1,27 +1,23 @@
 package pcd.ass04.services.webapp;
 
-import io.vertx.core.*;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.JsonArray;
+import io.vertx.core.Context;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import pcd.ass04.ServiceVerticle;
 
 import static io.vertx.core.http.HttpMethod.*;
-import static pcd.ass04.util.ServiceDiscoveryUtils.getWebClient;
 
 public final class WebAppService extends ServiceVerticle {
 
@@ -171,8 +167,7 @@ public final class WebAppService extends ServiceVerticle {
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
                 .setInstances(10);
-
-        vertx.deployVerticle(() -> new WebAppWorker(), options);
+        vertx.deployVerticle(WebAppWorker::new, options);
     }
 
     private void messages(RoutingContext ctx) {

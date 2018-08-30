@@ -18,8 +18,8 @@ public class RoomRepositoryImpl extends AbstractRepository<Room, Long> implement
     }
 
     @Override
-    public Set<Room> findAll() {
-        return read(roomMap::keySet);
+    public List<Room> findAll() {
+        return new ArrayList<>(read(roomMap::keySet));
     }
 
     @Override
@@ -47,8 +47,8 @@ public class RoomRepositoryImpl extends AbstractRepository<Room, Long> implement
     }
 
     @Override
-    public Long deleteById(Long id) {
-        return write(() -> {
+    public void deleteById(Long id) {
+        write(() -> {
             final Room room = findById(id).get();
             roomMap.remove(room);
             return room.getId();
