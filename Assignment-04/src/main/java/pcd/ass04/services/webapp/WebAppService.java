@@ -167,7 +167,6 @@ public final class WebAppService extends ServiceVerticle {
         final DeploymentOptions options = new DeploymentOptions()
                 .setWorker(true)
                 .setInstances(10);
-
         vertx.deployVerticle(WebAppWorker::new, options);
     }
 

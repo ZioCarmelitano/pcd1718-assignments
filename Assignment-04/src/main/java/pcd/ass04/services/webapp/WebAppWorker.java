@@ -205,6 +205,7 @@ final class WebAppWorker extends ServiceVerticle {
         }
         return null;
     }
+
     private static Long getUserId(JsonObject request) {
         if (request != null) {
             if (request.containsKey("userId")) {
